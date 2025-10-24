@@ -45,10 +45,10 @@ export function HistoryLog({ chronologicalHistory }) {
                             const isPending = unit.sessions.length === 1;
 
                             let timeSinceLastFeed = '';
-                            if (idx > 0) {
-                                const prevUnit = units[idx - 1];
-                                const prevEndTime = new Date(prevUnit.endTime);
-                                const diffMs = startTime - prevEndTime;
+                            if (idx < units.length - 1) {
+                                const previousUnit = units[idx + 1];
+                                const previousEndTime = new Date(previousUnit.endTime);
+                                const diffMs = Math.max(0, startTime - previousEndTime);
                                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                                 const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
                                 timeSinceLastFeed = `(${diffHours}h ${diffMins}m)`;

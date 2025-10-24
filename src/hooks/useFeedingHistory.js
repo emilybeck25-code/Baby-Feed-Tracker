@@ -53,7 +53,7 @@ export function useFeedingHistory() {
     }, []);
 
     const lastFeedTime = history.length > 0 ? history[0].endTime : null;
-    const chronologicalHistory = useMemo(() => [...history].reverse(), [history]);
+    const chronologicalHistory = useMemo(() => [...history], [history]);
 
     return { history, addFeed, clearHistory, lastFeedTime, chronologicalHistory };
 }
