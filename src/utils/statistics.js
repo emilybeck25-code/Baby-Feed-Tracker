@@ -31,7 +31,7 @@ export function calculateMonthlyStats(history, currentMonth, currentYear) {
     });
 
     if (monthFeeds.length === 0) {
-        return { totalFeeds: 0, avgFeedsPerDay: 0 };
+        return { totalFeeds: 0, avgFeedsPerDay: 0, dailyTotals: [] };
     }
 
     const totalFeeds = monthFeeds.length;
@@ -41,5 +41,21 @@ export function calculateMonthlyStats(history, currentMonth, currentYear) {
     })).size;
     const avgFeedsPerDay = (totalFeeds / uniqueDays).toFixed(1);
 
-    return { totalFeeds, avgFeedsPerDay };
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const dailyTotals = Array.from({ length: daysInMonth }, (_, index) => ({
+        day: index + 1,
+        feedCount: 0,
+        totalDurationSeconds: 0
+    }));
+
+    monthFeeds.forEach(unit => {
+        const feedDate = new Date(unit.endTime);
+        const dayIndex = feedDate.getDate() - 1;
+        const totalDuration = unit.sessions.reduce((sum, session) => sum + session.duration, 0);
+
+        dailyTotals[dayIndex].feedCount += 1;
+        dailyTotals[dayIndex].totalDurationSeconds += totalDuration;
+    });
+
+    return { totalFeeds, avgFeedsPerDay, dailyTotals };
 }
