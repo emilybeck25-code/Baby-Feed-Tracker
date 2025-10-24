@@ -1,0 +1,9 @@
+{
+  "name": "baby-feed-tracker",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node test.js"
+  }
+}

@@ -216,6 +216,52 @@
         }
 
         // ============================================
+        // COMPONENTS - LastFeedElapsed
+        // ============================================
+        function LastFeedElapsed({ lastFeedTime }) {
+            const [elapsedMs, setElapsedMs] = useState(() => lastFeedTime ? Date.now() - lastFeedTime : 0);
+
+            useEffect(() => {
+                if (!lastFeedTime) return;
+
+                const updateElapsed = () => {
+                    setElapsedMs(Date.now() - lastFeedTime);
+                };
+
+                updateElapsed();
+                const interval = setInterval(updateElapsed, 1000);
+
+                return () => clearInterval(interval);
+            }, [lastFeedTime]);
+
+            if (!lastFeedTime) {
+                return null;
+            }
+
+            const totalMinutes = Math.max(0, Math.floor(elapsedMs / 60000));
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+
+            let formatted;
+            if (hours > 0) {
+                const hourLabel = hours === 1 ? 'hr' : 'hrs';
+                const minuteLabel = minutes === 1 ? 'min' : 'mins';
+                const minuteValue = String(minutes).padStart(2, '0');
+                formatted = `${hours} ${hourLabel} ${minuteValue} ${minuteLabel}`;
+            } else {
+                const minuteLabel = totalMinutes === 1 ? 'min' : 'mins';
+                formatted = `${totalMinutes} ${minuteLabel}`;
+            }
+
+            return (
+                <div className="flex flex-col items-center gap-1 mb-6">
+                    <div className="text-4xl font-semibold text-slate-900 tracking-tight">{formatted}</div>
+                    <div className="text-sm uppercase tracking-[0.3em] text-violet-500">since last feed</div>
+                </div>
+            );
+        }
+
+        // ============================================
         // COMPONENTS - StatCard
         // ============================================
         function StatCard({ title, value }) {
@@ -311,7 +357,7 @@
         // ============================================
         // PAGES - TrackerPage
         // ============================================
-        function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, clearHistory, chronologicalHistory }) {
+        function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, clearHistory, chronologicalHistory, lastFeedTime }) {
             const handleButtonClick = (side) => {
                 if (activeSide === null) {
                     startTimer(side);
@@ -325,7 +371,10 @@
                 <div className="flex flex-col h-full">
                     <div className="p-6 text-center">
                         {activeSide === null ? (
-                            <div className="text-slate-500 text-lg">Tap L or R to start a feed</div>
+                            <>
+                                <LastFeedElapsed lastFeedTime={lastFeedTime} />
+                                <div className="text-slate-500 text-lg">Tap L or R to start a feed</div>
+                            </>
                         ) : (
                             <>
                                 <div className="text-slate-600 mb-2">Feeding on {activeSide} side</div>
@@ -574,6 +623,7 @@
                                 addFeed={addFeed}
                                 clearHistory={clearHistory}
                                 chronologicalHistory={chronologicalHistory}
+                                lastFeedTime={lastFeedTime}
                             />
                         );
                     case 'Daily':
