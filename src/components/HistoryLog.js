@@ -1,3 +1,4 @@
+import React from 'react';
 import { FeedingSide } from '../utils/constants.js';
 import { formatTime } from '../utils/timeFormatting.js';
 import { TimerDisplay } from './TimerDisplay.js';

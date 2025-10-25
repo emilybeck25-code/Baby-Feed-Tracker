@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function NotificationsPage({ lastFeedTime }) {
     const { useState } = React;
     const [permission, setPermission] = useState(Notification.permission);

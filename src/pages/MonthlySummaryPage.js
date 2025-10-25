@@ -1,3 +1,4 @@
+import React from 'react';
 import { calculateMonthlyStats } from '../utils/statistics.js';
 import { StatCard } from '../components/StatCard.js';
 import { MiniBarChart } from '../components/MiniBarChart.js';

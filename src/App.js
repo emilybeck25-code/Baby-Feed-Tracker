@@ -1,3 +1,4 @@
+import React from 'react';
 import { useTimer } from './hooks/useTimer.js';
 import { useFeedingHistory } from './hooks/useFeedingHistory.js';
 import { TrackerPage } from './pages/TrackerPage.js';

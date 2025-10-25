@@ -1,3 +1,4 @@
+import React from 'react';
 import { FeedingSide, TEN_MINUTES_MS } from '../utils/constants.js';
 import { addFeedLogic } from '../utils/feedLogic.js';
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import { FeedingSide } from '../utils/constants.js';
 import { TimerDisplay } from '../components/TimerDisplay.js';
 import { HistoryLog } from '../components/HistoryLog.js';
