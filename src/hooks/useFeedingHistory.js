@@ -17,6 +17,10 @@ export function useFeedingHistory() {
         setHistory(prevHistory => addFeedLogic(prevHistory, newSingleFeed));
     }, []);
 
+    const deleteFeed = useCallback((unitId) => {
+        setHistory(prevHistory => prevHistory.filter(unit => unit.id !== unitId));
+    }, []);
+
     // Auto-completion logic
     useEffect(() => {
         if (history.length === 0) return;
@@ -55,5 +59,5 @@ export function useFeedingHistory() {
     const lastFeedTime = history.length > 0 ? history[0].endTime : null;
     const chronologicalHistory = useMemo(() => [...history], [history]);
 
-    return { history, addFeed, clearHistory, lastFeedTime, chronologicalHistory };
+    return { history, addFeed, deleteFeed, clearHistory, lastFeedTime, chronologicalHistory };
 }

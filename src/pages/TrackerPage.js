@@ -2,7 +2,7 @@ import { FeedingSide } from '../utils/constants.js';
 import { TimerDisplay } from '../components/TimerDisplay.js';
 import { HistoryLog } from '../components/HistoryLog.js';
 
-export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, clearHistory, chronologicalHistory }) {
+export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, deleteFeed, clearHistory, chronologicalHistory }) {
     const handleButtonClick = (side) => {
         if (activeSide === null) {
             startTimer(side);
@@ -44,7 +44,7 @@ export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFe
 
             {/* History Log - Scrollable */}
             <div className="flex-grow overflow-y-auto px-4 pb-4">
-                <HistoryLog chronologicalHistory={chronologicalHistory} />
+                <HistoryLog chronologicalHistory={chronologicalHistory} onDelete={deleteFeed} />
             </div>
 
             {/* Action Buttons */}

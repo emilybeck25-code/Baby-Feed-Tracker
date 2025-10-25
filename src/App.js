@@ -9,7 +9,7 @@ export function App() {
     const { useState, useEffect } = React;
     const [currentPage, setCurrentPage] = useState('Tracker');
     const { activeSide, duration, startTimer, stopTimer } = useTimer();
-    const { history, addFeed, clearHistory, lastFeedTime, chronologicalHistory } = useFeedingHistory();
+    const { history, addFeed, deleteFeed, clearHistory, lastFeedTime, chronologicalHistory } = useFeedingHistory();
 
     useEffect(() => {
         if ('serviceWorker' in navigator) {
@@ -27,6 +27,7 @@ export function App() {
                         startTimer={startTimer}
                         stopTimer={stopTimer}
                         addFeed={addFeed}
+                        deleteFeed={deleteFeed}
                         clearHistory={clearHistory}
                         chronologicalHistory={chronologicalHistory}
                     />
