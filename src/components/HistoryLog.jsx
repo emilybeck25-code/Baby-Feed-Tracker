@@ -104,16 +104,6 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                             const endTime = new Date(unit.endTime);
                             const isPending = unit.sessions.length === 1;
 
-                            let timeSinceLastFeed = '';
-                            if (idx < units.length - 1) {
-                                const previousUnit = units[idx + 1];
-                                const previousEndTime = new Date(previousUnit.endTime);
-                                const diffMs = Math.max(0, startTime - previousEndTime);
-                                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                                const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                                timeSinceLastFeed = `(${diffHours}h ${diffMins}m)`;
-                            }
-
                             return (
                                 <div key={unit.id} className="relative overflow-hidden rounded-md">
                                     <button
@@ -137,7 +127,6 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                             {formatTime(startTime)}
                                             {!isPending && <> - {formatTime(endTime)}</>}
                                             {isPending && <span className="ml-2 text-rose-500">- Pending...</span>}
-                                            {timeSinceLastFeed && <span className="ml-2 text-slate-400">{timeSinceLastFeed}</span>}
                                         </div>
                                         <div className="flex gap-2 mt-2 pb-3">
                                             {unit.sessions.map((session, i) => (
