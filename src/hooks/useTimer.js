@@ -1,7 +1,6 @@
-import React from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function useTimer() {
-    const { useState, useEffect, useCallback } = React;
     const [activeSide, setActiveSide] = useState(null);
     const [duration, setDuration] = useState(0);
 

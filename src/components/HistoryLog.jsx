@@ -1,10 +1,9 @@
-import React from 'react';
-import { FeedingSide } from '../utils/constants.js';
-import { formatTime } from '../utils/timeFormatting.js';
-import { TimerDisplay } from './TimerDisplay.js';
+import { useState, useRef, useEffect } from 'react';
+import { FeedingSide } from '../utils/constants';
+import { formatTime } from '../utils/timeFormatting';
+import { TimerDisplay } from './TimerDisplay';
 
 export function HistoryLog({ chronologicalHistory, onDelete }) {
-    const { useState, useRef, useEffect } = React;
     const [openItemId, setOpenItemId] = useState(null);
     const touchStartXRef = useRef(0);
     const pointerItemRef = useRef(null);

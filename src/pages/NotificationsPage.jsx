@@ -1,7 +1,6 @@
-import React from 'react';
+import { useState } from 'react';
 
 export function NotificationsPage({ lastFeedTime }) {
-    const { useState } = React;
     const [permission, setPermission] = useState(Notification.permission);
     const [hours, setHours] = useState(3);
     const [minutes, setMinutes] = useState(0);

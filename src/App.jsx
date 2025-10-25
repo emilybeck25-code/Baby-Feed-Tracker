@@ -1,22 +1,15 @@
-import React from 'react';
-import { useTimer } from './hooks/useTimer.js';
-import { useFeedingHistory } from './hooks/useFeedingHistory.js';
-import { TrackerPage } from './pages/TrackerPage.js';
-import { DailySummaryPage } from './pages/DailySummaryPage.js';
-import { MonthlySummaryPage } from './pages/MonthlySummaryPage.js';
-import { NotificationsPage } from './pages/NotificationsPage.js';
+import { useState } from 'react';
+import { useTimer } from './hooks/useTimer';
+import { useFeedingHistory } from './hooks/useFeedingHistory';
+import { TrackerPage } from './pages/TrackerPage';
+import { DailySummaryPage } from './pages/DailySummaryPage';
+import { MonthlySummaryPage } from './pages/MonthlySummaryPage';
+import { NotificationsPage } from './pages/NotificationsPage';
 
 export function App() {
-    const { useState, useEffect } = React;
     const [currentPage, setCurrentPage] = useState('Tracker');
     const { activeSide, duration, startTimer, stopTimer } = useTimer();
     const { history, addFeed, deleteFeed, clearHistory, lastFeedTime, chronologicalHistory } = useFeedingHistory();
-
-    useEffect(() => {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    }, []);
 
     const renderPage = () => {
         switch (currentPage) {

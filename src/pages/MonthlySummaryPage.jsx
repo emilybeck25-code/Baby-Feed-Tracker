@@ -1,7 +1,6 @@
-import React from 'react';
-import { calculateMonthlyStats } from '../utils/statistics.js';
-import { StatCard } from '../components/StatCard.js';
-import { MiniBarChart } from '../components/MiniBarChart.js';
+import { calculateMonthlyStats } from '../utils/statistics';
+import { StatCard } from '../components/StatCard';
+import { MiniBarChart } from '../components/MiniBarChart';
 
 export function MonthlySummaryPage({ history }) {
     const now = new Date();

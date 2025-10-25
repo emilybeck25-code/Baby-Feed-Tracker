@@ -1,7 +1,6 @@
-import React from 'react';
-import { FeedingSide } from '../utils/constants.js';
-import { TimerDisplay } from '../components/TimerDisplay.js';
-import { HistoryLog } from '../components/HistoryLog.js';
+import { FeedingSide } from '../utils/constants';
+import { TimerDisplay } from '../components/TimerDisplay';
+import { HistoryLog } from '../components/HistoryLog';
 
 export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, deleteFeed, clearHistory, chronologicalHistory }) {
     const handleButtonClick = (side) => {

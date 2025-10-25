@@ -1,9 +1,8 @@
-import React from 'react';
-import { FeedingSide, TEN_MINUTES_MS } from '../utils/constants.js';
-import { addFeedLogic } from '../utils/feedLogic.js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { FeedingSide, TEN_MINUTES_MS } from '../utils/constants';
+import { addFeedLogic } from '../utils/feedLogic';
 
 export function useFeedingHistory() {
-    const { useState, useEffect, useCallback, useMemo } = React;
 
     const [history, setHistory] = useState(() => {
         const saved = localStorage.getItem('feedingHistory');

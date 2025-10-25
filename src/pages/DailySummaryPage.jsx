@@ -1,7 +1,6 @@
-import React from 'react';
-import { calculateDailyStats } from '../utils/statistics.js';
-import { StatCard } from '../components/StatCard.js';
-import { TimerDisplay } from '../components/TimerDisplay.js';
+import { calculateDailyStats } from '../utils/statistics';
+import { StatCard } from '../components/StatCard';
+import { TimerDisplay } from '../components/TimerDisplay';
 
 export function DailySummaryPage({ history }) {
     const today = new Date();
