@@ -1,8 +1,9 @@
 import { FeedingSide } from '../utils/constants';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { HistoryLog } from '../components/HistoryLog';
+import { LastFeedElapsed } from '../components/LastFeedElapsed';
 
-export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, deleteFeed, clearHistory, chronologicalHistory }) {
+export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, deleteFeed, clearHistory, chronologicalHistory, lastFeedTime }) {
     const handleButtonClick = (side) => {
         if (activeSide === null) {
             startTimer(side);
@@ -17,7 +18,10 @@ export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFe
             {/* Timer Display */}
             <div className="p-6 text-center">
                 {activeSide === null ? (
-                    <div className="text-slate-500 text-lg">Tap L or R to start a feed</div>
+                    <>
+                        <LastFeedElapsed lastFeedTime={lastFeedTime} />
+                        <div className="text-slate-500 text-lg">Tap L or R to start a feed</div>
+                    </>
                 ) : (
                     <>
                         <div className="text-slate-600 mb-2">Feeding on {activeSide} side</div>

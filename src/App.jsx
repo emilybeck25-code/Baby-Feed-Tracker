@@ -24,6 +24,7 @@ export function App() {
                         deleteFeed={deleteFeed}
                         clearHistory={clearHistory}
                         chronologicalHistory={chronologicalHistory}
+                        lastFeedTime={lastFeedTime}
                     />
                 );
             case 'Daily':
