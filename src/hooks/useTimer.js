@@ -44,7 +44,7 @@ export function useTimer() {
         const feed = {
             side: activeSide,
             duration: finalDuration,
-            endTime: Date.now()
+            endTime: Date.now(),
         };
 
         setActiveSide(null);
@@ -53,7 +53,8 @@ export function useTimer() {
 
         // Release wake lock when feeding stops
         if (wakeLockRef.current) {
-            wakeLockRef.current.release()
+            wakeLockRef.current
+                .release()
                 .then(() => {
                     console.log('Wake lock released');
                     wakeLockRef.current = null;

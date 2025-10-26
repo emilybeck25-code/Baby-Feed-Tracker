@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 
 export function LastFeedElapsed({ lastFeedTime }) {
-    const [elapsedMs, setElapsedMs] = useState(() => lastFeedTime ? Date.now() - lastFeedTime : 0);
+    const [elapsedMs, setElapsedMs] = useState(() =>
+        lastFeedTime ? Date.now() - lastFeedTime : 0
+    );
 
     useEffect(() => {
         if (!lastFeedTime) return;
@@ -38,7 +40,9 @@ export function LastFeedElapsed({ lastFeedTime }) {
     return (
         <div className="flex flex-col items-center gap-1 mb-6">
             <div className="text-4xl font-semibold text-slate-900 tracking-tight">{formatted}</div>
-            <div className="text-sm uppercase tracking-[0.3em] text-violet-500">since last feed</div>
+            <div className="text-sm uppercase tracking-[0.3em] text-violet-500">
+                since last feed
+            </div>
         </div>
     );
 }

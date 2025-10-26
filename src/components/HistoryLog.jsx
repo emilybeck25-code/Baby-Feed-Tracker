@@ -10,7 +10,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
 
     useEffect(() => {
         if (openItemId === null) return;
-        const stillExists = chronologicalHistory.some(unit => unit.id === openItemId);
+        const stillExists = chronologicalHistory.some((unit) => unit.id === openItemId);
         if (!stillExists) {
             setOpenItemId(null);
         }
@@ -64,15 +64,11 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
     };
 
     if (chronologicalHistory.length === 0) {
-        return (
-            <div className="text-slate-500 text-center py-8">
-                No feedings logged yet.
-            </div>
-        );
+        return <div className="text-slate-500 text-center py-8">No feedings logged yet.</div>;
     }
 
     const groupedByDay = {};
-    chronologicalHistory.forEach(unit => {
+    chronologicalHistory.forEach((unit) => {
         const date = new Date(unit.endTime);
         const today = new Date();
         const yesterday = new Date(today);
@@ -84,7 +80,11 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
         } else if (date.toDateString() === yesterday.toDateString()) {
             dayLabel = 'Yesterday';
         } else {
-            dayLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            dayLabel = date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+            });
         }
 
         if (!groupedByDay[dayLabel]) {
@@ -100,7 +100,9 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                     <h3 className="font-bold text-slate-800 mb-3">{day}</h3>
                     <div className="space-y-3">
                         {units.map((unit, idx) => {
-                            const startTime = new Date(unit.sessions[0].endTime - unit.sessions[0].duration * 1000);
+                            const startTime = new Date(
+                                unit.sessions[0].endTime - unit.sessions[0].duration * 1000
+                            );
                             const endTime = new Date(unit.endTime);
                             const isPending = unit.sessions.length === 1;
 
@@ -116,7 +118,9 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                     </button>
                                     <div
                                         className={`border-l-4 border-violet-400 pl-3 pr-6 bg-white transition-transform duration-200 ease-out ${
-                                            openItemId === unit.id ? '-translate-x-24' : 'translate-x-0'
+                                            openItemId === unit.id
+                                                ? '-translate-x-24'
+                                                : 'translate-x-0'
                                         }`}
                                         onTouchStart={(event) => handleTouchStart(event, unit.id)}
                                         onTouchEnd={(event) => handleTouchEnd(event, unit.id)}
@@ -126,13 +130,24 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                         <div className="text-sm text-slate-600">
                                             {formatTime(startTime)}
                                             {!isPending && <> - {formatTime(endTime)}</>}
-                                            {isPending && <span className="ml-2 text-rose-500">- Pending...</span>}
+                                            {isPending && (
+                                                <span className="ml-2 text-rose-500">
+                                                    - Pending...
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="flex gap-2 mt-2 pb-3">
                                             {unit.sessions.map((session, i) => (
-                                                <div key={i} className={`flex items-center gap-2 px-3 py-1 rounded-full ${session.side === FeedingSide.Left ? 'bg-violet-100 text-violet-700' : 'bg-rose-100 text-rose-700'}`}>
-                                                    <span className="font-bold">{session.side[0]}</span>
-                                                    <span className="text-sm"><TimerDisplay seconds={session.duration} /></span>
+                                                <div
+                                                    key={i}
+                                                    className={`flex items-center gap-2 px-3 py-1 rounded-full ${session.side === FeedingSide.Left ? 'bg-violet-100 text-violet-700' : 'bg-rose-100 text-rose-700'}`}
+                                                >
+                                                    <span className="font-bold">
+                                                        {session.side[0]}
+                                                    </span>
+                                                    <span className="text-sm">
+                                                        <TimerDisplay seconds={session.duration} />
+                                                    </span>
                                                 </div>
                                             ))}
                                         </div>

@@ -7,9 +7,11 @@ export function addFeedLogic(history, newSingleFeed) {
         const lastUnit = newHistory[0];
         const timeDiff = newSingleFeed.endTime - lastUnit.endTime;
 
-        if (lastUnit.sessions.length === 1 &&
+        if (
+            lastUnit.sessions.length === 1 &&
             lastUnit.sessions[0].side !== newSingleFeed.side &&
-            timeDiff < TEN_MINUTES_MS) {
+            timeDiff < TEN_MINUTES_MS
+        ) {
             // Add to existing unit
             lastUnit.sessions.push(newSingleFeed);
             lastUnit.endTime = newSingleFeed.endTime;
@@ -21,7 +23,7 @@ export function addFeedLogic(history, newSingleFeed) {
     const newUnit = {
         id: `${Date.now()}-${Math.random()}`,
         sessions: [newSingleFeed],
-        endTime: newSingleFeed.endTime
+        endTime: newSingleFeed.endTime,
     };
     return [newUnit, ...newHistory];
 }

@@ -57,7 +57,9 @@ export function NotificationsPage({ lastFeedTime }) {
 
             <div className="bg-white p-6 rounded-lg shadow-lg">
                 <div className="mb-4">
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Remind me in:</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Remind me in:
+                    </label>
                     <div className="flex gap-4">
                         <div>
                             <input

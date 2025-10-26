@@ -1,0 +1,18 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+
+# PWA generated files
+dev-dist
+sw.js
+workbox-*.js
+
+# Config files
+*.config.js
+*.config.cjs
+
+# Test files (legacy)
+test.js

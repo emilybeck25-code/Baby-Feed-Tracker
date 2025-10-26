@@ -1,12 +1,11 @@
-
 export function MiniBarChart({
     title,
     subtitle,
     data,
-    valueFormatter = value => value,
+    valueFormatter = (value) => value,
     gradient = 'linear-gradient(180deg, #a855f7 0%, #ec4899 100%)',
     shadowColor = 'rgba(168, 85, 247, 0.25)',
-    accentLabel
+    accentLabel,
 }) {
     const maxValue = data.reduce((max, point) => Math.max(max, point.value), 0);
     const safeMax = Math.max(maxValue, 1);
@@ -31,16 +30,20 @@ export function MiniBarChart({
                     {data.map((point, index) => {
                         const heightPercentage = (point.value / safeMax) * 100;
                         const formattedValue = valueFormatter(point.value);
-                        const showLabel = index === 0 || index === data.length - 1 || index % labelInterval === 0;
+                        const showLabel =
+                            index === 0 || index === data.length - 1 || index % labelInterval === 0;
 
                         return (
-                            <div key={point.label} className="flex-1 flex flex-col items-center justify-end min-w-[6px]">
+                            <div
+                                key={point.label}
+                                className="flex-1 flex flex-col items-center justify-end min-w-[6px]"
+                            >
                                 <div
                                     className="w-full rounded-t-xl transition-all duration-300 ease-out"
                                     style={{
                                         height: `${heightPercentage}%`,
                                         backgroundImage: gradient,
-                                        boxShadow: `0 6px 14px ${shadowColor}`
+                                        boxShadow: `0 6px 14px ${shadowColor}`,
                                     }}
                                     title={`${point.label}: ${formattedValue}`}
                                 >

@@ -3,7 +3,17 @@ import { TimerDisplay } from '../components/TimerDisplay';
 import { HistoryLog } from '../components/HistoryLog';
 import { LastFeedElapsed } from '../components/LastFeedElapsed';
 
-export function TrackerPage({ activeSide, duration, startTimer, stopTimer, addFeed, deleteFeed, clearHistory, chronologicalHistory, lastFeedTime }) {
+export function TrackerPage({
+    activeSide,
+    duration,
+    startTimer,
+    stopTimer,
+    addFeed,
+    deleteFeed,
+    clearHistory,
+    chronologicalHistory,
+    lastFeedTime,
+}) {
     const handleButtonClick = (side) => {
         if (activeSide === null) {
             startTimer(side);

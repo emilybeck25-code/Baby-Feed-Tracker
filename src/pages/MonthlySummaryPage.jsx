@@ -17,14 +17,14 @@ export function MonthlySummaryPage({ history }) {
         );
     }
 
-    const feedCountData = stats.dailyTotals.map(day => ({
+    const feedCountData = stats.dailyTotals.map((day) => ({
         label: day.day.toString(),
-        value: day.feedCount
+        value: day.feedCount,
     }));
 
-    const feedingTimeData = stats.dailyTotals.map(day => ({
+    const feedingTimeData = stats.dailyTotals.map((day) => ({
         label: day.day.toString(),
-        value: parseFloat((day.totalDurationSeconds / 60).toFixed(1))
+        value: parseFloat((day.totalDurationSeconds / 60).toFixed(1)),
     }));
 
     const formatMinutes = (value) => {
@@ -45,7 +45,7 @@ export function MonthlySummaryPage({ history }) {
                     title="Daily Feed Rhythm"
                     subtitle="Each bar shows how many complete feeds happened"
                     data={feedCountData}
-                    valueFormatter={value => `${value} ${value === 1 ? 'feed' : 'feeds'}`}
+                    valueFormatter={(value) => `${value} ${value === 1 ? 'feed' : 'feeds'}`}
                     gradient="linear-gradient(180deg, #c084fc 0%, #ec4899 100%)"
                     shadowColor="rgba(236, 72, 153, 0.25)"
                     accentLabel="Feeds"
