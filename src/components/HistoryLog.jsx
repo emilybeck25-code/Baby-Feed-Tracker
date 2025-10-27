@@ -99,7 +99,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                 <div key={day} className="bg-white p-4 rounded-lg shadow-lg">
                     <h3 className="font-bold text-slate-800 mb-3">{day}</h3>
                     <div className="space-y-3">
-                        {units.map((unit, idx) => {
+                        {units.map((unit) => {
                             const startTime = new Date(
                                 unit.sessions[0].endTime - unit.sessions[0].duration * 1000
                             );

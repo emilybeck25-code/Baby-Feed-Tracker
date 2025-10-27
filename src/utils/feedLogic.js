@@ -1,4 +1,4 @@
-import { FeedingSide, TEN_MINUTES_MS } from './constants.js';
+import { TEN_MINUTES_MS } from './constants.js';
 
 export function addFeedLogic(history, newSingleFeed) {
     const newHistory = [...history];

@@ -16,6 +16,8 @@ export default defineConfig({
         theme_color: '#c084fc',
         background_color: '#f3f4f6',
         display: 'standalone',
+        start_url: '/Baby-Feed-Tracker/',
+        scope: '/Baby-Feed-Tracker/',
         icons: [
           {
             src: 'icon.png',
@@ -26,6 +28,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+        navigateFallback: '/Baby-Feed-Tracker/index.html',
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
