@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FeedingSide } from '../utils/constants';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { HistoryLog } from '../components/HistoryLog';
@@ -16,6 +16,16 @@ export function TrackerPage({
     lastFeedTime,
 }) {
     const [completedSession, setCompletedSession] = useState(null);
+
+    // Determine the suggested side for the next feed when idle.
+    const suggestedStartSide = useMemo(() => {
+        if (activeSide !== null || completedSession !== null) return null;
+        if (!chronologicalHistory || chronologicalHistory.length === 0) return null;
+        const mostRecent = chronologicalHistory[0];
+        const firstSession = mostRecent?.sessions?.[0];
+        if (!firstSession?.side) return null;
+        return firstSession.side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
+    }, [chronologicalHistory, activeSide, completedSession]);
 
     const handleButtonClick = (side) => {
         // If timer is running and user clicks the active button, stop the timer
@@ -129,7 +139,9 @@ export function TrackerPage({
                         completedSession?.side === FeedingSide.Left
                             ? 'bg-violet-600'
                             : 'bg-violet-400'
-                    } ${completedSession?.side === FeedingSide.Left ? 'text-lg' : 'text-4xl'}`}
+                    } ${completedSession?.side === FeedingSide.Left ? 'text-lg' : 'text-4xl'} ${
+                        suggestedStartSide === FeedingSide.Left ? 'scale-110' : ''
+                    }`}
                 >
                     {completedSession?.side === FeedingSide.Left ? 'Finish' : 'L'}
                 </button>
@@ -147,7 +159,9 @@ export function TrackerPage({
                         completedSession?.side === FeedingSide.Right
                             ? 'bg-rose-600'
                             : 'bg-rose-400'
-                    } ${completedSession?.side === FeedingSide.Right ? 'text-lg' : 'text-4xl'}`}
+                    } ${completedSession?.side === FeedingSide.Right ? 'text-lg' : 'text-4xl'} ${
+                        suggestedStartSide === FeedingSide.Right ? 'scale-110' : ''
+                    }`}
                 >
                     {completedSession?.side === FeedingSide.Right ? 'Finish' : 'R'}
                 </button>
