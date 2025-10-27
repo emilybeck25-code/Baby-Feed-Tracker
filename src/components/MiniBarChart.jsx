@@ -36,21 +36,25 @@ export function MiniBarChart({
                         return (
                             <div
                                 key={point.label}
-                                className="flex-1 h-full flex flex-col items-center justify-end min-w-[6px] overflow-hidden"
+                                className="flex-1 h-full flex flex-col min-w-[6px] overflow-hidden"
                             >
-                                <div
-                                    className="w-full rounded-t-xl transition-all duration-300 ease-out"
-                                    style={{
-                                        height: `${heightPercentage}%`,
-                                        backgroundImage: gradient,
-                                        boxShadow: `0 6px 14px ${shadowColor}`,
-                                    }}
-                                    title={`${point.label}: ${formattedValue}`}
-                                >
-                                    <span className="sr-only">{formattedValue}</span>
+                                {/* Bar area gets all remaining height */}
+                                <div className="flex-1 w-full flex items-end justify-center">
+                                    <div
+                                        className="w-full rounded-t-xl transition-all duration-300 ease-out"
+                                        style={{
+                                            height: `${heightPercentage}%`,
+                                            backgroundImage: gradient,
+                                            boxShadow: `0 6px 14px ${shadowColor}`,
+                                        }}
+                                        title={`${point.label}: ${formattedValue}`}
+                                    >
+                                        <span className="sr-only">{formattedValue}</span>
+                                    </div>
                                 </div>
-                                <div className="text-[10px] text-slate-400 mt-1">
-                                    {showLabel ? point.label : ''}
+                                {/* Fixed-height label row so bars stay aligned */}
+                                <div className="mt-1 h-4 text-[10px] text-slate-400 text-center leading-4">
+                                    {showLabel ? point.label : '\u00A0'}
                                 </div>
                             </div>
                         );

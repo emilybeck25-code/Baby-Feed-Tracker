@@ -64,10 +64,11 @@ export function DualMetricChart({ title, subtitle, data, formatDuration = (value
                         return (
                             <div
                                 key={point.label}
-                                className="flex-1 h-full flex flex-col items-center justify-end min-w-[6px] overflow-hidden"
+                                className="flex-1 h-full flex flex-col min-w-[6px] overflow-hidden"
                                 title={tooltipText}
                             >
-                                <div className="w-full h-full flex gap-[1px] items-end justify-center">
+                                {/* Bar area gets all remaining height */}
+                                <div className="flex-1 w-full flex gap-[1px] items-end justify-center">
                                     {/* Feed count bar */}
                                     <div
                                         className="flex-1 rounded-t-xl transition-all duration-300 ease-out"
@@ -97,9 +98,9 @@ export function DualMetricChart({ title, subtitle, data, formatDuration = (value
                                     </div>
                                 </div>
 
-                                {/* Label */}
-                                <div className="mt-1 text-[10px] text-slate-400 text-center">
-                                    {showLabel ? point.label : ''}
+                                {/* Fixed-height label row */}
+                                <div className="mt-1 h-4 text-[10px] text-slate-400 text-center leading-4">
+                                    {showLabel ? point.label : '\u00A0'}
                                 </div>
                             </div>
                         );

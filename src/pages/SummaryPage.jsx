@@ -6,7 +6,7 @@ import {
 } from '../utils/statistics';
 import { StatCard } from '../components/StatCard';
 import { TimerDisplay } from '../components/TimerDisplay';
-import { DualMetricChart } from '../components/DualMetricChart';
+import { MiniBarChart } from '../components/MiniBarChart';
 
 export function SummaryPage({ history }) {
     const [view, setView] = useState('today'); // 'today' | 'daily' | 'monthly'
@@ -45,12 +45,6 @@ export function SummaryPage({ history }) {
 
         return result;
     }, [view, history, selectedDate, selectedMonth, selectedYear]);
-
-    // Format duration for charts (seconds to "X min")
-    const formatDuration = (seconds) => {
-        const minutes = Math.round(seconds / 60);
-        return `${minutes} min`;
-    };
 
     // Date navigation handlers
     const navigatePrev = () => {
@@ -112,38 +106,45 @@ export function SummaryPage({ history }) {
         }
     };
 
-    // Prepare chart data based on view
-    const chartData = useMemo(() => {
-        let data;
-        if (view === 'today') {
-            data = stats.blocks.map((block) => ({
-                label: block.label,
-                feedCount: block.feedCount,
-                duration: block.duration,
-            }));
-        } else if (view === 'daily') {
-            data = stats.dailyTotals.map((day) => ({
-                label: day.day.toString(),
-                feedCount: day.feedCount,
-                duration: day.totalDurationSeconds,
-            }));
-        } else {
-            data = stats.monthlyTotals.map((month) => ({
-                label: month.label,
-                feedCount: month.feedCount,
-                duration: month.totalDurationSeconds,
-            }));
+    // Prepare TWO datasets: one for feed counts, one for total duration
+    const { countData, durationData } = useMemo(() => {
+        const base = { countData: [], durationData: [] };
+        if (!stats) return base;
+
+        if (view === 'today' && Array.isArray(stats.blocks)) {
+            return {
+                countData: stats.blocks.map((b) => ({ label: b.label, value: b.feedCount })),
+                durationData: stats.blocks.map((b) => ({ label: b.label, value: b.duration })),
+            };
         }
 
-        console.log('📊 Chart data prepared:', {
-            view,
-            dataLength: data.length,
-            first3Points: data.slice(0, 3),
-            maxFeedCount: Math.max(...data.map((d) => d.feedCount)),
-            maxDuration: Math.max(...data.map((d) => d.duration)),
-        });
+        if (view === 'daily' && Array.isArray(stats.dailyTotals)) {
+            return {
+                countData: stats.dailyTotals.map((d) => ({
+                    label: d.day.toString(),
+                    value: d.feedCount,
+                })),
+                durationData: stats.dailyTotals.map((d) => ({
+                    label: d.day.toString(),
+                    value: d.totalDurationSeconds,
+                })),
+            };
+        }
 
-        return data;
+        if (view === 'monthly' && Array.isArray(stats.monthlyTotals)) {
+            return {
+                countData: stats.monthlyTotals.map((m) => ({
+                    label: m.label,
+                    value: m.feedCount,
+                })),
+                durationData: stats.monthlyTotals.map((m) => ({
+                    label: m.label,
+                    value: m.totalDurationSeconds,
+                })),
+            };
+        }
+
+        return base;
     }, [view, stats]);
 
     return (
@@ -239,7 +240,7 @@ export function SummaryPage({ history }) {
                 </div>
             )}
 
-            {/* Chart */}
+            {/* Charts */}
             <div className="mb-4">
                 {stats.totalFeeds === 0 ? (
                     <div className="bg-white rounded-3xl shadow-[0_12px_30px_rgba(148,163,184,0.18)] border border-slate-100 p-8">
@@ -254,24 +255,51 @@ export function SummaryPage({ history }) {
                         </div>
                     </div>
                 ) : (
-                    <DualMetricChart
-                        title={
-                            view === 'today'
-                                ? 'Hourly Pattern'
-                                : view === 'daily'
-                                  ? 'Daily Pattern'
-                                  : 'Monthly Pattern'
-                        }
-                        subtitle={
-                            view === 'today'
-                                ? 'Feed count and duration by time of day'
-                                : view === 'daily'
-                                  ? 'Feed count and duration by day of month'
-                                  : 'Feed count and duration by month'
-                        }
-                        data={chartData}
-                        formatDuration={formatDuration}
-                    />
+                    <div className="space-y-4">
+                        <MiniBarChart
+                            title={
+                                view === 'today'
+                                    ? 'Feeds by 3\u2011hour block'
+                                    : view === 'daily'
+                                      ? 'Feeds by day'
+                                      : 'Feeds by month'
+                            }
+                            subtitle={
+                                view === 'today'
+                                    ? 'Number of feeds per time block'
+                                    : view === 'daily'
+                                      ? 'Number of feeds per day of the month'
+                                      : 'Number of feeds per month'
+                            }
+                            data={countData}
+                            valueFormatter={(v) => v}
+                            gradient="linear-gradient(180deg, #c084fc 0%, #a855f7 100%)"
+                            shadowColor="rgba(168, 85, 247, 0.25)"
+                            accentLabel="Count"
+                        />
+
+                        <MiniBarChart
+                            title={
+                                view === 'today'
+                                    ? 'Duration by 3\u2011hour block'
+                                    : view === 'daily'
+                                      ? 'Duration by day'
+                                      : 'Duration by month'
+                            }
+                            subtitle={
+                                view === 'today'
+                                    ? 'Total feeding time per time block'
+                                    : view === 'daily'
+                                      ? 'Total feeding time per day of the month'
+                                      : 'Total feeding time per month'
+                            }
+                            data={durationData}
+                            valueFormatter={(v) => `${Math.round(v / 60)} min`}
+                            gradient="linear-gradient(180deg, #38bdf8 0%, #6366f1 100%)"
+                            shadowColor="rgba(99, 102, 241, 0.22)"
+                            accentLabel="Time"
+                        />
+                    </div>
                 )}
             </div>
 
