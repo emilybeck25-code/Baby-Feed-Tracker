@@ -20,7 +20,7 @@ export default defineConfig({
         scope: '/Baby-Feed-Tracker/',
         icons: [
           {
-            src: 'icon.png',
+            src: '/Baby-Feed-Tracker/icon.png',
             sizes: '512x512',
             type: 'image/png'
           }
