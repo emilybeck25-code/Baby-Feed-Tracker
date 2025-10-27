@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useTimer } from './hooks/useTimer';
 import { useFeedingHistory } from './hooks/useFeedingHistory';
 import { TrackerPage } from './pages/TrackerPage';
-import { DailySummaryPage } from './pages/DailySummaryPage';
-import { MonthlySummaryPage } from './pages/MonthlySummaryPage';
+import { SummaryPage } from './pages/SummaryPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 
 export function App() {
@@ -28,10 +27,8 @@ export function App() {
                         lastFeedTime={lastFeedTime}
                     />
                 );
-            case 'Daily':
-                return <DailySummaryPage history={history} />;
-            case 'Monthly':
-                return <MonthlySummaryPage history={history} />;
+            case 'Summary':
+                return <SummaryPage history={history} />;
             case 'Notify':
                 return <NotificationsPage lastFeedTime={lastFeedTime} />;
             default:
@@ -74,27 +71,8 @@ export function App() {
                         <span className="text-xs mt-1">Tracker</span>
                     </button>
                     <button
-                        onClick={() => setCurrentPage('Daily')}
-                        className={`flex flex-col items-center p-2 ${currentPage === 'Daily' ? 'text-violet-500' : 'text-slate-500'}`}
-                    >
-                        <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                        </svg>
-                        <span className="text-xs mt-1">Daily</span>
-                    </button>
-                    <button
-                        onClick={() => setCurrentPage('Monthly')}
-                        className={`flex flex-col items-center p-2 ${currentPage === 'Monthly' ? 'text-violet-500' : 'text-slate-500'}`}
+                        onClick={() => setCurrentPage('Summary')}
+                        className={`flex flex-col items-center p-2 ${currentPage === 'Summary' ? 'text-violet-500' : 'text-slate-500'}`}
                     >
                         <svg
                             className="w-6 h-6"
@@ -109,7 +87,7 @@ export function App() {
                                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                             />
                         </svg>
-                        <span className="text-xs mt-1">Monthly</span>
+                        <span className="text-xs mt-1">Summary</span>
                     </button>
                     <button
                         onClick={() => setCurrentPage('Notify')}
