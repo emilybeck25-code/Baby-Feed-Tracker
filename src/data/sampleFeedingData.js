@@ -1,20 +1,20 @@
 import { FeedingSide } from '../utils/constants.js';
 
 /**
- * Generates realistic breastfeeding data for the past 7 days
+ * Generates realistic breastfeeding data for the past 3 months
  * This data simulates typical newborn feeding patterns:
  * - 8-12 feeds per day
  * - Mix of single-side and both-side feeds
  * - Duration: 10-30 minutes per feed
- * - More frequent at night
+ * - All feeds have BOTH L and R sessions (even if one is 0 duration)
  */
 export function generateSampleData() {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
     const feedUnits = [];
 
-    // Generate 7 days of data
-    for (let day = 6; day >= 0; day--) {
+    // Generate 3 months (90 days) of data
+    for (let day = 89; day >= 0; day--) {
         const dayStart = now - day * 24 * oneHour;
 
         // 8-12 feeds per day (randomized)
@@ -57,30 +57,20 @@ export function generateSampleData() {
             // Alternate starting side, with some randomness
             const startLeft = Math.random() < 0.5;
 
-            const sessions = [];
-
-            if (bothSides) {
-                // First session
-                sessions.push({
+            // ALWAYS create 2 sessions (both L and R)
+            // For single-side feeds, opposite side has 0 duration
+            const sessions = [
+                {
                     side: startLeft ? FeedingSide.Left : FeedingSide.Right,
                     duration: Math.floor(firstDuration / 1000),
                     endTime: feedTime,
-                });
-
-                // Second session (opposite side)
-                sessions.push({
+                },
+                {
                     side: startLeft ? FeedingSide.Right : FeedingSide.Left,
                     duration: Math.floor(secondDuration / 1000),
-                    endTime: feedTime + secondDuration,
-                });
-            } else {
-                // Single session
-                sessions.push({
-                    side: startLeft ? FeedingSide.Left : FeedingSide.Right,
-                    duration: Math.floor(firstDuration / 1000),
-                    endTime: feedTime,
-                });
-            }
+                    endTime: bothSides ? feedTime + secondDuration : feedTime,
+                },
+            ];
 
             // Create feed unit
             const unit = {
