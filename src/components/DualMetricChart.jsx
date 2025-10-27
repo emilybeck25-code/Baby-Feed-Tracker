@@ -64,7 +64,7 @@ export function DualMetricChart({ title, subtitle, data, formatDuration = (value
                         return (
                             <div
                                 key={point.label}
-                                className="flex-1 flex flex-col items-center justify-end min-w-[6px]"
+                                className="flex-1 h-full flex flex-col items-center justify-end min-w-[6px] overflow-hidden"
                                 title={tooltipText}
                             >
                                 <div className="w-full h-full flex gap-[1px] items-end justify-center">

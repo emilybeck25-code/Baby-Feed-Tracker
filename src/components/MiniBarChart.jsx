@@ -36,7 +36,7 @@ export function MiniBarChart({
                         return (
                             <div
                                 key={point.label}
-                                className="flex-1 flex flex-col items-center justify-end min-w-[6px]"
+                                className="flex-1 h-full flex flex-col items-center justify-end min-w-[6px] overflow-hidden"
                             >
                                 <div
                                     className="w-full rounded-t-xl transition-all duration-300 ease-out"
