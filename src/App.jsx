@@ -9,7 +9,7 @@ import { generateSampleData } from './data/sampleFeedingData';
 
 export function App() {
     const [currentPage, setCurrentPage] = useState('Tracker');
-    const { activeSide, duration, startTimer, stopTimer } = useTimer();
+    const { activeSide, duration, paused, startTimer, pauseTimer, resumeTimer, togglePause, stopTimer } = useTimer();
     const {
         history,
         addFeed,
@@ -33,6 +33,10 @@ export function App() {
                         activeSide={activeSide}
                         duration={duration}
                         startTimer={startTimer}
+                        paused={paused}
+                        pauseTimer={pauseTimer}
+                        resumeTimer={resumeTimer}
+                        togglePause={togglePause}
                         stopTimer={stopTimer}
                         addFeed={addFeed}
                         deleteFeed={deleteFeed}

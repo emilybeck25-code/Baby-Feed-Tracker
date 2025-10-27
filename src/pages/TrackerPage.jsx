@@ -8,6 +8,10 @@ export function TrackerPage({
     activeSide,
     duration,
     startTimer,
+    paused,
+    pauseTimer,
+    resumeTimer,
+    togglePause,
     stopTimer,
     addFeed,
     deleteFeed,
@@ -125,46 +129,113 @@ export function TrackerPage({
 
             {/* Action Buttons */}
             <div className="p-6 flex gap-4 justify-center">
-                <button
-                    onClick={() => {
-                        if (completedSession !== null && activeSide === FeedingSide.Left) {
-                            handleFinishBothSides();
-                        } else {
-                            handleButtonClick(FeedingSide.Left);
-                        }
-                    }}
-                    disabled={activeSide === FeedingSide.Right}
-                    className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
-                        activeSide === FeedingSide.Left ||
-                        completedSession?.side === FeedingSide.Left
-                            ? 'bg-violet-600'
-                            : 'bg-violet-400'
-                    } ${completedSession?.side === FeedingSide.Left ? 'text-lg' : 'text-4xl'} ${
-                        suggestedStartSide === FeedingSide.Left ? 'scale-110' : ''
-                    }`}
-                >
-                    {completedSession?.side === FeedingSide.Left ? 'Finish' : 'L'}
-                </button>
-                <button
-                    onClick={() => {
-                        if (completedSession !== null && activeSide === FeedingSide.Right) {
-                            handleFinishBothSides();
-                        } else {
-                            handleButtonClick(FeedingSide.Right);
-                        }
-                    }}
-                    disabled={activeSide === FeedingSide.Left}
-                    className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
-                        activeSide === FeedingSide.Right ||
-                        completedSession?.side === FeedingSide.Right
-                            ? 'bg-rose-600'
-                            : 'bg-rose-400'
-                    } ${completedSession?.side === FeedingSide.Right ? 'text-lg' : 'text-4xl'} ${
-                        suggestedStartSide === FeedingSide.Right ? 'scale-110' : ''
-                    }`}
-                >
-                    {completedSession?.side === FeedingSide.Right ? 'Finish' : 'R'}
-                </button>
+                {/* LEFT BUTTON AREA */}
+                {activeSide === FeedingSide.Right ? (
+                    <button
+                        type="button"
+                        onClick={togglePause}
+                        aria-label={paused ? 'Resume timer' : 'Pause timer'}
+                        className="w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform bg-violet-400"
+                    >
+                        {paused ? (
+                            <svg
+                                className="w-10 h-10 mx-auto"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path d="M8 5v14l11-7-11-7z" />
+                            </svg>
+                        ) : (
+                            <svg
+                                className="w-10 h-10 mx-auto"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                aria-hidden="true"
+                            >
+                                <rect x="6" y="5" width="4" height="14" rx="1" />
+                                <rect x="14" y="5" width="4" height="14" rx="1" />
+                            </svg>
+                        )}
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => {
+                            if (completedSession !== null && activeSide === FeedingSide.Left) {
+                                handleFinishBothSides();
+                            } else {
+                                handleButtonClick(FeedingSide.Left);
+                            }
+                        }}
+                        disabled={activeSide === FeedingSide.Right}
+                        className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
+                            activeSide === FeedingSide.Left ||
+                            completedSession?.side === FeedingSide.Left
+                                ? 'bg-violet-600'
+                                : 'bg-violet-400'
+                        } ${completedSession?.side === FeedingSide.Left ? 'text-lg' : 'text-4xl'} ${
+                            suggestedStartSide === FeedingSide.Left ? 'scale-110' : ''
+                        }`}
+                    >
+                        {completedSession?.side === FeedingSide.Left ? 'Finish' : 'L'}
+                    </button>
+                )}
+
+                {/* RIGHT BUTTON AREA */}
+                {activeSide === FeedingSide.Left ? (
+                    <button
+                        type="button"
+                        onClick={togglePause}
+                        aria-label={paused ? 'Resume timer' : 'Pause timer'}
+                        className="w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform bg-rose-400"
+                    >
+                        {paused ? (
+                            <svg
+                                className="w-10 h-10 mx-auto"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path d="M8 5v14l11-7-11-7z" />
+                            </svg>
+                        ) : (
+                            <svg
+                                className="w-10 h-10 mx-auto"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                aria-hidden="true"
+                            >
+                                <rect x="6" y="5" width="4" height="14" rx="1" />
+                                <rect x="14" y="5" width="4" height="14" rx="1" />
+                            </svg>
+                        )}
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => {
+                            if (completedSession !== null && activeSide === FeedingSide.Right) {
+                                handleFinishBothSides();
+                            } else {
+                                handleButtonClick(FeedingSide.Right);
+                            }
+                        }}
+                        disabled={activeSide === FeedingSide.Left}
+                        className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
+                            activeSide === FeedingSide.Right ||
+                            completedSession?.side === FeedingSide.Right
+                                ? 'bg-rose-600'
+                                : 'bg-rose-400'
+                        } ${completedSession?.side === FeedingSide.Right ? 'text-lg' : 'text-4xl'} ${
+                            suggestedStartSide === FeedingSide.Right ? 'scale-110' : ''
+                        }`}
+                    >
+                        {completedSession?.side === FeedingSide.Right ? 'Finish' : 'R'}
+                    </button>
+                )}
             </div>
         </div>
     );

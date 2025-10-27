@@ -5,24 +5,29 @@ export function useTimer() {
     const [duration, setDuration] = useState(0);
     const startTimeRef = useRef(null);
     const wakeLockRef = useRef(null);
+    const [paused, setPaused] = useState(false);
+    // Accumulates seconds across pause/resume cycles
+    const elapsedBaseRef = useRef(0);
 
     // Update duration based on elapsed time from startTime
     useEffect(() => {
-        if (activeSide === null || startTimeRef.current === null) return;
+        if (activeSide === null || startTimeRef.current === null || paused) return;
 
         // Update duration every second based on actual elapsed time
         const interval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-            setDuration(elapsed);
+            setDuration(elapsedBaseRef.current + elapsed);
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [activeSide]);
+    }, [activeSide, paused]);
 
     const startTimer = useCallback(async (side) => {
         setActiveSide(side);
         startTimeRef.current = Date.now();
+        elapsedBaseRef.current = 0;
         setDuration(0);
+        setPaused(false);
 
         // Request wake lock to keep screen on during feeding
         if ('wakeLock' in navigator) {
@@ -35,11 +40,35 @@ export function useTimer() {
         }
     }, []);
 
+    const pauseTimer = useCallback(() => {
+        if (activeSide === null || paused) return;
+        // Add elapsed since last (re)start to base
+        const elapsed = startTimeRef.current
+            ? Math.floor((Date.now() - startTimeRef.current) / 1000)
+            : 0;
+        elapsedBaseRef.current += elapsed;
+        setDuration(elapsedBaseRef.current);
+        setPaused(true);
+    }, [activeSide, paused]);
+
+    const resumeTimer = useCallback(() => {
+        if (activeSide === null || !paused) return;
+        startTimeRef.current = Date.now();
+        setPaused(false);
+    }, [activeSide, paused]);
+
+    const togglePause = useCallback(() => {
+        if (activeSide === null) return;
+        if (paused) resumeTimer();
+        else pauseTimer();
+    }, [activeSide, paused, pauseTimer, resumeTimer]);
+
     const stopTimer = useCallback(() => {
         // Calculate final duration from timestamp (more accurate than interval-based duration)
-        const finalDuration = startTimeRef.current
+        const nowPart = startTimeRef.current && !paused
             ? Math.floor((Date.now() - startTimeRef.current) / 1000)
-            : duration;
+            : 0;
+        const finalDuration = elapsedBaseRef.current + nowPart;
 
         const feed = {
             side: activeSide,
@@ -50,6 +79,8 @@ export function useTimer() {
         setActiveSide(null);
         setDuration(0);
         startTimeRef.current = null;
+        setPaused(false);
+        elapsedBaseRef.current = 0;
 
         // Release wake lock when feeding stops
         if (wakeLockRef.current) {
@@ -65,7 +96,7 @@ export function useTimer() {
         }
 
         return feed;
-    }, [activeSide, duration]);
+    }, [activeSide, paused]);
 
     // Clean up wake lock if component unmounts while timer is active
     useEffect(() => {
@@ -76,5 +107,5 @@ export function useTimer() {
         };
     }, []);
 
-    return { activeSide, duration, startTimer, stopTimer };
+    return { activeSide, duration, paused, startTimer, pauseTimer, resumeTimer, togglePause, stopTimer };
 }
