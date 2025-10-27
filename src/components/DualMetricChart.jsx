@@ -39,10 +39,10 @@ export function DualMetricChart({ title, subtitle, data, formatDuration = (value
                         return (
                             <div
                                 key={point.label}
-                                className="flex-1 flex flex-col items-center min-w-[6px]"
+                                className="flex-1 flex flex-col items-center justify-end min-w-[6px]"
                                 title={tooltipText}
                             >
-                                <div className="flex-1 w-full flex gap-[1px] items-end justify-center">
+                                <div className="w-full flex gap-[1px] items-end justify-center">
                                     {/* Feed count bar */}
                                     <div
                                         className="flex-1 rounded-t-xl transition-all duration-300 ease-out"
