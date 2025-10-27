@@ -39,39 +39,41 @@ export function DualMetricChart({ title, subtitle, data, formatDuration = (value
                         return (
                             <div
                                 key={point.label}
-                                className="flex-1 flex gap-[1px] items-end justify-center min-w-[6px]"
+                                className="flex-1 flex flex-col items-center min-w-[6px]"
                                 title={tooltipText}
                             >
-                                {/* Feed count bar */}
-                                <div
-                                    className="flex-1 rounded-t-xl transition-all duration-300 ease-out"
-                                    style={{
-                                        height: `${feedCountHeight}%`,
-                                        backgroundImage:
-                                            'linear-gradient(180deg, #c084fc 0%, #a855f7 100%)',
-                                        boxShadow: '0 4px 10px rgba(168, 85, 247, 0.25)',
-                                    }}
-                                >
-                                    <span className="sr-only">{point.feedCount} feeds</span>
-                                </div>
+                                <div className="flex-1 w-full flex gap-[1px] items-end justify-center">
+                                    {/* Feed count bar */}
+                                    <div
+                                        className="flex-1 rounded-t-xl transition-all duration-300 ease-out"
+                                        style={{
+                                            height: `${feedCountHeight}%`,
+                                            backgroundImage:
+                                                'linear-gradient(180deg, #c084fc 0%, #a855f7 100%)',
+                                            boxShadow: '0 4px 10px rgba(168, 85, 247, 0.25)',
+                                        }}
+                                    >
+                                        <span className="sr-only">{point.feedCount} feeds</span>
+                                    </div>
 
-                                {/* Duration bar */}
-                                <div
-                                    className="flex-1 rounded-t-xl transition-all duration-300 ease-out"
-                                    style={{
-                                        height: `${durationHeight}%`,
-                                        backgroundImage:
-                                            'linear-gradient(180deg, #38bdf8 0%, #6366f1 100%)',
-                                        boxShadow: '0 4px 10px rgba(99, 102, 241, 0.22)',
-                                    }}
-                                >
-                                    <span className="sr-only">
-                                        {formatDuration(point.duration)}
-                                    </span>
+                                    {/* Duration bar */}
+                                    <div
+                                        className="flex-1 rounded-t-xl transition-all duration-300 ease-out"
+                                        style={{
+                                            height: `${durationHeight}%`,
+                                            backgroundImage:
+                                                'linear-gradient(180deg, #38bdf8 0%, #6366f1 100%)',
+                                            boxShadow: '0 4px 10px rgba(99, 102, 241, 0.22)',
+                                        }}
+                                    >
+                                        <span className="sr-only">
+                                            {formatDuration(point.duration)}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {/* Label */}
-                                <div className="absolute translate-y-5 text-[10px] text-slate-400">
+                                <div className="mt-1 text-[10px] text-slate-400 text-center">
                                     {showLabel ? point.label : ''}
                                 </div>
                             </div>

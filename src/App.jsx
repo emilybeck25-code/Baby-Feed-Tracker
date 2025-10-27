@@ -4,12 +4,26 @@ import { useFeedingHistory } from './hooks/useFeedingHistory';
 import { TrackerPage } from './pages/TrackerPage';
 import { SummaryPage } from './pages/SummaryPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { DeveloperMenu } from './components/DeveloperMenu';
+import { generateSampleData } from './data/sampleFeedingData';
 
 export function App() {
     const [currentPage, setCurrentPage] = useState('Tracker');
     const { activeSide, duration, startTimer, stopTimer } = useTimer();
-    const { history, addFeed, deleteFeed, clearHistory, lastFeedTime, chronologicalHistory } =
-        useFeedingHistory();
+    const {
+        history,
+        addFeed,
+        deleteFeed,
+        clearHistory,
+        importHistory,
+        lastFeedTime,
+        chronologicalHistory,
+    } = useFeedingHistory();
+
+    const handleImportSampleData = () => {
+        const sampleData = generateSampleData();
+        importHistory(sampleData);
+    };
 
     const renderPage = () => {
         switch (currentPage) {
@@ -39,10 +53,12 @@ export function App() {
     return (
         <div className="h-screen bg-gray-100 flex flex-col font-sans">
             {/* Header */}
-            <header className="p-4 text-center">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent">
+            <header className="p-4 flex items-center justify-between">
+                <DeveloperMenu onImportData={handleImportSampleData} />
+                <h1 className="flex-1 text-3xl font-bold bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent text-center">
                     Baby Feed Tracker
                 </h1>
+                <div className="w-10"></div> {/* Spacer for centering */}
             </header>
 
             {/* Main Content */}

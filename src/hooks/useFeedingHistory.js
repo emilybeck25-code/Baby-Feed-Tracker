@@ -58,8 +58,26 @@ export function useFeedingHistory() {
         }
     }, []);
 
+    const importHistory = useCallback((importedData) => {
+        if (
+            window.confirm(
+                'This will replace your current feeding history. Are you sure you want to continue?'
+            )
+        ) {
+            setHistory(importedData);
+        }
+    }, []);
+
     const lastFeedTime = history.length > 0 ? history[0].endTime : null;
     const chronologicalHistory = useMemo(() => [...history], [history]);
 
-    return { history, addFeed, deleteFeed, clearHistory, lastFeedTime, chronologicalHistory };
+    return {
+        history,
+        addFeed,
+        deleteFeed,
+        clearHistory,
+        importHistory,
+        lastFeedTime,
+        chronologicalHistory,
+    };
 }
