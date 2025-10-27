@@ -77,11 +77,14 @@ Located in `src/utils/feedLogic.js`:
 ### Page Structure
 
 - **TrackerPage**: Timer controls (L/R buttons), history log, last-feed countdown
-- **DailySummaryPage**: Today's stats (total feeds, left/right time)
-- **MonthlySummaryPage**: Bar charts showing feeds and minutes per day
+- **SummaryPage**: Unified dashboard with three toggle views:
+  - **Today**: Hourly patterns (8 x 3-hour time blocks), avg/longest feed duration
+  - **Daily**: Days of current month (1-31), avg feeds per day, peak day
+  - **Monthly**: Months of current year (Jan-Dec), avg feeds per month, peak month
+  - Each view shows dual-metric charts (feed count + duration side-by-side) with date navigation
 - **NotificationsPage**: Set reminder timer (hours + minutes)
 
-Navigation is via fixed bottom nav in `App.jsx`.
+Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 
 ### LocalStorage Schema
 
@@ -103,9 +106,28 @@ Configuration in `vitest.config.js` with jsdom environment for browser API testi
 
 Run with `npm test` (or `npm run test:watch` for watch mode).
 
+### Statistics Utilities
+
+Located in `src/utils/statistics.js`:
+
+- **`calculateDailyStats`**: Returns total feeds, total time, left/right time, avg/longest/shortest duration
+- **`calculateHourlyStats`**: Aggregates feeds into 8 three-hour time blocks, identifies most active block
+- **`calculateMonthlyStats`**: Aggregates by day of month (1-31), returns avg feeds per day and peak day
+- **`calculateYearlyStats`**: Aggregates by month (Jan-Dec), returns avg feeds per month and peak month
+
+All functions accept history array and date/period parameters, return 0 values when no data exists.
+
+### Components
+
+- **`DualMetricChart`**: Displays two metrics (feed count + duration) as side-by-side bars with gradients
+- **`StatCard`**: Displays a single statistic with title and value
+- **`TimerDisplay`**: Formats seconds into MM:SS display
+- **`HistoryLog`**: Expandable feed history with delete and clear functions
+- **`LastFeedElapsed`**: Shows time elapsed since last feed
+
 ### Code Quality Tools
 
-- **ESLint**: Configured in `.eslintrc.cjs` with React, React Hooks, and JSX a11y plugins
+- **ESLint**: Configured in `eslint.config.js` (flat config format for ESLint 9) with React, React Hooks, and JSX a11y plugins
 - **Prettier**: Configured in `.prettierrc` (4-space indent, single quotes, 100 print width)
 - Code is automatically formatted and follows consistent style guidelines
 
