@@ -1,8 +1,23 @@
 export function DualMetricChart({ title, subtitle, data, formatDuration = (value) => value }) {
+    // DEBUG: Log what data we're receiving
+    console.log('🎨 DualMetricChart render:', {
+        title,
+        dataLength: data.length,
+        firstPoint: data[0],
+        lastPoint: data[data.length - 1],
+    });
+
     const maxFeedCount = data.reduce((max, point) => Math.max(max, point.feedCount), 0);
     const maxDuration = data.reduce((max, point) => Math.max(max, point.duration), 0);
     const safeMaxFeedCount = Math.max(maxFeedCount, 1);
     const safeMaxDuration = Math.max(maxDuration, 1);
+
+    console.log('🎨 DualMetricChart maxValues:', {
+        maxFeedCount,
+        maxDuration,
+        safeMaxFeedCount,
+        safeMaxDuration,
+    });
 
     const labelInterval = data.length <= 12 ? 1 : Math.ceil(data.length / 6);
 
@@ -32,6 +47,16 @@ export function DualMetricChart({ title, subtitle, data, formatDuration = (value
                         const durationHeight = (point.duration / safeMaxDuration) * 100;
                         const showLabel =
                             index === 0 || index === data.length - 1 || index % labelInterval === 0;
+
+                        // DEBUG: Log first 3 bars
+                        if (index < 3) {
+                            console.log(`🎨 Bar ${index} (${point.label}):`, {
+                                feedCount: point.feedCount,
+                                duration: point.duration,
+                                feedCountHeight: `${feedCountHeight}%`,
+                                durationHeight: `${durationHeight}%`,
+                            });
+                        }
 
                         // Show both metrics in the tooltip
                         const tooltipText = `${point.label}: ${point.feedCount} feed${point.feedCount === 1 ? '' : 's'}, ${formatDuration(point.duration)}`;

@@ -19,13 +19,31 @@ export function SummaryPage({ history }) {
 
     // Calculate stats based on current view
     const stats = useMemo(() => {
+        console.log('📊 SummaryPage calculating stats:', {
+            view,
+            historyLength: history.length,
+            selectedDate: view === 'today' ? selectedDate.toLocaleDateString() : null,
+            selectedMonth: view === 'daily' ? selectedMonth : null,
+            selectedYear: view === 'monthly' ? selectedYear : null,
+        });
+
+        let result;
         if (view === 'today') {
-            return calculateHourlyStats(history, selectedDate);
+            result = calculateHourlyStats(history, selectedDate);
         } else if (view === 'daily') {
-            return calculateMonthlyStats(history, selectedMonth.month, selectedMonth.year);
+            result = calculateMonthlyStats(history, selectedMonth.month, selectedMonth.year);
         } else {
-            return calculateYearlyStats(history, selectedYear);
+            result = calculateYearlyStats(history, selectedYear);
         }
+
+        console.log('📊 Stats result:', {
+            totalFeeds: result.totalFeeds,
+            blocks: view === 'today' ? result.blocks?.length : undefined,
+            dailyTotals: view === 'daily' ? result.dailyTotals?.length : undefined,
+            monthlyTotals: view === 'monthly' ? result.monthlyTotals?.length : undefined,
+        });
+
+        return result;
     }, [view, history, selectedDate, selectedMonth, selectedYear]);
 
     // Format duration for charts (seconds to "X min")
@@ -96,25 +114,36 @@ export function SummaryPage({ history }) {
 
     // Prepare chart data based on view
     const chartData = useMemo(() => {
+        let data;
         if (view === 'today') {
-            return stats.blocks.map((block) => ({
+            data = stats.blocks.map((block) => ({
                 label: block.label,
                 feedCount: block.feedCount,
                 duration: block.duration,
             }));
         } else if (view === 'daily') {
-            return stats.dailyTotals.map((day) => ({
+            data = stats.dailyTotals.map((day) => ({
                 label: day.day.toString(),
                 feedCount: day.feedCount,
                 duration: day.totalDurationSeconds,
             }));
         } else {
-            return stats.monthlyTotals.map((month) => ({
+            data = stats.monthlyTotals.map((month) => ({
                 label: month.label,
                 feedCount: month.feedCount,
                 duration: month.totalDurationSeconds,
             }));
         }
+
+        console.log('📊 Chart data prepared:', {
+            view,
+            dataLength: data.length,
+            first3Points: data.slice(0, 3),
+            maxFeedCount: Math.max(...data.map((d) => d.feedCount)),
+            maxDuration: Math.max(...data.map((d) => d.duration)),
+        });
+
+        return data;
     }, [view, stats]);
 
     return (
