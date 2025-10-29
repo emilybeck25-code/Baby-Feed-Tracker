@@ -6,6 +6,7 @@ import { SummaryPage } from './pages/SummaryPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { DeveloperMenu } from './components/DeveloperMenu';
 import { generateSampleData } from './data/sampleFeedingData';
+import { APP_VERSION } from './version';
 
 export function App() {
     const [currentPage, setCurrentPage] = useState('Tracker');
@@ -62,7 +63,9 @@ export function App() {
                 <h1 className="flex-1 text-3xl font-bold bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent text-center">
                     Baby Feed Tracker
                 </h1>
-                <div className="w-10"></div> {/* Spacer for centering */}
+                <div className="min-w-[3.5rem] text-right text-sm font-semibold text-slate-500" title="Application version">
+                    v{APP_VERSION}
+                </div>
             </header>
 
             {/* Main Content */}
