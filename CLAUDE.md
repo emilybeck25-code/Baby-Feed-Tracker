@@ -39,8 +39,7 @@ State is managed via React hooks with no external state library:
   - Returns feed object with `{ side, duration, endTime }` when stopped
 
 - **`useFeedingHistory`** (`src/hooks/useFeedingHistory.js`): Manages feeding history and localStorage sync
-  - Auto-pairs opposite-side feeds within 10 minutes into single units
-  - Auto-completes unpaired feeds (adds 0-duration opposite side) after 10 minutes
+  - Pairs opposite-side feeds into single units based on user actions
   - History is always sorted newest-first
 
 ### Data Model
@@ -69,10 +68,10 @@ History array contains Feed Units, stored newest-first.
 
 Located in `src/utils/feedLogic.js`:
 
-- Feeds from opposite sides within 10 minutes are paired into a single unit
+- Feeds from opposite sides are paired into a single unit based on user actions
 - Same-side feeds always create separate units
 - Units with 2 sessions cannot accept more sessions
-- The 10-minute window (`TEN_MINUTES_MS` in `src/utils/constants.js`) is measured from the previous unit's `endTime`
+- Pairing happens when user clicks opposite side after completing first side
 
 ### Page Structure
 

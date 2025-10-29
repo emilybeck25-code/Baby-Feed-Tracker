@@ -1,16 +1,12 @@
-import { TEN_MINUTES_MS } from './constants.js';
-
 export function addFeedLogic(history, newSingleFeed) {
     const newHistory = [...history];
 
     if (newHistory.length > 0) {
         const lastUnit = newHistory[0];
-        const timeDiff = newSingleFeed.endTime - lastUnit.endTime;
 
         if (
             lastUnit.sessions.length === 1 &&
-            lastUnit.sessions[0].side !== newSingleFeed.side &&
-            timeDiff < TEN_MINUTES_MS
+            lastUnit.sessions[0].side !== newSingleFeed.side
         ) {
             // Add to existing unit
             lastUnit.sessions.push(newSingleFeed);

@@ -3,7 +3,7 @@ import { FeedingSide } from '../constants.js';
 import { addFeedLogic } from '../feedLogic.js';
 
 describe('Feed Grouping Logic', () => {
-    test('should group opposite sides within 10 minutes', () => {
+    test('should group opposite sides', () => {
         const history = [];
         const baseTime = Date.now();
 
@@ -19,23 +19,6 @@ describe('Feed Grouping Logic', () => {
 
         expect(history2.length).toBe(1);
         expect(history2[0].sessions.length).toBe(2);
-    });
-
-    test('should NOT group opposite sides after 10 minutes', () => {
-        const history = [];
-        const baseTime = Date.now();
-
-        const feed1 = { side: FeedingSide.Left, duration: 300, endTime: baseTime };
-        const history1 = addFeedLogic(history, feed1);
-
-        const feed2 = {
-            side: FeedingSide.Right,
-            duration: 240,
-            endTime: baseTime + 11 * 60 * 1000,
-        };
-        const history2 = addFeedLogic(history1, feed2);
-
-        expect(history2.length).toBe(2);
     });
 
     test('should NOT group same side feeds', () => {
@@ -78,23 +61,6 @@ describe('Feed Grouping Logic', () => {
 
         expect(history3.length).toBe(2);
         expect(history3[0].sessions.length).toBe(1);
-    });
-
-    test('should handle boundary: exactly 10 minutes', () => {
-        const history = [];
-        const baseTime = Date.now();
-
-        const feed1 = { side: FeedingSide.Left, duration: 300, endTime: baseTime };
-        const history1 = addFeedLogic(history, feed1);
-
-        const feed2 = {
-            side: FeedingSide.Right,
-            duration: 240,
-            endTime: baseTime + 10 * 60 * 1000,
-        };
-        const history2 = addFeedLogic(history1, feed2);
-
-        expect(history2.length).toBe(2);
     });
 });
 

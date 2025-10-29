@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { FeedingSide, TEN_MINUTES_MS } from '../utils/constants';
 import { addFeedLogic } from '../utils/feedLogic';
 
 export function useFeedingHistory() {
@@ -19,37 +18,6 @@ export function useFeedingHistory() {
     const deleteFeed = useCallback((unitId) => {
         setHistory((prevHistory) => prevHistory.filter((unit) => unit.id !== unitId));
     }, []);
-
-    // Auto-completion logic
-    useEffect(() => {
-        if (history.length === 0) return;
-        const lastUnit = history[0];
-        if (lastUnit.sessions.length !== 1) return;
-
-        const timeSinceLastFeed = Date.now() - lastUnit.endTime;
-        const delay = Math.max(0, TEN_MINUTES_MS - timeSinceLastFeed);
-
-        const timeout = setTimeout(() => {
-            setHistory((prevHistory) => {
-                const newHistory = [...prevHistory];
-                const unit = newHistory[0];
-                if (unit.sessions.length === 1) {
-                    const missingSide =
-                        unit.sessions[0].side === FeedingSide.Left
-                            ? FeedingSide.Right
-                            : FeedingSide.Left;
-                    unit.sessions.push({
-                        side: missingSide,
-                        duration: 0,
-                        endTime: unit.endTime,
-                    });
-                }
-                return newHistory;
-            });
-        }, delay);
-
-        return () => clearTimeout(timeout);
-    }, [history]);
 
     const clearHistory = useCallback(() => {
         if (window.confirm('Are you sure you want to clear all feeding history?')) {
