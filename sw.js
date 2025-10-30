@@ -8,7 +8,6 @@ const FILES_TO_CACHE = [
 self.addEventListener('install', e => {
     e.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('Service Worker caching app shell');
             return cache.addAll(FILES_TO_CACHE);
         })
     );
@@ -21,7 +20,6 @@ self.addEventListener('activate', e => {
             return Promise.all(keyList.map(key => {
                 // If the cache key is old (not our new v4), delete it
                 if (key !== CACHE_NAME) { 
-                    console.log('Service Worker removing old cache:', key);
                     return caches.delete(key);
                 }
             }));

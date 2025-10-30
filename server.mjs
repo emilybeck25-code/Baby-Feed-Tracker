@@ -50,6 +50,4 @@ const server = createServer(async (req, res) => {
     }
 });
 
-server.listen(port, () => {
-    console.log(`Baby Feed Tracker running at http://localhost:${port}`);
-});
+server.listen(port);

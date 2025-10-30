@@ -14,9 +14,6 @@ npm run dev          # Start dev server (http://localhost:5173)
 npm run build        # Build for production (outputs to dist/)
 npm run preview      # Preview production build
 
-# Testing
-npm test             # Run tests with Vitest
-
 # Code Quality
 npm run lint         # Lint code with ESLint
 npm run lint:fix     # Auto-fix linting issues
@@ -132,20 +129,6 @@ Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 ### Notifications
 
 Notifications are managed via the Notifications API. Permission is requested when the user first sets a reminder. Reminders trigger browser notifications even when the app is backgrounded.
-
-### Testing
-
-Minimal testing setup using Vitest. Tests are located in `src/utils/__tests__/feedLogic.test.js` and cover the core feed pairing logic:
-- Opposite-side pairing into single unit
-- Same-side feeds create separate units
-- 2-session units cannot accept more sessions
-- Data structure integrity and immutability
-
-Configuration in `vitest.config.js` with jsdom environment for browser API testing.
-
-Run with `npm test`.
-
-All utils and hooks have JSDoc comments for better IDE support.
 
 ### Statistics Utilities
 

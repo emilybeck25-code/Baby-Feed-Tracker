@@ -34,10 +34,6 @@ export default [
             ...react.configs.recommended.rules,
             ...reactHooks.configs.recommended.rules,
             ...jsxA11y.configs.recommended.rules,
-
-            // Allow console.log for development
-            'no-console': 'off',
-
             // React 17+ doesn't require React in scope
             'react/react-in-jsx-scope': 'off',
 
