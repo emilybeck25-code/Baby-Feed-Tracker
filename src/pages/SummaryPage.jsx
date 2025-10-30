@@ -4,11 +4,13 @@ import {
     calculateMonthlyStats,
     calculateYearlyStats,
 } from '../utils/statistics';
+import { useFeedingContext } from '../contexts/FeedingContext';
 import { StatCard } from '../components/StatCard';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { MiniBarChart } from '../components/MiniBarChart';
 
-export function SummaryPage({ history }) {
+export function SummaryPage() {
+    const { history } = useFeedingContext();
     const [view, setView] = useState('today'); // 'today' | 'daily' | 'monthly'
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedMonth, setSelectedMonth] = useState({

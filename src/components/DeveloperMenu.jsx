@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { MenuIcon } from './icons';
 
 export function DeveloperMenu({ onImportData }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -31,19 +32,7 @@ export function DeveloperMenu({ onImportData }) {
                 className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                 aria-label="Developer menu"
             >
-                <svg
-                    className="w-6 h-6 text-slate-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                    />
-                </svg>
+                <MenuIcon className="w-6 h-6 text-slate-600" />
             </button>
 
             {/* Dropdown Menu */}

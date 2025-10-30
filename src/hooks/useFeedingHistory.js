@@ -1,6 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { addFeedLogic } from '../utils/feedLogic';
 
+/**
+ * Custom hook for managing feeding history with localStorage persistence.
+ *
+ * @returns {Object} History state and control functions
+ * @returns {Array} .history - Array of feed units (newest first)
+ * @returns {Function} .addFeed - Add a new feed session to history
+ * @returns {Function} .deleteFeed - Delete a feed unit by ID
+ * @returns {Function} .clearHistory - Clear all feeding history
+ * @returns {Function} .importHistory - Import history data (with confirmation)
+ * @returns {number|null} .lastFeedTime - Timestamp of most recent feed
+ * @returns {Array} .chronologicalHistory - Same as history (for backwards compatibility)
+ */
 export function useFeedingHistory() {
     const [history, setHistory] = useState(() => {
         const saved = localStorage.getItem('feedingHistory');

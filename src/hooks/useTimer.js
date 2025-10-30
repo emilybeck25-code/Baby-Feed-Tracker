@@ -1,5 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+/**
+ * Custom hook for managing a feeding timer with pause/resume and wake lock support.
+ *
+ * @returns {Object} Timer state and control functions
+ * @returns {string|null} .activeSide - Currently active side ('Left', 'Right', or null)
+ * @returns {number} .duration - Current timer duration in seconds
+ * @returns {boolean} .paused - Whether the timer is paused
+ * @returns {Function} .startTimer - Start timer for a specific side
+ * @returns {Function} .pauseTimer - Pause the active timer
+ * @returns {Function} .resumeTimer - Resume the paused timer
+ * @returns {Function} .togglePause - Toggle between pause and resume
+ * @returns {Function} .stopTimer - Stop timer and return feed session object
+ */
 export function useTimer() {
     const [activeSide, setActiveSide] = useState(null);
     const [duration, setDuration] = useState(0);

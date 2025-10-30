@@ -1,5 +1,12 @@
 import { FeedingSide } from './constants.js';
 
+/**
+ * Calculates feeding statistics for a specific date.
+ *
+ * @param {Array} history - Array of feed units
+ * @param {Date|number} targetDate - Target date to calculate stats for
+ * @returns {Object} Stats object with totalFeeds, totalTime, leftTime, rightTime, avgDuration, longestFeed, shortestFeed
+ */
 export function calculateDailyStats(history, targetDate) {
     const today = new Date(targetDate);
     today.setHours(0, 0, 0, 0);
@@ -42,6 +49,13 @@ export function calculateDailyStats(history, targetDate) {
     return { totalFeeds, totalTime, leftTime, rightTime, avgDuration, longestFeed, shortestFeed };
 }
 
+/**
+ * Calculates hourly feeding patterns for a specific date (8 x 3-hour time blocks).
+ *
+ * @param {Array} history - Array of feed units
+ * @param {Date|number} targetDate - Target date to calculate stats for
+ * @returns {Object} Stats with blocks array, mostActiveBlock, and daily totals
+ */
 export function calculateHourlyStats(history, targetDate) {
     const today = new Date(targetDate);
     today.setHours(0, 0, 0, 0);
@@ -101,6 +115,14 @@ export function calculateHourlyStats(history, targetDate) {
     };
 }
 
+/**
+ * Calculates feeding statistics for a specific month.
+ *
+ * @param {Array} history - Array of feed units
+ * @param {number} currentMonth - Month (0-11)
+ * @param {number} currentYear - Year (e.g., 2025)
+ * @returns {Object} Stats with totalFeeds, avgFeedsPerDay, mostActiveDay, dailyTotals array
+ */
 export function calculateMonthlyStats(history, currentMonth, currentYear) {
     const monthFeeds = history.filter((unit) => {
         const feedDate = new Date(unit.endTime);
@@ -188,6 +210,13 @@ export function calculateMonthlyStats(history, currentMonth, currentYear) {
     };
 }
 
+/**
+ * Calculates feeding statistics for a specific year.
+ *
+ * @param {Array} history - Array of feed units
+ * @param {number} year - Year (e.g., 2025)
+ * @returns {Object} Stats with totalFeeds, avgFeedsPerMonth, mostActiveMonth, monthlyTotals array
+ */
 export function calculateYearlyStats(history, year) {
     const yearFeeds = history.filter((unit) => {
         const feedDate = new Date(unit.endTime);

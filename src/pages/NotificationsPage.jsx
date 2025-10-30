@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useFeedingContext } from '../contexts/FeedingContext';
 
-export function NotificationsPage({ lastFeedTime }) {
+export function NotificationsPage() {
+    const { lastFeedTime } = useFeedingContext();
     const [permission, setPermission] = useState(Notification.permission);
     const [hours, setHours] = useState(3);
     const [minutes, setMinutes] = useState(0);
