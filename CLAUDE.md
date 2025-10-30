@@ -15,10 +15,7 @@ npm run build        # Build for production (outputs to dist/)
 npm run preview      # Preview production build
 
 # Testing
-npm test             # Run tests once with Vitest
-npm run test:watch   # Run tests in watch mode
-npm run test:ui      # Run tests with UI
-npm run test:coverage # Run tests with coverage report
+npm test             # Run tests with Vitest
 
 # Code Quality
 npm run lint         # Lint code with ESLint
@@ -29,18 +26,52 @@ npm run format:check # Check code formatting
 
 ## Architecture
 
+### Project Structure
+
+The app follows React best practices with clear separation of concerns:
+
+```
+src/
+├── components/
+│   ├── icons/       # Reusable SVG icon components (Clock, Stop, Pause, Play, etc.)
+│   ├── layout/      # Header and BottomNav components
+│   ├── feed/        # FeedButton and FeedControls (button logic)
+│   └── [other]      # HistoryLog, TimerDisplay, StatCard, DualMetricChart, etc.
+├── contexts/
+│   └── FeedingContext.jsx  # Centralized state via Context API
+├── hooks/
+│   ├── useTimer.js          # Timer state with wake lock
+│   └── useFeedingHistory.js # History with localStorage sync
+├── pages/
+│   ├── TrackerPage.jsx
+│   ├── SummaryPage.jsx
+│   └── NotificationsPage.jsx
+├── utils/
+│   ├── feedLogic.js      # Feed pairing logic
+│   ├── statistics.js     # Stats calculations
+│   ├── timeFormatting.js # Time display utilities
+│   └── constants.js
+└── data/
+    └── sampleFeedingData.js  # Sample data generator
+```
+
 ### State Management
 
-State is managed via React hooks with no external state library:
+State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
+- Wraps `useTimer` and `useFeedingHistory` hooks
+- Provides centralized state to all components via `useFeedingContext()`
+- Eliminates prop drilling throughout the app
 
-- **`useTimer`** (`src/hooks/useTimer.js`): Manages timer state for active feeding sessions
-  - Uses timestamp-based duration calculation (not interval-based) for accuracy
-  - Acquires screen wake lock during feeding to prevent screen timeout
-  - Returns feed object with `{ side, duration, endTime }` when stopped
+**`useTimer`** (`src/hooks/useTimer.js`):
+- Manages timer state for active feeding sessions
+- Uses timestamp-based duration calculation (not interval-based) for accuracy
+- Acquires screen wake lock during feeding to prevent screen timeout
+- Returns feed object with `{ side, duration, endTime }` when stopped
 
-- **`useFeedingHistory`** (`src/hooks/useFeedingHistory.js`): Manages feeding history and localStorage sync
-  - Pairs opposite-side feeds into single units based on user actions
-  - History is always sorted newest-first
+**`useFeedingHistory`** (`src/hooks/useFeedingHistory.js`):
+- Manages feeding history and localStorage sync
+- Pairs opposite-side feeds into single units based on user actions
+- History is always sorted newest-first
 
 ### Data Model
 
@@ -66,12 +97,20 @@ History array contains Feed Units, stored newest-first.
 
 ### Feed Pairing Logic
 
-Located in `src/utils/feedLogic.js`:
+Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 
+**Pairing Rules:**
 - Feeds from opposite sides are paired into a single unit based on user actions
 - Same-side feeds always create separate units
 - Units with 2 sessions cannot accept more sessions
-- Pairing happens when user clicks opposite side after completing first side
+- No time-based auto-pairing (removed in v0.2.0)
+
+**Button Flow:**
+1. Click L/R → starts timer, shows Stop (on active) + Pause (on opposite)
+2. Click Stop → saves session, shows "Finish" button
+3. Click "Finish" → saves with 0-duration opposite side
+4. OR click opposite side → starts second timer
+5. Stop second timer → auto-saves both sessions
 
 ### Page Structure
 
@@ -96,14 +135,17 @@ Notifications are managed via the Notifications API. Permission is requested whe
 
 ### Testing
 
-Uses Vitest with tests organized in `src/utils/__tests__/`:
-- `feedLogic.test.js` - Feed grouping logic (10-minute pairing rules) and data structure integrity
-- `timeFormatting.test.js` - Timer display formatting
-- `statistics.test.js` - Daily statistics calculation
+Minimal testing setup using Vitest. Tests are located in `src/utils/__tests__/feedLogic.test.js` and cover the core feed pairing logic:
+- Opposite-side pairing into single unit
+- Same-side feeds create separate units
+- 2-session units cannot accept more sessions
+- Data structure integrity and immutability
 
-Configuration in `vitest.config.js` with jsdom environment for browser API testing (localStorage, navigator).
+Configuration in `vitest.config.js` with jsdom environment for browser API testing.
 
-Run with `npm test` (or `npm run test:watch` for watch mode).
+Run with `npm test`.
+
+All utils and hooks have JSDoc comments for better IDE support.
 
 ### Statistics Utilities
 
@@ -116,13 +158,26 @@ Located in `src/utils/statistics.js`:
 
 All functions accept history array and date/period parameters, return 0 values when no data exists.
 
-### Components
+### Key Components
 
-- **`DualMetricChart`**: Displays two metrics (feed count + duration) as side-by-side bars with gradients
-- **`StatCard`**: Displays a single statistic with title and value
+**Layout:**
+- **`Header`**: App title, version badge, developer menu
+- **`BottomNav`**: Fixed navigation bar with icons (Tracker | Summary | Notify)
+
+**Feed Controls:**
+- **`FeedButton`**: Single L/R button with dynamic icon (Stop/Pause/Play/"Finish"/"L"/"R")
+- **`FeedControls`**: Manages both buttons and all feeding flow logic
+
+**Display:**
+- **`DualMetricChart`**: Side-by-side bars for feed count + duration with gradients
+- **`StatCard`**: Single statistic with title and value
 - **`TimerDisplay`**: Formats seconds into MM:SS display
-- **`HistoryLog`**: Expandable feed history with delete and clear functions
+- **`HistoryLog`**: Swipeable feed history with delete and clear functions
 - **`LastFeedElapsed`**: Shows time elapsed since last feed
+
+**Icons:**
+- All SVG icons extracted to `src/components/icons/` for reusability
+- Includes: ClockIcon, StopIcon, PauseIcon, PlayIcon, ChartIcon, BellIcon, MenuIcon
 
 ### Code Quality Tools
 
