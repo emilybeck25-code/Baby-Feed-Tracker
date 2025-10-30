@@ -16,10 +16,15 @@ export function FeedButton({
     const isCompleted = completedSession?.side === side;
 
     const isLeftSide = side === FeedingSide.Left;
-    const baseColor = isLeftSide ? 'violet' : 'rose';
 
-    // Determine button styling
-    const bgColor = isActive || isCompleted ? `bg-${baseColor}-600` : `bg-${baseColor}-400`;
+    // Determine button styling (explicit classes for Tailwind - can't use template literals)
+    let bgColor;
+    if (isLeftSide) {
+        bgColor = isActive || isCompleted ? 'bg-violet-600' : 'bg-violet-400';
+    } else {
+        bgColor = isActive || isCompleted ? 'bg-rose-600' : 'bg-rose-400';
+    }
+
     const scaleClass = suggestedStartSide === side ? 'scale-125' : '';
     const textSize =
         isCompleted ? 'text-lg' : activeSide !== null && !isActive ? '' : 'text-4xl';
