@@ -1,7 +1,7 @@
 import { DeveloperMenu } from '../DeveloperMenu';
-import { APP_VERSION } from '../../version';
 import { useFeedingContext } from '../../contexts/FeedingContext';
 import { generateSampleData } from '../../data/sampleFeedingData';
+import packageJson from '../../../package.json';
 
 export function Header() {
     const { importHistory } = useFeedingContext();
@@ -21,7 +21,7 @@ export function Header() {
                 className="min-w-[3.5rem] text-right text-sm font-semibold text-slate-500"
                 title="Application version"
             >
-                v{APP_VERSION}
+                v{packageJson.version}
             </div>
         </header>
     );

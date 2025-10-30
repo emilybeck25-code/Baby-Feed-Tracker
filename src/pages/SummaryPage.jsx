@@ -21,31 +21,13 @@ export function SummaryPage() {
 
     // Calculate stats based on current view
     const stats = useMemo(() => {
-        console.log('📊 SummaryPage calculating stats:', {
-            view,
-            historyLength: history.length,
-            selectedDate: view === 'today' ? selectedDate.toLocaleDateString() : null,
-            selectedMonth: view === 'daily' ? selectedMonth : null,
-            selectedYear: view === 'monthly' ? selectedYear : null,
-        });
-
-        let result;
         if (view === 'today') {
-            result = calculateHourlyStats(history, selectedDate);
+            return calculateHourlyStats(history, selectedDate);
         } else if (view === 'daily') {
-            result = calculateMonthlyStats(history, selectedMonth.month, selectedMonth.year);
+            return calculateMonthlyStats(history, selectedMonth.month, selectedMonth.year);
         } else {
-            result = calculateYearlyStats(history, selectedYear);
+            return calculateYearlyStats(history, selectedYear);
         }
-
-        console.log('📊 Stats result:', {
-            totalFeeds: result.totalFeeds,
-            blocks: view === 'today' ? result.blocks?.length : undefined,
-            dailyTotals: view === 'daily' ? result.dailyTotals?.length : undefined,
-            monthlyTotals: view === 'monthly' ? result.monthlyTotals?.length : undefined,
-        });
-
-        return result;
     }, [view, history, selectedDate, selectedMonth, selectedYear]);
 
     // Date navigation handlers

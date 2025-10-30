@@ -46,9 +46,8 @@ export function useTimer() {
         if ('wakeLock' in navigator) {
             try {
                 wakeLockRef.current = await navigator.wakeLock.request('screen');
-                console.log('Wake lock acquired - screen will stay on');
             } catch (err) {
-                console.warn('Wake lock request failed:', err);
+                // Wake lock request failed, continue without it
             }
         }
     }, []);
@@ -100,11 +99,10 @@ export function useTimer() {
             wakeLockRef.current
                 .release()
                 .then(() => {
-                    console.log('Wake lock released');
                     wakeLockRef.current = null;
                 })
-                .catch((err) => {
-                    console.warn('Wake lock release failed:', err);
+                .catch(() => {
+                    // Wake lock release failed, ignore
                 });
         }
 

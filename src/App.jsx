@@ -3,7 +3,8 @@ import { FeedingProvider } from './contexts/FeedingContext';
 import { TrackerPage } from './pages/TrackerPage';
 import { SummaryPage } from './pages/SummaryPage';
 import { NotificationsPage } from './pages/NotificationsPage';
-import { Header, BottomNav } from './components/layout';
+import { Header } from './components/layout/Header';
+import { BottomNav } from './components/layout/BottomNav';
 
 export function App() {
     return (

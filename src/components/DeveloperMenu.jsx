@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MenuIcon } from './icons';
+import { MenuIcon } from './icons/MenuIcon';
 
 export function DeveloperMenu({ onImportData }) {
     const [isOpen, setIsOpen] = useState(false);

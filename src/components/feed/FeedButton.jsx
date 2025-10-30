@@ -1,5 +1,7 @@
 import { FeedingSide } from '../../utils/constants';
-import { StopIcon, PauseIcon, PlayIcon } from '../icons';
+import { StopIcon } from '../icons/StopIcon';
+import { PauseIcon } from '../icons/PauseIcon';
+import { PlayIcon } from '../icons/PlayIcon';
 
 export function FeedButton({
     side,

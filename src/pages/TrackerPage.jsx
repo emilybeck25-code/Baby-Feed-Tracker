@@ -2,7 +2,7 @@ import { useFeedingContext } from '../contexts/FeedingContext';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { HistoryLog } from '../components/HistoryLog';
 import { LastFeedElapsed } from '../components/LastFeedElapsed';
-import { FeedControls } from '../components/feed';
+import { FeedControls } from '../components/feed/FeedControls';
 
 export function TrackerPage() {
     const { activeSide, duration, deleteFeed, clearHistory, chronologicalHistory, lastFeedTime } =

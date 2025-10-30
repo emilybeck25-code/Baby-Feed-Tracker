@@ -1,4 +1,6 @@
-import { ClockIcon, ChartIcon, BellIcon } from '../icons';
+import { ClockIcon } from '../icons/ClockIcon';
+import { ChartIcon } from '../icons/ChartIcon';
+import { BellIcon } from '../icons/BellIcon';
 
 export function BottomNav({ currentPage, onNavigate }) {
     const navItems = [
