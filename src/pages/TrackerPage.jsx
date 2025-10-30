@@ -130,68 +130,58 @@ export function TrackerPage({
             {/* Action Buttons */}
             <div className="p-6 flex gap-4 justify-center">
                 {/* LEFT BUTTON AREA */}
-                {activeSide === FeedingSide.Right ? (
-                    <button
-                        type="button"
-                        onClick={togglePause}
-                        aria-label={paused ? 'Resume timer' : 'Pause timer'}
-                        className="w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform bg-violet-400"
-                    >
-                        {paused ? (
-                            <svg
-                                className="w-10 h-10 mx-auto"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                aria-hidden="true"
-                            >
-                                <path d="M8 5v14l11-7-11-7z" />
-                            </svg>
-                        ) : (
-                            <svg
-                                className="w-10 h-10 mx-auto"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                aria-hidden="true"
-                            >
-                                <rect x="6" y="5" width="4" height="14" rx="1" />
-                                <rect x="14" y="5" width="4" height="14" rx="1" />
-                            </svg>
-                        )}
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => {
-                            if (completedSession !== null && activeSide === FeedingSide.Left) {
+                <button
+                    onClick={() => {
+                        if (activeSide === FeedingSide.Left) {
+                            // Stop the active Left side
+                            const feed = stopTimer();
+                            setCompletedSession(feed);
+                        } else if (activeSide === FeedingSide.Right) {
+                            // Pause the Right side timer
+                            togglePause();
+                        } else if (completedSession !== null && activeSide === null) {
+                            // Handle completed session flow
+                            if (completedSession.side === FeedingSide.Left) {
                                 handleFinishBothSides();
                             } else {
                                 handleButtonClick(FeedingSide.Left);
                             }
-                        }}
-                        disabled={activeSide === FeedingSide.Right}
-                        className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
-                            activeSide === FeedingSide.Left ||
-                            completedSession?.side === FeedingSide.Left
-                                ? 'bg-violet-600'
-                                : 'bg-violet-400'
-                        } ${completedSession?.side === FeedingSide.Left ? 'text-lg' : 'text-4xl'} ${
-                            suggestedStartSide === FeedingSide.Left ? 'scale-110' : ''
-                        }`}
-                    >
-                        {completedSession?.side === FeedingSide.Left ? 'Finish' : 'L'}
-                    </button>
-                )}
-
-                {/* RIGHT BUTTON AREA */}
-                {activeSide === FeedingSide.Left ? (
-                    <button
-                        type="button"
-                        onClick={togglePause}
-                        aria-label={paused ? 'Resume timer' : 'Pause timer'}
-                        className="w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform bg-rose-400"
-                    >
-                        {paused ? (
+                        } else {
+                            // Start new Left side timer
+                            handleButtonClick(FeedingSide.Left);
+                        }
+                    }}
+                    className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform ${
+                        activeSide === FeedingSide.Left ||
+                        completedSession?.side === FeedingSide.Left
+                            ? 'bg-violet-600'
+                            : 'bg-violet-400'
+                    } ${completedSession?.side === FeedingSide.Left ? 'text-lg' : activeSide !== null ? '' : 'text-4xl'} ${
+                        suggestedStartSide === FeedingSide.Left ? 'scale-110' : ''
+                    }`}
+                    aria-label={
+                        activeSide === FeedingSide.Left
+                            ? 'Stop Left side'
+                            : activeSide === FeedingSide.Right
+                              ? paused
+                                  ? 'Resume timer'
+                                  : 'Pause timer'
+                              : 'Start Left side'
+                    }
+                >
+                    {activeSide === FeedingSide.Left ? (
+                        // Stop icon for active Left side
+                        <svg
+                            className="w-10 h-10 mx-auto"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                        >
+                            <rect x="6" y="6" width="12" height="12" rx="1" />
+                        </svg>
+                    ) : activeSide === FeedingSide.Right ? (
+                        // Pause/Play icon when Right is active
+                        paused ? (
                             <svg
                                 className="w-10 h-10 mx-auto"
                                 viewBox="0 0 24 24"
@@ -212,30 +202,94 @@ export function TrackerPage({
                                 <rect x="6" y="5" width="4" height="14" rx="1" />
                                 <rect x="14" y="5" width="4" height="14" rx="1" />
                             </svg>
-                        )}
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => {
-                            if (completedSession !== null && activeSide === FeedingSide.Right) {
+                        )
+                    ) : completedSession?.side === FeedingSide.Left ? (
+                        'Finish'
+                    ) : (
+                        'L'
+                    )}
+                </button>
+
+                {/* RIGHT BUTTON AREA */}
+                <button
+                    onClick={() => {
+                        if (activeSide === FeedingSide.Right) {
+                            // Stop the active Right side
+                            const feed = stopTimer();
+                            setCompletedSession(feed);
+                        } else if (activeSide === FeedingSide.Left) {
+                            // Pause the Left side timer
+                            togglePause();
+                        } else if (completedSession !== null && activeSide === null) {
+                            // Handle completed session flow
+                            if (completedSession.side === FeedingSide.Right) {
                                 handleFinishBothSides();
                             } else {
                                 handleButtonClick(FeedingSide.Right);
                             }
-                        }}
-                        disabled={activeSide === FeedingSide.Left}
-                        className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
-                            activeSide === FeedingSide.Right ||
-                            completedSession?.side === FeedingSide.Right
-                                ? 'bg-rose-600'
-                                : 'bg-rose-400'
-                        } ${completedSession?.side === FeedingSide.Right ? 'text-lg' : 'text-4xl'} ${
-                            suggestedStartSide === FeedingSide.Right ? 'scale-110' : ''
-                        }`}
-                    >
-                        {completedSession?.side === FeedingSide.Right ? 'Finish' : 'R'}
-                    </button>
-                )}
+                        } else {
+                            // Start new Right side timer
+                            handleButtonClick(FeedingSide.Right);
+                        }
+                    }}
+                    className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform ${
+                        activeSide === FeedingSide.Right ||
+                        completedSession?.side === FeedingSide.Right
+                            ? 'bg-rose-600'
+                            : 'bg-rose-400'
+                    } ${completedSession?.side === FeedingSide.Right ? 'text-lg' : activeSide !== null ? '' : 'text-4xl'} ${
+                        suggestedStartSide === FeedingSide.Right ? 'scale-110' : ''
+                    }`}
+                    aria-label={
+                        activeSide === FeedingSide.Right
+                            ? 'Stop Right side'
+                            : activeSide === FeedingSide.Left
+                              ? paused
+                                  ? 'Resume timer'
+                                  : 'Pause timer'
+                              : 'Start Right side'
+                    }
+                >
+                    {activeSide === FeedingSide.Right ? (
+                        // Stop icon for active Right side
+                        <svg
+                            className="w-10 h-10 mx-auto"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                        >
+                            <rect x="6" y="6" width="12" height="12" rx="1" />
+                        </svg>
+                    ) : activeSide === FeedingSide.Left ? (
+                        // Pause/Play icon when Left is active
+                        paused ? (
+                            <svg
+                                className="w-10 h-10 mx-auto"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path d="M8 5v14l11-7-11-7z" />
+                            </svg>
+                        ) : (
+                            <svg
+                                className="w-10 h-10 mx-auto"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                aria-hidden="true"
+                            >
+                                <rect x="6" y="5" width="4" height="14" rx="1" />
+                                <rect x="14" y="5" width="4" height="14" rx="1" />
+                            </svg>
+                        )
+                    ) : completedSession?.side === FeedingSide.Right ? (
+                        'Finish'
+                    ) : (
+                        'R'
+                    )}
+                </button>
             </div>
         </div>
     );
