@@ -189,6 +189,34 @@ All functions accept history array and date/period parameters, return 0 values w
 
 Deployed to GitHub Pages with base path `/Baby-Feed-Tracker/` configured in `vite.config.js`.
 
+### PWA Update Strategy
+
+The app uses `vite-plugin-pwa` with the following update mechanism to ensure installed PWAs receive updates:
+
+**Configuration** (`vite.config.js`):
+- `registerType: 'autoUpdate'` - Automatically activates new service workers
+- Forces `skipWaiting()` and `clientsClaim()` for immediate updates
+
+**Update Detection** (`src/main.jsx`):
+- Imports `virtual:pwa-register` module to programmatically control service worker
+- Checks for updates every 60 seconds via `registration.update()`
+- This works around GitHub Pages' HTTP cache headers (10-minute cache on sw.js)
+
+**How Updates Work**:
+1. Every 60 seconds, the app calls `registration.update()` to force a network fetch of `sw.js`
+2. Browser compares new `sw.js` byte-by-byte with current version
+3. If changed, new service worker installs and immediately activates (`skipWaiting`)
+4. New worker takes control of all pages (`clientsClaim`)
+5. PWA automatically reloads to use new assets
+
+**Why This is Needed**:
+- GitHub Pages serves files with cache headers that browsers respect for up to 24 hours
+- Without periodic `registration.update()` calls, installed PWAs would only check for updates on app launch after 24+ hours
+- The 60-second interval ensures updates are detected within ~1 minute of deployment
+
+**Alternative Approach**:
+For production deployments on platforms with cache header control (Vercel, Netlify), set `cache-control: max-age=0, must-revalidate` on `sw.js` and `index.html`, then remove the 60-second interval.
+
 ## Key Constraints
 
 - No backend or authentication
