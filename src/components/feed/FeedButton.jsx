@@ -20,7 +20,7 @@ export function FeedButton({
 
     // Determine button styling
     const bgColor = isActive || isCompleted ? `bg-${baseColor}-600` : `bg-${baseColor}-400`;
-    const scaleClass = suggestedStartSide === side ? 'scale-110' : '';
+    const scaleClass = suggestedStartSide === side ? 'scale-125' : '';
     const textSize =
         isCompleted ? 'text-lg' : activeSide !== null && !isActive ? '' : 'text-4xl';
 
