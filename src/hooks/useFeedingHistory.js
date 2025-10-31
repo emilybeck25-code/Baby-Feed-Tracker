@@ -1,5 +1,19 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { addFeedLogic } from '../utils/feedLogic';
+import { addFeedLogic, PENDING_UNIT_PREFIX } from '../utils/feedLogic.js';
+
+export function createPendingUnit(side, startTime) {
+    return {
+        id: `${PENDING_UNIT_PREFIX}${startTime}`,
+        sessions: [
+            {
+                side,
+                duration: 0,
+                endTime: startTime,
+            },
+        ],
+        endTime: startTime,
+    };
+}
 
 /**
  * Custom hook for managing feeding history with localStorage persistence.
@@ -22,6 +36,16 @@ export function useFeedingHistory() {
     useEffect(() => {
         localStorage.setItem('feedingHistory', JSON.stringify(history));
     }, [history]);
+
+    const addPendingFeed = useCallback((side, startTime) => {
+        setHistory((prevHistory) => {
+            const pendingUnit = createPendingUnit(side, startTime);
+            if (prevHistory.length > 0 && prevHistory[0]?.id?.startsWith(PENDING_UNIT_PREFIX)) {
+                return prevHistory;
+            }
+            return [pendingUnit, ...prevHistory];
+        });
+    }, []);
 
     const addFeed = useCallback((newSingleFeed) => {
         setHistory((prevHistory) => addFeedLogic(prevHistory, newSingleFeed));
@@ -59,5 +83,6 @@ export function useFeedingHistory() {
         importHistory,
         lastFeedTime,
         chronologicalHistory,
+        addPendingFeed,
     };
 }

@@ -8,12 +8,18 @@ export function FeedingProvider({ children }) {
     const timer = useTimer();
     const history = useFeedingHistory();
 
+    const startTimerWithPending = (side) => {
+        const startTime = Date.now();
+        history.addPendingFeed(side, startTime);
+        timer.startTimer(side);
+    };
+
     const value = {
         // Timer state and methods
         activeSide: timer.activeSide,
         duration: timer.duration,
         paused: timer.paused,
-        startTimer: timer.startTimer,
+        startTimer: startTimerWithPending,
         pauseTimer: timer.pauseTimer,
         resumeTimer: timer.resumeTimer,
         togglePause: timer.togglePause,

@@ -1,3 +1,13 @@
+export const PENDING_UNIT_PREFIX = 'pending-';
+
+function createUnitId() {
+    return `${Date.now()}-${Math.random()}`;
+}
+
+function isPendingUnit(unit) {
+    return typeof unit?.id === 'string' && unit.id.startsWith(PENDING_UNIT_PREFIX);
+}
+
 /**
  * Adds a new feed session to the history, automatically pairing with the last unit if applicable.
  * Pairs opposite-side feeds into a single unit if the last unit has only one session.
@@ -15,12 +25,22 @@ export function addFeedLogic(history, newSingleFeed) {
     if (newHistory.length > 0) {
         const lastUnit = newHistory[0];
 
+        if (isPendingUnit(lastUnit)) {
+            const [pendingSession] = lastUnit.sessions;
+            if (pendingSession?.side === newSingleFeed.side) {
+                lastUnit.sessions = [newSingleFeed];
+                lastUnit.endTime = newSingleFeed.endTime;
+                lastUnit.id = createUnitId();
+                return newHistory;
+            }
+        }
+
         if (
             lastUnit.sessions.length === 1 &&
             lastUnit.sessions[0].side !== newSingleFeed.side
         ) {
             // Add to existing unit
-            lastUnit.sessions.push(newSingleFeed);
+            lastUnit.sessions = [...lastUnit.sessions, newSingleFeed];
             lastUnit.endTime = newSingleFeed.endTime;
             return newHistory;
         }
@@ -28,7 +48,7 @@ export function addFeedLogic(history, newSingleFeed) {
 
     // Create new unit
     const newUnit = {
-        id: `${Date.now()}-${Math.random()}`,
+        id: createUnitId(),
         sessions: [newSingleFeed],
         endTime: newSingleFeed.endTime,
     };
