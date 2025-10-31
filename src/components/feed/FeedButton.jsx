@@ -52,7 +52,7 @@ export function FeedButton({
             );
         }
         if (isCompleted) {
-            return 'Finish';
+            return 'End';
         }
         return side[0]; // 'L' or 'R'
     };
