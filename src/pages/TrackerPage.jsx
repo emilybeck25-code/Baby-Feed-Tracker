@@ -5,7 +5,7 @@ import { LastFeedElapsed } from '../components/LastFeedElapsed';
 import { FeedControls } from '../components/feed/FeedControls';
 
 export function TrackerPage() {
-    const { activeSide, duration, deleteFeed, clearHistory, chronologicalHistory, lastFeedTime } =
+    const { activeSide, duration, deleteFeed, chronologicalHistory, lastFeedTime } =
         useFeedingContext();
 
     return (
@@ -29,15 +29,8 @@ export function TrackerPage() {
 
             {/* History Header - Static */}
             {chronologicalHistory.length > 0 && (
-                <div className="px-4 flex justify-between items-center mb-4">
+                <div className="px-4 mb-4">
                     <h2 className="text-xl font-bold text-slate-800">Feeding History</h2>
-                    <button
-                        onClick={clearHistory}
-                        disabled={activeSide !== null}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg disabled:bg-slate-300 disabled:cursor-not-allowed"
-                    >
-                        Clear
-                    </button>
                 </div>
             )}
 

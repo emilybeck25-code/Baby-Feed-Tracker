@@ -4,16 +4,24 @@ import { generateSampleData } from '../../data/sampleFeedingData';
 import packageJson from '../../../package.json';
 
 export function Header() {
-    const { importHistory } = useFeedingContext();
+    const { importHistory, clearHistory, activeSide } = useFeedingContext();
 
     const handleImportSampleData = () => {
         const sampleData = generateSampleData();
         importHistory(sampleData);
     };
 
+    const handleClearHistory = () => {
+        clearHistory();
+    };
+
     return (
         <header className="p-4 flex items-center justify-between">
-            <DeveloperMenu onImportData={handleImportSampleData} />
+            <DeveloperMenu
+                onImportData={handleImportSampleData}
+                onClearHistory={handleClearHistory}
+                clearDisabled={activeSide !== null}
+            />
             <h1 className="flex-1 text-3xl font-bold bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent text-center">
                 Baby Feed Tracker
             </h1>
