@@ -4,6 +4,7 @@ dist/
 tmp/
 *.log
 *.cache
+package-lock.json
 
 # Local storage exports/backups
 local-storage/
