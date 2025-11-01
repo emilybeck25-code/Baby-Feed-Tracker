@@ -75,6 +75,9 @@ export function useFeedingHistory() {
                 return prevHistory;
             }
 
+            /**
+             * Note: Do NOT infer "pending" from sessions.length. The 'pending-' ID prefix is the source of truth.
+             */
             // Reuse existing single-session unit when starting the opposite side
             if (top && Array.isArray(top.sessions) && top.sessions.length === 1) {
                 const firstSide = top.sessions[0]?.side;
