@@ -47,9 +47,7 @@ export default [
             // Enforce React hooks rules
             'react-hooks/rules-of-hooks': 'error',
             'react-hooks/exhaustive-deps': 'warn',
-
-            // Allow setState in effects (sometimes necessary for cleanup)
-            'react-hooks/set-state-in-effect': 'warn',
+            'react-hooks/set-state-in-effect': 'off', // Disabled - setState in effects is sometimes necessary
 
             // Allow unescaped entities (common in text)
             'react/no-unescaped-entities': 'off',
