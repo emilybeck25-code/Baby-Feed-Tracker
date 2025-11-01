@@ -19,6 +19,9 @@ npm run lint         # Lint code with ESLint
 npm run lint:fix     # Auto-fix linting issues
 npm run format       # Format code with Prettier
 npm run format:check # Check code formatting
+
+# Testing
+npm test             # Run tests in src/utils/__tests__/
 ```
 
 ## Architecture
@@ -33,12 +36,13 @@ src/
 │   ├── icons/       # Reusable SVG icon components (Clock, Stop, Pause, Play, etc.)
 │   ├── layout/      # Header and BottomNav components
 │   ├── feed/        # FeedButton and FeedControls (button logic)
-│   └── [other]      # HistoryLog, TimerDisplay, StatCard, DualMetricChart, etc.
+│   └── [other]      # HistoryLog, TimerDisplay, StatCard, MiniBarChart, etc.
 ├── contexts/
 │   └── FeedingContext.jsx  # Centralized state via Context API
 ├── hooks/
 │   ├── useTimer.js          # Timer state with wake lock
-│   └── useFeedingHistory.js # History with localStorage sync
+│   ├── useFeedingHistory.js # History with localStorage sync
+│   └── useWakeLock.js       # Screen wake lock management
 ├── pages/
 │   ├── TrackerPage.jsx
 │   ├── SummaryPage.jsx
@@ -62,13 +66,18 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 **`useTimer`** (`src/hooks/useTimer.js`):
 - Manages timer state for active feeding sessions
 - Uses timestamp-based duration calculation (not interval-based) for accuracy
+- Persists active timer to localStorage to survive app backgrounding/closing
 - Acquires screen wake lock during feeding to prevent screen timeout
+- Hydrates timer state on mount from localStorage if timer was active
 - Returns feed object with `{ side, duration, endTime }` when stopped
 
 **`useFeedingHistory`** (`src/hooks/useFeedingHistory.js`):
 - Manages feeding history and localStorage sync
+- Adds "pending" feed units (with 0-duration placeholder) when timer starts
 - Pairs opposite-side feeds into single units based on user actions
+- Supports cross-tab sync via storage events
 - History is always sorted newest-first
+- Exports `addPendingFeed()` to create placeholder entries
 
 ### Data Model
 
@@ -84,7 +93,7 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 **Feed Unit**: 1 or 2 sessions grouped together
 ```js
 {
-  id: string,              // unique ID
+  id: string,              // unique ID (or 'pending-{timestamp}' for placeholders)
   sessions: [Feed Session, Feed Session?],
   endTime: number          // timestamp of most recent session
 }
@@ -97,17 +106,19 @@ History array contains Feed Units, stored newest-first.
 Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 
 **Pairing Rules:**
-- Feeds from opposite sides are paired into a single unit based on user actions
+- When timer starts, a "pending" feed unit is added to history (with 0-duration placeholder)
+- When timer stops, pending unit is replaced with actual feed data
+- Opposite-side feeds are paired into existing single-session units
 - Same-side feeds always create separate units
 - Units with 2 sessions cannot accept more sessions
-- No time-based auto-pairing (removed in v0.2.0)
+- No time-based auto-pairing
 
 **Button Flow:**
-1. Click L/R → starts timer, shows Stop (on active) + Pause (on opposite)
-2. Click Stop → saves session, shows "Finish" button
+1. Click L/R → starts timer, shows Stop (on active) + Pause (on opposite), creates pending unit
+2. Click Stop → saves session, replaces pending unit, shows "Finish" button
 3. Click "Finish" → saves with 0-duration opposite side
 4. OR click opposite side → starts second timer
-5. Stop second timer → auto-saves both sessions
+5. Stop second timer → pairs both sessions into single unit
 
 ### Page Structure
 
@@ -124,6 +135,7 @@ Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 ### LocalStorage Schema
 
 - `feedingHistory`: Array of Feed Units (JSON)
+- `activeTimer`: Current timer state for persistence across app restarts (JSON)
 - `reminderTime`: Timestamp for next reminder (number)
 
 ### Notifications
@@ -152,7 +164,7 @@ All functions accept history array and date/period parameters, return 0 values w
 - **`FeedControls`**: Manages both buttons and all feeding flow logic
 
 **Display:**
-- **`DualMetricChart`**: Side-by-side bars for feed count + duration with gradients
+- **`MiniBarChart`**: Side-by-side bars for feed count + duration with gradients
 - **`StatCard`**: Single statistic with title and value
 - **`TimerDisplay`**: Formats seconds into MM:SS display
 - **`HistoryLog`**: Swipeable feed history with delete and clear functions
