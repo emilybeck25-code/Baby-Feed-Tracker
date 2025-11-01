@@ -53,8 +53,6 @@ export function FeedingProvider({ children }) {
         duration: timer.duration,
         paused: timer.paused,
         startTimer: startTimerWithPending,
-        pauseTimer: timer.pauseTimer,
-        resumeTimer: timer.resumeTimer,
         togglePause: timer.togglePause,
         stopTimer: timer.stopTimer,
 
