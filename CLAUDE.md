@@ -116,12 +116,44 @@ Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 - Units with 2 sessions cannot accept more sessions
 - No time-based auto-pairing
 
-**Button Flow:**
-1. Click L/R → starts timer, shows Stop (on active) + Pause (on opposite), creates pending unit
-2. Click Stop → saves session, replaces pending unit, shows "Finish" button
-3. Click "Finish" → saves with 0-duration opposite side
-4. OR click opposite side → starts second timer
-5. Stop second timer → pairs both sessions into single unit
+**CORE BUTTON FLOW (CRITICAL - DO NOT BREAK):**
+
+This is the fundamental user interaction flow. It is **symmetrical** across both L and R buttons.
+
+**Single-Side Feed (with "End" option):**
+1. User presses **L** → L becomes "Stop", R becomes "Pause", timer starts, pending unit created
+2. User can press Pause/Play on R to pause/resume the L timer (optional)
+3. User presses **Stop** (L) → Timer stops, feed saved, `completedSession` set to L feed, L becomes "End", R returns to "R"
+4. User presses **End** (L) → Adds 0-duration R session, clears `completedSession`, both buttons return to L/R
+
+**Paired Feed (opposite side after completing first):**
+1. User presses **L** → L becomes "Stop", R becomes "Pause", timer starts, pending unit created
+2. User can press Pause/Play on R to pause/resume the L timer (optional)
+3. User presses **Stop** (L) → Timer stops, feed saved, `completedSession` set to L feed, L becomes "End", R returns to "R"
+4. User presses **R** (opposite side) → **`completedSession` stays set (NOT cleared!)**, timer starts R, R becomes "Stop", L becomes "Pause"
+5. User can press Pause/Play on L to pause/resume the R timer (optional)
+6. User presses **Stop** (R) → Timer stops, R feed pairs with L feed from `completedSession`, both sessions saved together, `completedSession` cleared, both buttons return to L/R with suggested side highlighted
+
+**Key Implementation Rules:**
+- When starting opposite side after `completedSession` exists, **DO NOT clear `completedSession`**
+- Only clear `completedSession` in two cases:
+  1. When stopping the second timer (paired feed complete)
+  2. When pressing "End" button (finish with 0-duration opposite side)
+- When stopping a timer: if `completedSession` is null, set it; if it exists, clear it (indicates paired feed)
+- The flow is **completely symmetrical** - works exactly the same whether starting with L or R
+
+**Common Mistakes That Break This Flow:**
+- ❌ Clearing `completedSession` when starting opposite side (breaks paired feed detection)
+- ❌ Using `sessions.length === 1` to detect pending feeds (completed single-side feeds are valid)
+- ❌ Not maintaining `completedSession` state between stop and opposite-side start
+- ❌ Adding asymmetric logic between L and R button handlers
+
+**Testing This Flow:**
+Always test these scenarios after any changes to FeedControls.jsx:
+1. Start L, stop L, press "End" → Should finish with L only
+2. Start L, stop L, start R, stop R → Should pair L+R, both buttons return to L/R
+3. Start R, stop R, start L, stop L → Should pair R+L, both buttons return to L/R (symmetry test)
+4. Verify "End" button only appears after stopping first side, never after stopping second side
 
 ### Page Structure
 
