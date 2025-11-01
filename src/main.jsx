@@ -7,15 +7,16 @@ import { registerSW } from 'virtual:pwa-register';
 // Register service worker with immediate update checks
 const updateSW = registerSW({
     immediate: true,
-    onRegisteredSW(swScriptUrl, registration) {
+    onRegisteredSW(_swScriptUrl, registration) {
         // Check for updates every 60 seconds (works around GitHub Pages cache headers)
         if (registration) {
-            setInterval(
-                () => {
-                    registration.update();
-                },
-                60000 // 60 seconds
-            );
+            setInterval(() => registration.update(), 60000);
+        }
+    },
+    onNeedRefresh() {
+        const shouldReload = window.confirm('A new version is ready. Update now?');
+        if (shouldReload) {
+            updateSW(true);
         }
     },
 });

@@ -30,7 +30,12 @@ export function FeedControls() {
         // If timer is running and user clicks the active button, stop the timer
         if (activeSide === side) {
             const feed = stopTimer();
-            setCompletedSession(feed);
+            addFeed(feed);
+            if (completedSession !== null) {
+                setCompletedSession(null);
+            } else {
+                setCompletedSession(feed);
+            }
             return;
         }
 
@@ -38,8 +43,6 @@ export function FeedControls() {
         if (completedSession !== null) {
             // If user clicks the same side again (the "Finish" button), save with 0-duration opposite side
             if (completedSession.side === side) {
-                // Add the completed session
-                addFeed(completedSession);
                 // Add 0-duration session on opposite side to complete the feed
                 const oppositeSide =
                     completedSession.side === FeedingSide.Left
@@ -68,10 +71,8 @@ export function FeedControls() {
         if (activeSide === FeedingSide.Left) {
             // Stop the active Left side
             const feed = stopTimer();
-            // If there's already a completed session, save both
+            addFeed(feed);
             if (completedSession !== null) {
-                addFeed(completedSession);
-                addFeed(feed);
                 setCompletedSession(null);
             } else {
                 setCompletedSession(feed);
@@ -82,8 +83,7 @@ export function FeedControls() {
         } else if (completedSession !== null && activeSide === null) {
             // Handle completed session flow
             if (completedSession.side === FeedingSide.Left) {
-                // Finish button: save with 0-duration opposite side
-                addFeed(completedSession);
+                // Finish button: only add 0-duration opposite side (original side already saved)
                 addFeed({
                     side: FeedingSide.Right,
                     duration: 0,
@@ -104,10 +104,8 @@ export function FeedControls() {
         if (activeSide === FeedingSide.Right) {
             // Stop the active Right side
             const feed = stopTimer();
-            // If there's already a completed session, save both
+            addFeed(feed);
             if (completedSession !== null) {
-                addFeed(completedSession);
-                addFeed(feed);
                 setCompletedSession(null);
             } else {
                 setCompletedSession(feed);
@@ -118,8 +116,7 @@ export function FeedControls() {
         } else if (completedSession !== null && activeSide === null) {
             // Handle completed session flow
             if (completedSession.side === FeedingSide.Right) {
-                // Finish button: save with 0-duration opposite side
-                addFeed(completedSession);
+                // Finish button: only add 0-duration opposite side (original side already saved)
                 addFeed({
                     side: FeedingSide.Left,
                     duration: 0,
