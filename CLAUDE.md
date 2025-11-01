@@ -62,6 +62,8 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Wraps `useTimer` and `useFeedingHistory` hooks
 - Provides centralized state to all components via `useFeedingContext()`
 - Eliminates prop drilling throughout the app
+- **Cleanup effect**: Automatically removes orphaned pending units when timer is not active (handles crashes/force-closes)
+- **Hydration sync effect**: Creates pending unit if timer hydrates from localStorage without one (ensures timer/history stay in sync)
 
 **`useTimer`** (`src/hooks/useTimer.js`):
 - Manages timer state for active feeding sessions
@@ -107,7 +109,8 @@ Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 
 **Pairing Rules:**
 - When timer starts, a "pending" feed unit is added to history (with 0-duration placeholder)
-- When timer stops, pending unit is replaced with actual feed data
+- Pending units are identified by ID starting with `'pending-'` prefix, NOT by session count
+- When timer stops, pending unit is replaced with actual feed data (ID changes to permanent)
 - Opposite-side feeds are paired into existing single-session units
 - Same-side feeds always create separate units
 - Units with 2 sessions cannot accept more sessions
@@ -179,6 +182,34 @@ All functions accept history array and date/period parameters, return 0 values w
 - **ESLint**: Configured in `eslint.config.js` (flat config format for ESLint 9) with React, React Hooks, and JSX a11y plugins
 - **Prettier**: Configured in `.prettierrc` (4-space indent, single quotes, 100 print width)
 - Code is automatically formatted and follows consistent style guidelines
+
+### Edge Case Handling & Defensive Mechanisms
+
+The app includes robust defensive logic to handle edge cases:
+
+**Orphaned Pending Unit Cleanup** (`FeedingContext.jsx`):
+- Effect monitors when `activeSide === null`
+- Automatically removes pending units (ID starts with `'pending-'`) when no timer is active
+- Handles scenarios: app crashes, force-closes, unexpected navigation
+- Prevents accumulation of broken pending units in history
+
+**Timer Hydration Sync** (`FeedingContext.jsx`):
+- Runs once on mount when timer hydrates from localStorage
+- If timer is active but no pending unit exists, creates one
+- Ensures timer and history remain synchronized after app restart
+- Prevents "timer running but no pending feed" state
+
+**Immutable State Updates** (`feedLogic.js`):
+- Uses proper object spreading instead of shallow copy + mutation
+- Ensures React detects all state changes correctly
+- Prevents subtle rendering bugs and stale state
+
+**Pending Unit Detection** (`HistoryLog.jsx`):
+- Checks `unit.id?.startsWith('pending-')` to identify pending feeds
+- Never uses `sessions.length` as pending indicator (single-side feeds are valid)
+- Displays "Pending..." only for actual incomplete feeds
+
+These mechanisms make the app resilient to crashes, backgrounding, force-closes, and cross-tab sync issues.
 
 ### Deployment
 
