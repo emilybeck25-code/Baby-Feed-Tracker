@@ -61,6 +61,7 @@ src/
 State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Wraps `useTimer` and `useFeedingHistory` hooks
 - Provides centralized state to all components via `useFeedingContext()`
+- Exposes only necessary methods: `startTimer`, `togglePause`, `stopTimer` (not `pauseTimer`/`resumeTimer` directly)
 - Eliminates prop drilling throughout the app
 - **Cleanup effect**: Automatically removes orphaned pending units when timer is not active (handles crashes/force-closes)
 - **Hydration sync effect**: Creates pending unit if timer hydrates from localStorage without one (ensures timer/history stay in sync)
@@ -109,7 +110,10 @@ Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 
 **Pairing Rules:**
 - When timer starts, a "pending" feed unit is added to history (with 0-duration placeholder)
-- Pending units are identified by ID starting with `'pending-'` prefix, NOT by session count
+- **CRITICAL: Pending units are identified ONLY by ID prefix (`'pending-'`), NEVER by `sessions.length`**
+  - Completed single-session units (one side only) are valid and must not be treated as pending
+  - `sessions.length === 1` does NOT mean pending - it means a valid single-side feed
+  - Source of truth: `unit.id?.startsWith('pending-')` - nothing else
 - When timer stops, pending unit is replaced with actual feed data (ID changes to permanent)
 - Opposite-side feeds are paired into existing single-session units
 - Same-side feeds always create separate units
@@ -143,10 +147,11 @@ This is the fundamental user interaction flow. It is **symmetrical** across both
 - The flow is **completely symmetrical** - works exactly the same whether starting with L or R
 
 **Common Mistakes That Break This Flow:**
+- ❌ **MOST CRITICAL**: Using `sessions.length === 1` to detect pending feeds (single-session feeds are valid completed feeds!)
 - ❌ Clearing `completedSession` when starting opposite side (breaks paired feed detection)
-- ❌ Using `sessions.length === 1` to detect pending feeds (completed single-side feeds are valid)
 - ❌ Not maintaining `completedSession` state between stop and opposite-side start
 - ❌ Adding asymmetric logic between L and R button handlers
+- ❌ Checking pending status anywhere except by `unit.id?.startsWith('pending-')`
 
 **Testing This Flow:**
 Always test these scenarios after any changes to FeedControls.jsx:
