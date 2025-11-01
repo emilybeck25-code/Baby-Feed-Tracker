@@ -64,10 +64,22 @@ export function useFeedingHistory() {
     }, []);
     const addPendingFeed = useCallback((side, startTime) => {
         setHistory((prevHistory) => {
-            const pendingUnit = createPendingUnit(side, startTime);
-            if (prevHistory.length > 0 && prevHistory[0]?.id?.startsWith(PENDING_UNIT_PREFIX)) {
+            const top = prevHistory[0];
+
+            // Prevent duplicate pending unit
+            if (top && typeof top.id === 'string' && top.id.startsWith(PENDING_UNIT_PREFIX)) {
                 return prevHistory;
             }
+
+            // Reuse existing single-session unit when starting the opposite side
+            if (top && Array.isArray(top.sessions) && top.sessions.length === 1) {
+                const firstSide = top.sessions[0]?.side;
+                if (firstSide && firstSide !== side) {
+                    return prevHistory;
+                }
+            }
+
+            const pendingUnit = createPendingUnit(side, startTime);
             return [pendingUnit, ...prevHistory];
         });
     }, []);
