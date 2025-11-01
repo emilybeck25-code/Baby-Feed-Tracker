@@ -3,6 +3,10 @@ import { addFeedLogic, PENDING_UNIT_PREFIX } from '../utils/feedLogic.js';
 
 const STORAGE_KEY = 'feedingHistory';
 
+/**
+ * @internal
+ * Exported for unit tests. App code should not call this directly.
+ */
 export function createPendingUnit(side, startTime) {
     return {
         id: `${PENDING_UNIT_PREFIX}${startTime}`,
