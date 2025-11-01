@@ -9,7 +9,6 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       minify: false,
-      includeAssets: ['icon.png'],
       manifest: {
         name: 'Baby Feed Tracker',
         short_name: 'Feed Tracker',
