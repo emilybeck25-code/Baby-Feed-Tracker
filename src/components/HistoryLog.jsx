@@ -104,7 +104,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                 unit.sessions[0].endTime - unit.sessions[0].duration * 1000
                             );
                             const endTime = new Date(unit.endTime);
-                            const isPending = unit.sessions.length === 1;
+                            const isPending = unit.id?.startsWith('pending-');
 
                             return (
                                 <div key={unit.id} className="relative overflow-hidden rounded-md">

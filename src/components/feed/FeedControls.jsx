@@ -56,6 +56,7 @@ export function FeedControls() {
                 setCompletedSession(null);
             } else {
                 // User clicked opposite side, start timer on that side
+                setCompletedSession(null);
                 startTimer(side);
             }
             return;
@@ -92,6 +93,7 @@ export function FeedControls() {
                 setCompletedSession(null);
             } else {
                 // Start timer on opposite side
+                setCompletedSession(null);
                 startTimer(FeedingSide.Left);
             }
         } else {
@@ -125,6 +127,7 @@ export function FeedControls() {
                 setCompletedSession(null);
             } else {
                 // Start timer on opposite side
+                setCompletedSession(null);
                 startTimer(FeedingSide.Right);
             }
         } else {

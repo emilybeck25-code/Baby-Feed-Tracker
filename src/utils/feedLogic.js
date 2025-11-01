@@ -20,26 +20,31 @@ function isPendingUnit(unit) {
  * @returns {Array} Updated history array
  */
 export function addFeedLogic(history, newSingleFeed) {
-    const newHistory = [...history];
-
-    if (newHistory.length > 0) {
-        const lastUnit = newHistory[0];
+    if (history.length > 0) {
+        const lastUnit = history[0];
 
         if (isPendingUnit(lastUnit)) {
             const [pendingSession] = lastUnit.sessions;
             if (pendingSession?.side === newSingleFeed.side) {
-                lastUnit.sessions = [newSingleFeed];
-                lastUnit.endTime = newSingleFeed.endTime;
-                lastUnit.id = createUnitId();
-                return newHistory;
+                // Replace pending unit with real feed data
+                const updatedUnit = {
+                    ...lastUnit,
+                    id: createUnitId(),
+                    sessions: [newSingleFeed],
+                    endTime: newSingleFeed.endTime,
+                };
+                return [updatedUnit, ...history.slice(1)];
             }
         }
 
         if (lastUnit.sessions.length === 1 && lastUnit.sessions[0].side !== newSingleFeed.side) {
-            // Add to existing unit
-            lastUnit.sessions = [...lastUnit.sessions, newSingleFeed];
-            lastUnit.endTime = newSingleFeed.endTime;
-            return newHistory;
+            // Add to existing unit (pair opposite sides)
+            const updatedUnit = {
+                ...lastUnit,
+                sessions: [...lastUnit.sessions, newSingleFeed],
+                endTime: newSingleFeed.endTime,
+            };
+            return [updatedUnit, ...history.slice(1)];
         }
     }
 
@@ -49,5 +54,5 @@ export function addFeedLogic(history, newSingleFeed) {
         sessions: [newSingleFeed],
         endTime: newSingleFeed.endTime,
     };
-    return [newUnit, ...newHistory];
+    return [newUnit, ...history];
 }
