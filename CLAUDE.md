@@ -236,10 +236,12 @@ The app includes robust defensive logic to handle edge cases:
 - Ensures React detects all state changes correctly
 - Prevents subtle rendering bugs and stale state
 
-**Pending Unit Detection** (`HistoryLog.jsx`):
-- Checks `unit.id?.startsWith('pending-')` to identify pending feeds
-- Never uses `sessions.length` as pending indicator (single-side feeds are valid)
-- Displays "Pending..." only for actual incomplete feeds
+**Pending Units** (Internal-Only):
+- Pending units are identified by ID starting with `'pending-'` prefix
+- Used internally for feed pairing logic, not displayed in UI
+- Created when timer starts, replaced when timer stops
+- Cleaned up automatically if orphaned (app crash/force-close)
+- Never displayed to user - HistoryLog shows all feeds with time ranges
 
 These mechanisms make the app resilient to crashes, backgrounding, force-closes, and cross-tab sync issues.
 

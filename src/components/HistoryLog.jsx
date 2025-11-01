@@ -104,7 +104,6 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                 unit.sessions[0].endTime - unit.sessions[0].duration * 1000
                             );
                             const endTime = new Date(unit.endTime);
-                            const isPending = unit.id?.startsWith('pending-');
 
                             return (
                                 <div key={unit.id} className="relative overflow-hidden rounded-md">
@@ -128,13 +127,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                         onMouseUp={(event) => handleMouseUp(event, unit.id)}
                                     >
                                         <div className="text-sm text-slate-600">
-                                            {formatTime(startTime)}
-                                            {!isPending && <> - {formatTime(endTime)}</>}
-                                            {isPending && (
-                                                <span className="ml-2 text-rose-500">
-                                                    - Pending...
-                                                </span>
-                                            )}
+                                            {formatTime(startTime)} - {formatTime(endTime)}
                                         </div>
                                         <div className="flex gap-2 mt-2 pb-3">
                                             {unit.sessions.map((session, i) => (
