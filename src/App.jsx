@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useWakeLock } from './hooks/useWakeLock';
 import { FeedingProvider } from './contexts/FeedingContext';
 import { TrackerPage } from './pages/TrackerPage';
 import { SummaryPage } from './pages/SummaryPage';
@@ -15,6 +16,8 @@ export function App() {
 }
 
 function AppContent() {
+    // Keep the screen awake while the PWA is open and visible
+    useWakeLock(true);
     const [currentPage, setCurrentPage] = useState('Tracker');
 
     const renderPage = () => {
