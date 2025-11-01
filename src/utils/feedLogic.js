@@ -35,10 +35,7 @@ export function addFeedLogic(history, newSingleFeed) {
             }
         }
 
-        if (
-            lastUnit.sessions.length === 1 &&
-            lastUnit.sessions[0].side !== newSingleFeed.side
-        ) {
+        if (lastUnit.sessions.length === 1 && lastUnit.sessions[0].side !== newSingleFeed.side) {
             // Add to existing unit
             lastUnit.sessions = [...lastUnit.sessions, newSingleFeed];
             lastUnit.endTime = newSingleFeed.endTime;

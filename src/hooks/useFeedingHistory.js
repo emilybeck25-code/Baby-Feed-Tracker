@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { addFeedLogic, PENDING_UNIT_PREFIX } from '../utils/feedLogic.js';
 
+const STORAGE_KEY = 'feedingHistory';
+
 export function createPendingUnit(side, startTime) {
     return {
         id: `${PENDING_UNIT_PREFIX}${startTime}`,
@@ -29,14 +31,37 @@ export function createPendingUnit(side, startTime) {
  */
 export function useFeedingHistory() {
     const [history, setHistory] = useState(() => {
-        const saved = localStorage.getItem('feedingHistory');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            console.warn('[FeedingHistory] Failed to parse localStorage; resetting.');
+            return [];
+        }
     });
 
     useEffect(() => {
-        localStorage.setItem('feedingHistory', JSON.stringify(history));
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        } catch {
+            // ignore quota errors
+        }
     }, [history]);
 
+    // Cross-tab sync
+    useEffect(() => {
+        const onStorage = (e) => {
+            if (e.key !== STORAGE_KEY) return;
+            try {
+                const next = e.newValue ? JSON.parse(e.newValue) : [];
+                setHistory(Array.isArray(next) ? next : []);
+            } catch {
+                // ignore parse error from other tab
+            }
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
     const addPendingFeed = useCallback((side, startTime) => {
         setHistory((prevHistory) => {
             const pendingUnit = createPendingUnit(side, startTime);

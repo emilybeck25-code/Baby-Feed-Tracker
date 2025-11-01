@@ -8,7 +8,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.png', 'manifest.json'],
+      minify: false,
+      includeAssets: ['icon.png'],
       manifest: {
         name: 'Baby Feed Tracker',
         short_name: 'Feed Tracker',
@@ -27,6 +28,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        mode: 'development',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
         navigateFallback: '/Baby-Feed-Tracker/index.html',
         navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],

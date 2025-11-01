@@ -26,8 +26,7 @@ export function FeedButton({
     }
 
     const scaleClass = suggestedStartSide === side ? 'scale-125' : '';
-    const textSize =
-        isCompleted ? 'text-lg' : activeSide !== null && !isActive ? '' : 'text-4xl';
+    const textSize = isCompleted ? 'text-lg' : activeSide !== null && !isActive ? '' : 'text-4xl';
 
     // Determine aria label
     let ariaLabel;
