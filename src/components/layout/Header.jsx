@@ -2,8 +2,6 @@ import { DeveloperMenu } from '../DeveloperMenu';
 import { useFeedingContext } from '../../contexts/FeedingContext';
 import { generateSampleData } from '../../data/sampleFeedingData';
 import packageJson from '../../../package.json';
-import { FeedTypeToggle } from './FeedTypeToggle';
-
 export function Header() {
     const { importHistory, clearHistory, activeSide } = useFeedingContext();
 
@@ -17,25 +15,20 @@ export function Header() {
     };
 
     return (
-        <header className="p-4">
-            <div className="flex items-center justify-between gap-3">
-                <DeveloperMenu
-                    onImportData={handleImportSampleData}
-                    onClearHistory={handleClearHistory}
-                    clearDisabled={activeSide !== null}
-                />
-                <h1 className="flex-1 text-3xl font-bold bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent text-center">
-                    Baby Feed Tracker
-                </h1>
-                <div
-                    className="min-w-[3.5rem] text-right text-sm font-semibold text-slate-500"
-                    title="Application version"
-                >
-                    v{packageJson.version}
-                </div>
-            </div>
-            <div className="mt-3 flex justify-center">
-                <FeedTypeToggle variant="compact" />
+        <header className="p-4 flex items-center justify-between gap-3">
+            <DeveloperMenu
+                onImportData={handleImportSampleData}
+                onClearHistory={handleClearHistory}
+                clearDisabled={activeSide !== null}
+            />
+            <h1 className="flex-1 text-3xl font-bold bg-gradient-to-r from-violet-400 to-rose-400 bg-clip-text text-transparent text-center">
+                Baby Feed Tracker
+            </h1>
+            <div
+                className="min-w-[3.5rem] text-right text-sm font-semibold text-slate-500"
+                title="Application version"
+            >
+                v{packageJson.version}
             </div>
         </header>
     );
