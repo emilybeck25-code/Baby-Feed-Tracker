@@ -100,10 +100,21 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                     <h3 className="font-bold text-slate-800 mb-3">{day}</h3>
                     <div className="space-y-3">
                         {units.map((unit) => {
-                            const startTime = new Date(
-                                unit.sessions[0].endTime - unit.sessions[0].duration * 1000
-                            );
-                            const endTime = new Date(unit.endTime);
+                            const sessions = Array.isArray(unit.sessions) ? unit.sessions : [];
+                            const hasSessions = sessions.length > 0;
+                            const defaultEnd = new Date(unit.endTime);
+                            const firstSession = hasSessions ? sessions[0] : null;
+                            const startTime = hasSessions
+                                ? new Date(
+                                      (firstSession?.endTime ?? unit.endTime) -
+                                      (firstSession?.duration ?? 0) * 1000
+                                  )
+                                : defaultEnd;
+                            const endTime = defaultEnd;
+                            const isBottle =
+                                typeof unit.type === 'string' &&
+                                unit.type.toLowerCase() === 'bottle';
+                            const volumeDisplay = Number(unit.volumeMl ?? 0);
 
                             return (
                                 <div key={unit.id} className="relative overflow-hidden rounded-md">
@@ -130,19 +141,29 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                             {formatTime(startTime)} - {formatTime(endTime)}
                                         </div>
                                         <div className="flex gap-2 mt-2 pb-3">
-                                            {unit.sessions.map((session, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`flex items-center gap-2 px-3 py-1 rounded-full ${session.side === FeedingSide.Left ? 'bg-violet-100 text-violet-700' : 'bg-rose-100 text-rose-700'}`}
-                                                >
-                                                    <span className="font-bold">
-                                                        {session.side[0]}
-                                                    </span>
-                                                    <span className="text-sm">
-                                                        <TimerDisplay seconds={session.duration} />
-                                                    </span>
+                                            {isBottle ? (
+                                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-sm">
+                                                    <span>Bottle</span>
+                                                    <span>•</span>
+                                                    <span>{volumeDisplay} mL</span>
                                                 </div>
-                                            ))}
+                                            ) : (
+                                                sessions.map((session, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`flex items-center gap-2 px-3 py-1 rounded-full ${session.side === FeedingSide.Left ? 'bg-violet-100 text-violet-700' : 'bg-rose-100 text-rose-700'}`}
+                                                    >
+                                                        <span className="font-bold">
+                                                            {session.side?.[0] ?? '?'}
+                                                        </span>
+                                                        <span className="text-sm">
+                                                            <TimerDisplay
+                                                                seconds={session.duration || 0}
+                                                            />
+                                                        </span>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     </div>
                                 </div>

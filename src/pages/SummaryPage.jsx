@@ -91,14 +91,18 @@ export function SummaryPage() {
     };
 
     // Prepare TWO datasets: one for feed counts, one for total duration
-    const { countData, durationData } = useMemo(() => {
-        const base = { countData: [], durationData: [] };
+    const { countData, durationData, bottleData } = useMemo(() => {
+        const base = { countData: [], durationData: [], bottleData: [] };
         if (!stats) return base;
 
         if (view === 'today' && Array.isArray(stats.blocks)) {
             return {
                 countData: stats.blocks.map((b) => ({ label: b.label, value: b.feedCount })),
                 durationData: stats.blocks.map((b) => ({ label: b.label, value: b.duration })),
+                bottleData: stats.blocks.map((b) => ({
+                    label: b.label,
+                    value: b.bottleMl ?? 0,
+                })),
             };
         }
 
@@ -112,6 +116,10 @@ export function SummaryPage() {
                     label: d.day.toString(),
                     value: d.totalDurationSeconds,
                 })),
+                bottleData: stats.dailyTotals.map((d) => ({
+                    label: d.day.toString(),
+                    value: d.bottleMl ?? 0,
+                })),
             };
         }
 
@@ -124,6 +132,10 @@ export function SummaryPage() {
                 durationData: stats.monthlyTotals.map((m) => ({
                     label: m.label,
                     value: m.totalDurationSeconds,
+                })),
+                bottleData: stats.monthlyTotals.map((m) => ({
+                    label: m.label,
+                    value: m.bottleMl ?? 0,
                 })),
             };
         }
@@ -282,6 +294,28 @@ export function SummaryPage() {
                             gradient="linear-gradient(180deg, #38bdf8 0%, #6366f1 100%)"
                             shadowColor="rgba(99, 102, 241, 0.22)"
                             accentLabel="Time"
+                        />
+
+                        <MiniBarChart
+                            title={
+                                view === 'today'
+                                    ? 'Bottle volume by 3\u2011hour block'
+                                    : view === 'daily'
+                                      ? 'Bottle volume by day'
+                                      : 'Bottle volume by month'
+                            }
+                            subtitle={
+                                view === 'today'
+                                    ? 'Total bottle volume per time block'
+                                    : view === 'daily'
+                                      ? 'Total bottle volume per day of the month'
+                                      : 'Total bottle volume per month'
+                            }
+                            data={bottleData}
+                            valueFormatter={(v) => `${v} mL`}
+                            gradient="linear-gradient(180deg, #34d399 0%, #10b981 100%)"
+                            shadowColor="rgba(16, 185, 129, 0.22)"
+                            accentLabel="mL"
                         />
                     </div>
                 )}

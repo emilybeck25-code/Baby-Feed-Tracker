@@ -1,13 +1,32 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTimer } from '../hooks/useTimer';
 import { useFeedingHistory } from '../hooks/useFeedingHistory';
 import { PENDING_UNIT_PREFIX } from '../utils/feedLogic';
+import { FeedType } from '../utils/constants';
 
 const FeedingContext = createContext(null);
+
+const FEED_TYPE_STORAGE_KEY = 'feedType';
 
 export function FeedingProvider({ children }) {
     const timer = useTimer();
     const history = useFeedingHistory();
+    const [feedType, setFeedTypeState] = useState(() => {
+        try {
+            const stored = localStorage.getItem(FEED_TYPE_STORAGE_KEY);
+            return stored === FeedType.Bottle ? FeedType.Bottle : FeedType.Breast;
+        } catch {
+            return FeedType.Breast;
+        }
+    });
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(FEED_TYPE_STORAGE_KEY, feedType);
+        } catch {
+            // ignore quota errors
+        }
+    }, [feedType]);
 
     const startTimerWithPending = (side) => {
         const startTime = Date.now();
@@ -47,6 +66,22 @@ export function FeedingProvider({ children }) {
         }
     }, [timer.activeSide, history]);
 
+    const setFeedType = useCallback(
+        (nextType) => {
+            if (timer.activeSide !== null) {
+                return;
+            }
+
+            const normalized =
+                typeof nextType === 'string' && nextType.toLowerCase() === FeedType.Bottle
+                    ? FeedType.Bottle
+                    : FeedType.Breast;
+
+            setFeedTypeState(normalized);
+        },
+        [timer.activeSide]
+    );
+
     const value = {
         // Timer state and methods
         activeSide: timer.activeSide,
@@ -59,11 +94,16 @@ export function FeedingProvider({ children }) {
         // History state and methods
         history: history.history,
         addFeed: history.addFeed,
+        addBottleFeed: history.addBottleFeed,
         deleteFeed: history.deleteFeed,
         clearHistory: history.clearHistory,
         importHistory: history.importHistory,
         lastFeedTime: history.lastFeedTime,
         chronologicalHistory: history.chronologicalHistory,
+
+        // Feed type toggle
+        feedType,
+        setFeedType,
     };
 
     return <FeedingContext.Provider value={value}>{children}</FeedingContext.Provider>;

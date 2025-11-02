@@ -95,6 +95,19 @@ export function useFeedingHistory() {
         setHistory((prevHistory) => addFeedLogic(prevHistory, newSingleFeed));
     }, []);
 
+    const addBottleFeed = useCallback((volumeMl, at = Date.now()) => {
+        const numericVolume = Number(volumeMl);
+        const bottleUnit = {
+            id: `${Date.now()}-${Math.random()}`,
+            type: 'Bottle',
+            volumeMl: Number.isFinite(numericVolume) ? numericVolume : 0,
+            sessions: [],
+            endTime: at,
+        };
+
+        setHistory((prevHistory) => [bottleUnit, ...prevHistory]);
+    }, []);
+
     const deleteFeed = useCallback((unitId) => {
         setHistory((prevHistory) => prevHistory.filter((unit) => unit.id !== unitId));
     }, []);
@@ -128,5 +141,6 @@ export function useFeedingHistory() {
         lastFeedTime,
         chronologicalHistory,
         addPendingFeed,
+        addBottleFeed,
     };
 }

@@ -1,5 +1,26 @@
 import { FeedingSide } from './constants.js';
 
+const getSessions = (unit) => (Array.isArray(unit.sessions) ? unit.sessions : []);
+
+const getUnitDuration = (unit) =>
+    getSessions(unit).reduce((sum, session) => sum + (session?.duration ?? 0), 0);
+
+const getSideDuration = (unit, side) =>
+    getSessions(unit)
+        .filter((session) => session?.side === side)
+        .reduce((sum, session) => sum + (session?.duration ?? 0), 0);
+
+const getUnitType = (unit) => {
+    const type = typeof unit?.type === 'string' ? unit.type.toLowerCase() : null;
+    if (type === 'bottle') {
+        return 'Bottle';
+    }
+    return 'Breast';
+};
+
+const getBottleVolume = (unit) =>
+    getUnitType(unit) === 'Bottle' ? Number(unit?.volumeMl ?? 0) : 0;
+
 /**
  * Calculates feeding statistics for a specific date.
  *
@@ -18,30 +39,18 @@ export function calculateDailyStats(history, targetDate) {
     });
 
     const totalFeeds = todayFeeds.length;
-    const totalTime = todayFeeds.reduce((sum, unit) => {
-        return sum + unit.sessions.reduce((s, session) => s + session.duration, 0);
-    }, 0);
-    const leftTime = todayFeeds.reduce((sum, unit) => {
-        return (
-            sum +
-            unit.sessions
-                .filter((s) => s.side === FeedingSide.Left)
-                .reduce((s, session) => s + session.duration, 0)
-        );
-    }, 0);
-    const rightTime = todayFeeds.reduce((sum, unit) => {
-        return (
-            sum +
-            unit.sessions
-                .filter((s) => s.side === FeedingSide.Right)
-                .reduce((s, session) => s + session.duration, 0)
-        );
-    }, 0);
+    const totalTime = todayFeeds.reduce((sum, unit) => sum + getUnitDuration(unit), 0);
+    const leftTime = todayFeeds.reduce(
+        (sum, unit) => sum + getSideDuration(unit, FeedingSide.Left),
+        0
+    );
+    const rightTime = todayFeeds.reduce(
+        (sum, unit) => sum + getSideDuration(unit, FeedingSide.Right),
+        0
+    );
 
     // Calculate additional stats
-    const durations = todayFeeds.map((unit) =>
-        unit.sessions.reduce((sum, session) => sum + session.duration, 0)
-    );
+    const durations = todayFeeds.map((unit) => getUnitDuration(unit));
     const avgDuration = totalFeeds > 0 ? Math.round(totalTime / totalFeeds) : 0;
     const longestFeed = durations.length > 0 ? Math.max(...durations) : 0;
     const shortestFeed = durations.length > 0 ? Math.min(...durations) : 0;
@@ -82,6 +91,7 @@ export function calculateHourlyStats(history, targetDate) {
         ...block,
         feedCount: 0,
         duration: 0,
+        bottleMl: 0,
     }));
 
     // Aggregate feeds into time blocks
@@ -89,10 +99,12 @@ export function calculateHourlyStats(history, targetDate) {
         const feedDate = new Date(unit.endTime);
         const hour = feedDate.getHours();
         const blockIndex = Math.floor(hour / 3);
-        const duration = unit.sessions.reduce((sum, session) => sum + session.duration, 0);
+        const duration = getUnitDuration(unit);
+        const bottleMl = getBottleVolume(unit);
 
         blocks[blockIndex].feedCount += 1;
         blocks[blockIndex].duration += duration;
+        blocks[blockIndex].bottleMl += bottleMl;
     });
 
     // Find most active block
@@ -142,26 +154,15 @@ export function calculateMonthlyStats(history, currentMonth, currentYear) {
     }
 
     const totalFeeds = monthFeeds.length;
-    const totalTime = monthFeeds.reduce(
-        (sum, unit) => sum + unit.sessions.reduce((s, session) => s + session.duration, 0),
-        0
-    );
+    const totalTime = monthFeeds.reduce((sum, unit) => sum + getUnitDuration(unit), 0);
 
     const leftTime = monthFeeds.reduce(
-        (sum, unit) =>
-            sum +
-            unit.sessions
-                .filter((s) => s.side === FeedingSide.Left)
-                .reduce((s, session) => s + session.duration, 0),
+        (sum, unit) => sum + getSideDuration(unit, FeedingSide.Left),
         0
     );
 
     const rightTime = monthFeeds.reduce(
-        (sum, unit) =>
-            sum +
-            unit.sessions
-                .filter((s) => s.side === FeedingSide.Right)
-                .reduce((s, session) => s + session.duration, 0),
+        (sum, unit) => sum + getSideDuration(unit, FeedingSide.Right),
         0
     );
 
@@ -178,15 +179,20 @@ export function calculateMonthlyStats(history, currentMonth, currentYear) {
         day: index + 1,
         feedCount: 0,
         totalDurationSeconds: 0,
+        bottleMl: 0,
     }));
 
     monthFeeds.forEach((unit) => {
         const feedDate = new Date(unit.endTime);
         const dayIndex = feedDate.getDate() - 1;
-        const totalDuration = unit.sessions.reduce((sum, session) => sum + session.duration, 0);
+        const totalDuration = getUnitDuration(unit);
+        const bottleMl = getBottleVolume(unit);
+
+        if (!dailyTotals[dayIndex]) return;
 
         dailyTotals[dayIndex].feedCount += 1;
         dailyTotals[dayIndex].totalDurationSeconds += totalDuration;
+        dailyTotals[dayIndex].bottleMl += bottleMl;
     });
 
     // Find most active day
@@ -255,38 +261,30 @@ export function calculateYearlyStats(history, year) {
         label: monthLabels[index],
         feedCount: 0,
         totalDurationSeconds: 0,
+        bottleMl: 0,
     }));
 
     yearFeeds.forEach((unit) => {
         const feedDate = new Date(unit.endTime);
         const monthIndex = feedDate.getMonth();
-        const totalDuration = unit.sessions.reduce((sum, session) => sum + session.duration, 0);
+        const totalDuration = getUnitDuration(unit);
+        const bottleMl = getBottleVolume(unit);
 
         monthlyTotals[monthIndex].feedCount += 1;
         monthlyTotals[monthIndex].totalDurationSeconds += totalDuration;
+        monthlyTotals[monthIndex].bottleMl += bottleMl;
     });
 
     const totalFeeds = yearFeeds.length;
-    const totalTime = yearFeeds.reduce(
-        (sum, unit) => sum + unit.sessions.reduce((s, session) => s + session.duration, 0),
-        0
-    );
+    const totalTime = yearFeeds.reduce((sum, unit) => sum + getUnitDuration(unit), 0);
 
     const leftTime = yearFeeds.reduce(
-        (sum, unit) =>
-            sum +
-            unit.sessions
-                .filter((s) => s.side === FeedingSide.Left)
-                .reduce((s, session) => s + session.duration, 0),
+        (sum, unit) => sum + getSideDuration(unit, FeedingSide.Left),
         0
     );
 
     const rightTime = yearFeeds.reduce(
-        (sum, unit) =>
-            sum +
-            unit.sessions
-                .filter((s) => s.side === FeedingSide.Right)
-                .reduce((s, session) => s + session.duration, 0),
+        (sum, unit) => sum + getSideDuration(unit, FeedingSide.Right),
         0
     );
 
