@@ -61,8 +61,8 @@ export function FeedTypeToggle({ variant = 'compact' }) {
             aria-label="Feed type"
             className={`flex items-center gap-1 rounded-2xl bg-slate-100 shadow-inner ${containerClasses}`}
         >
-            {renderButton(FeedType.Breast, 'Breast')}
-            {renderButton(FeedType.Bottle, 'Bottle')}
+            {renderButton(FeedType.Breast, '🐄')}
+            {renderButton(FeedType.Bottle, '🍼')}
         </div>
     );
 }
