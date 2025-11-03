@@ -13,9 +13,16 @@ export function generateSampleData() {
     const oneHour = 60 * 60 * 1000;
     const feedUnits = [];
 
+    // Anchor generation to local midnight for realistic day boundaries
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     // Generate 3 months (90 days) of data
     for (let day = 89; day >= 0; day--) {
-        const dayStart = now - day * 24 * oneHour;
+        // Midnight anchor for the current day iteration
+        const dayStartDate = new Date(startOfToday);
+        dayStartDate.setDate(dayStartDate.getDate() - day);
+        const dayStart = dayStartDate.getTime();
 
         // 8-12 feeds per day (randomized)
         const feedsPerDay = 8 + Math.floor(Math.random() * 5);
@@ -45,7 +52,7 @@ export function generateSampleData() {
         selectedTimes.forEach((hour) => {
             // Add some randomness to the exact time (±30 minutes)
             const minuteOffset = Math.floor(Math.random() * 60) - 30;
-            const feedTime = dayStart + hour * oneHour + minuteOffset * 60 * 1000;
+            const firstEnd = dayStart + hour * oneHour + minuteOffset * 60 * 1000;
 
             // 70% chance of both-side feed, 30% single-side
             const bothSides = Math.random() < 0.7;
@@ -63,14 +70,17 @@ export function generateSampleData() {
                 {
                     side: startLeft ? FeedingSide.Left : FeedingSide.Right,
                     duration: Math.floor(firstDuration / 1000),
-                    endTime: feedTime,
+                    endTime: firstEnd,
                 },
                 {
                     side: startLeft ? FeedingSide.Right : FeedingSide.Left,
                     duration: Math.floor(secondDuration / 1000),
-                    endTime: bothSides ? feedTime + secondDuration : feedTime,
+                    endTime: bothSides ? firstEnd + secondDuration : firstEnd,
                 },
             ];
+
+            // Keep sessions chronological within the unit
+            sessions.sort((a, b) => (a.endTime === b.endTime ? 0 : a.endTime - b.endTime));
 
             // Create feed unit
             const unit = {
@@ -79,10 +89,16 @@ export function generateSampleData() {
                 endTime: sessions[sessions.length - 1].endTime,
             };
 
+            // Exclude future sessions for the current day
+            if (day === 0 && unit.endTime > now) {
+                return;
+            }
+
             feedUnits.push(unit);
         });
     }
 
     // Sort newest first (as the app expects)
-    return feedUnits.sort((a, b) => b.endTime - a.endTime);
+    feedUnits.sort((a, b) => b.endTime - a.endTime);
+    return feedUnits;
 }

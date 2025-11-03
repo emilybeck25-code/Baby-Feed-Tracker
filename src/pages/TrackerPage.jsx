@@ -8,14 +8,7 @@ import { FeedType } from '../utils/constants';
 import { BottleControls } from '../components/feed/BottleControls';
 
 export function TrackerPage() {
-    const {
-        activeSide,
-        duration,
-        deleteFeed,
-        chronologicalHistory,
-        lastFeedTime,
-        feedType,
-    } =
+    const { activeSide, duration, deleteFeed, chronologicalHistory, lastFeedTime, feedType } =
         useFeedingContext();
 
     return (

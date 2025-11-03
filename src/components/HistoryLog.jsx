@@ -107,7 +107,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                             const startTime = hasSessions
                                 ? new Date(
                                       (firstSession?.endTime ?? unit.endTime) -
-                                      (firstSession?.duration ?? 0) * 1000
+                                          (firstSession?.duration ?? 0) * 1000
                                   )
                                 : defaultEnd;
                             const endTime = defaultEnd;

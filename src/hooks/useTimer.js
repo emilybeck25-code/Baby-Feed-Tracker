@@ -65,9 +65,7 @@ export function useTimer() {
     const [activeSide, setActiveSide] = useState(hydrated ? hydrated.side : null);
     const [duration, setDuration] = useState(hydrated ? hydrated.duration : 0);
     const [paused, setPaused] = useState(hydrated ? hydrated.paused : false);
-    const startTimeRef = useRef(
-        hydrated && !hydrated.paused ? hydrated.startedAt : null
-    );
+    const startTimeRef = useRef(hydrated && !hydrated.paused ? hydrated.startedAt : null);
     // Accumulates seconds across pause/resume cycles
     const elapsedBaseRef = useRef(hydrated ? hydrated.elapsedBase : 0);
 
