@@ -99,10 +99,7 @@ export function SummaryPage() {
             return {
                 countData: stats.blocks.map((b) => ({ label: b.label, value: b.feedCount })),
                 durationData: stats.blocks.map((b) => ({ label: b.label, value: b.duration })),
-                bottleData: stats.blocks.map((b) => ({
-                    label: b.label,
-                    value: b.bottleMl ?? 0,
-                })),
+                bottleData: stats.blocks.map((b) => ({ label: b.label, value: b.bottleOz ?? 0 })),
             };
         }
 
@@ -118,7 +115,7 @@ export function SummaryPage() {
                 })),
                 bottleData: stats.dailyTotals.map((d) => ({
                     label: d.day.toString(),
-                    value: d.bottleMl ?? 0,
+                    value: d.bottleOz ?? 0,
                 })),
             };
         }
@@ -135,7 +132,7 @@ export function SummaryPage() {
                 })),
                 bottleData: stats.monthlyTotals.map((m) => ({
                     label: m.label,
-                    value: m.bottleMl ?? 0,
+                    value: m.bottleOz ?? 0,
                 })),
             };
         }
@@ -312,10 +309,10 @@ export function SummaryPage() {
                                       : 'Total bottle volume per month'
                             }
                             data={bottleData}
-                            valueFormatter={(v) => `${v} mL`}
+                            valueFormatter={(v) => `${Math.round(v * 10) / 10} oz`}
                             gradient="linear-gradient(180deg, #34d399 0%, #10b981 100%)"
                             shadowColor="rgba(16, 185, 129, 0.22)"
-                            accentLabel="mL"
+                            accentLabel="oz"
                         />
                     </div>
                 )}

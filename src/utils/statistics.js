@@ -18,8 +18,14 @@ const getUnitType = (unit) => {
     return 'Breast';
 };
 
-const getBottleVolume = (unit) =>
-    getUnitType(unit) === 'Bottle' ? Number(unit?.volumeMl ?? 0) : 0;
+// Ounces; fall back to mL→oz conversion for legacy entries
+const getBottleVolumeOz = (unit) => {
+    if (getUnitType(unit) !== 'Bottle') return 0;
+    const oz = Number(unit?.volumeOz);
+    if (Number.isFinite(oz)) return oz;
+    const ml = Number(unit?.volumeMl ?? 0);
+    return Number.isFinite(ml) ? ml / 29.5735 : 0;
+};
 
 /**
  * Calculates feeding statistics for a specific date.
@@ -91,7 +97,7 @@ export function calculateHourlyStats(history, targetDate) {
         ...block,
         feedCount: 0,
         duration: 0,
-        bottleMl: 0,
+        bottleOz: 0,
     }));
 
     // Aggregate feeds into time blocks
@@ -100,11 +106,11 @@ export function calculateHourlyStats(history, targetDate) {
         const hour = feedDate.getHours();
         const blockIndex = Math.floor(hour / 3);
         const duration = getUnitDuration(unit);
-        const bottleMl = getBottleVolume(unit);
+        const bottleOz = getBottleVolumeOz(unit);
 
         blocks[blockIndex].feedCount += 1;
         blocks[blockIndex].duration += duration;
-        blocks[blockIndex].bottleMl += bottleMl;
+        blocks[blockIndex].bottleOz += bottleOz;
     });
 
     // Find most active block
@@ -179,20 +185,20 @@ export function calculateMonthlyStats(history, currentMonth, currentYear) {
         day: index + 1,
         feedCount: 0,
         totalDurationSeconds: 0,
-        bottleMl: 0,
+        bottleOz: 0,
     }));
 
     monthFeeds.forEach((unit) => {
         const feedDate = new Date(unit.endTime);
         const dayIndex = feedDate.getDate() - 1;
         const totalDuration = getUnitDuration(unit);
-        const bottleMl = getBottleVolume(unit);
+        const bottleOz = getBottleVolumeOz(unit);
 
         if (!dailyTotals[dayIndex]) return;
 
         dailyTotals[dayIndex].feedCount += 1;
         dailyTotals[dayIndex].totalDurationSeconds += totalDuration;
-        dailyTotals[dayIndex].bottleMl += bottleMl;
+        dailyTotals[dayIndex].bottleOz += bottleOz;
     });
 
     // Find most active day
@@ -261,18 +267,18 @@ export function calculateYearlyStats(history, year) {
         label: monthLabels[index],
         feedCount: 0,
         totalDurationSeconds: 0,
-        bottleMl: 0,
+        bottleOz: 0,
     }));
 
     yearFeeds.forEach((unit) => {
         const feedDate = new Date(unit.endTime);
         const monthIndex = feedDate.getMonth();
         const totalDuration = getUnitDuration(unit);
-        const bottleMl = getBottleVolume(unit);
+        const bottleOz = getBottleVolumeOz(unit);
 
         monthlyTotals[monthIndex].feedCount += 1;
         monthlyTotals[monthIndex].totalDurationSeconds += totalDuration;
-        monthlyTotals[monthIndex].bottleMl += bottleMl;
+        monthlyTotals[monthIndex].bottleOz += bottleOz;
     });
 
     const totalFeeds = yearFeeds.length;

@@ -114,7 +114,15 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                             const isBottle =
                                 typeof unit.type === 'string' &&
                                 unit.type.toLowerCase() === 'bottle';
-                            const volumeDisplay = Number(unit.volumeMl ?? 0);
+                            // Prefer ounces; convert legacy mL if needed
+                            const ozField = Number(unit.volumeOz);
+                            const mlLegacy = Number(unit.volumeMl ?? 0);
+                            const volOz = Number.isFinite(ozField)
+                                ? ozField
+                                : Number.isFinite(mlLegacy)
+                                  ? mlLegacy / 29.5735
+                                  : 0;
+                            const volumeDisplay = Math.round(volOz * 10) / 10;
 
                             return (
                                 <div key={unit.id} className="relative overflow-hidden rounded-md">
@@ -143,9 +151,9 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                         <div className="flex gap-2 mt-2 pb-3">
                                             {isBottle ? (
                                                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-sm">
-                                                    <span>Bottle</span>
+                                                    <span>🍼 Bottle</span>
                                                     <span>•</span>
-                                                    <span>{volumeDisplay} mL</span>
+                                                    <span>{volumeDisplay} oz</span>
                                                 </div>
                                             ) : (
                                                 sessions.map((session, i) => (

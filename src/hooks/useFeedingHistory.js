@@ -95,12 +95,13 @@ export function useFeedingHistory() {
         setHistory((prevHistory) => addFeedLogic(prevHistory, newSingleFeed));
     }, []);
 
-    const addBottleFeed = useCallback((volumeMl, at = Date.now()) => {
-        const numericVolume = Number(volumeMl);
+    const addBottleFeed = useCallback((volumeOz, at = Date.now()) => {
+        const numeric = Number(volumeOz);
+        const sanitized = Number.isFinite(numeric) ? Math.round(numeric * 10) / 10 : 0;
         const bottleUnit = {
             id: `${Date.now()}-${Math.random()}`,
             type: 'Bottle',
-            volumeMl: Number.isFinite(numericVolume) ? numericVolume : 0,
+            volumeOz: sanitized,
             sessions: [],
             endTime: at,
         };
