@@ -82,6 +82,11 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - History is always sorted newest-first
 - Exports `addPendingFeed()` to create placeholder entries
 
+**`useWakeLock`** (`src/hooks/useWakeLock.js`):
+- Uses a shared NoSleep.js instance to keep the screen awake on iOS, Android, and desktop browsers
+- Activates the wake lock whenever feeding is active and resumes after visibility/user interaction events
+- Releases the wake lock when the timer pauses/stops and during unmount to avoid leaks
+
 ### Data Model
 
 **Feed Session**: Single feeding event
