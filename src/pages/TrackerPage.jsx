@@ -14,7 +14,7 @@ export function TrackerPage() {
     return (
         <div className="flex flex-col h-full">
             {/* Timer Display */}
-            <div className="p-6 text-center space-y-6">
+            <div className="px-6 pt-6 pb-4 text-center space-y-4">
                 <LastFeedElapsed lastFeedTime={lastFeedTime} />
 
                 {activeSide !== null && feedType === FeedType.Breast ? (

@@ -15,7 +15,7 @@ export function Header() {
     };
 
     return (
-        <header className="mx-4 mt-4 px-4 py-3 glass rounded-2xl flex items-center justify-between gap-3">
+        <header className="mx-4 mt-4 flex items-center justify-between gap-3">
             <DeveloperMenu
                 onImportData={handleImportSampleData}
                 onClearHistory={handleClearHistory}

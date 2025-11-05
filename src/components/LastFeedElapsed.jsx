@@ -38,7 +38,7 @@ export function LastFeedElapsed({ lastFeedTime }) {
     }
 
     return (
-        <div className="flex flex-col items-center gap-1 mb-6">
+        <div className="glass rounded-2xl px-6 py-4 flex flex-col items-center gap-1">
             <div className="text-4xl font-semibold text-slate-900 tracking-tight">{formatted}</div>
             <div className="text-xs uppercase tracking-[0.35em] text-fuchsia-400">
                 since last feed
