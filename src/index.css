@@ -48,9 +48,9 @@
     body {
         @apply font-secondary text-slate-900 antialiased;
         background:
-            radial-gradient(1200px 600px at -10% -10%, #fde2e499 0%, transparent 60%),
-            radial-gradient(1200px 800px at 110% -10%, #e9d5ff99 0%, transparent 55%),
-            radial-gradient(1200px 800px at 50% 120%, #cffafe99 0%, transparent 60%), #f8fafc;
+            radial-gradient(1200px 600px at -10% -10%, #fde2e4 0%, transparent 60%),
+            radial-gradient(1200px 800px at 110% -10%, #e9d5ff 0%, transparent 55%),
+            radial-gradient(1200px 800px at 50% 120%, #cffafe 0%, transparent 60%), #f8fafc;
     }
 
     h1,
