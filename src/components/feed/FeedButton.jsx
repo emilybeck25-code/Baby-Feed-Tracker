@@ -18,11 +18,11 @@ export function FeedButton({
     const isLeftSide = side === FeedingSide.Left;
 
     // Determine button styling (explicit classes for Tailwind - can't use template literals)
-    let bgColor;
+    let bgColorClass;
     if (isLeftSide) {
-        bgColor = isActive || isCompleted ? 'bg-violet-600' : 'bg-violet-400';
+        bgColorClass = isActive || isCompleted ? 'btn-left-active' : 'btn-left';
     } else {
-        bgColor = isActive || isCompleted ? 'bg-rose-600' : 'bg-rose-400';
+        bgColorClass = isActive || isCompleted ? 'btn-right-active' : 'btn-right';
     }
 
     const scaleClass = suggestedStartSide === side ? 'scale-125' : '';
@@ -59,7 +59,7 @@ export function FeedButton({
     return (
         <button
             onClick={onClick}
-            className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform ${bgColor} ${textSize} ${scaleClass}`}
+            className={`w-24 h-24 rounded-full text-white font-bold shadow-lg active:scale-95 transition-transform ${bgColorClass} ${textSize} ${scaleClass}`}
             aria-label={ariaLabel}
         >
             {renderContent()}

@@ -125,19 +125,29 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                             const volumeDisplay = Math.round(volOz * 10) / 10;
 
                             return (
-                                <div key={unit.id} className="relative overflow-hidden rounded-xl">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDelete(unit.id)}
-                                        className="absolute inset-y-0 right-0 w-24 bg-red-500 text-white font-semibold flex items-center justify-center"
-                                        aria-label="Delete feeding entry"
+                                <div key={unit.id} className="relative rounded-xl overflow-hidden">
+                                    <div
+                                        className={`absolute inset-0 flex items-stretch justify-end rounded-inherit transition-opacity duration-150 ${
+                                            openItemId === unit.id
+                                                ? 'opacity-100'
+                                                : 'opacity-0 pointer-events-none'
+                                        }`}
+                                        aria-hidden={openItemId !== unit.id}
                                     >
-                                        Delete
-                                    </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDelete(unit.id)}
+                                            className="w-28 danger-glass text-white font-semibold flex items-center justify-center"
+                                            aria-label="Delete feeding entry"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+
                                     <div
                                         className={`border-l-4 border-violet-300 pl-3 pr-6 glass-soft transition-transform duration-200 ease-out ${
                                             openItemId === unit.id
-                                                ? '-translate-x-24'
+                                                ? '-translate-x-28'
                                                 : 'translate-x-0'
                                         }`}
                                         onTouchStart={(event) => handleTouchStart(event, unit.id)}

@@ -308,3 +308,16 @@ For production deployments on platforms with cache header control (Vercel, Netli
 - All data stored locally in browser
 - Must work offline (PWA with service worker via `vite-plugin-pwa`)
 - Screen wake lock keeps display on during feeding sessions
+
+## Theming & Swipe Actions
+
+- Theme tokens live in `src/theme/tokens.css`. Each theme is a `[data-theme="name"]` block on `<html>` and surfaces semantic variables for brand colors, glass layers, and chart gradients. Cloning the pastel block and extending the `THEMES` array in `src/theme/useTheme.js` is all it takes to add a new look.
+- Components should consume tokens via the helpers in `src/index.css` (`.btn-left`, `.btn-right`, `.gradient-chip`, `.heading-gradient`) or by passing CSS variables directly (e.g. `gradient="var(--chart-count-gradient)"`). Avoid hardcoding brand or danger colors in JSX.
+- Switch themes while developing from the Developer Menu → Theme buttons. The selection persists to `localStorage` and updates `document.documentElement.dataset.theme`.
+- Swipe rows (`HistoryLog.jsx`) stay as a rounded container with a hidden action rail. The delete rail inherits the radius, fades in only when the row is open, and uses the `.danger-glass` helper so it blends with the glass aesthetic.
+- Rule of thumb: no inline hex codes for branded surfaces; reach for the semantic variables or helper classes instead.
+
+**Checklist before submitting visual changes**
+- No hardcoded brand/danger colors in JSX
+- `npm run format` / `npm test` pass
+- Default theme visually unchanged

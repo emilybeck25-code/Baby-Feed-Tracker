@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTheme, THEMES } from '../theme/useTheme';
 import { MenuIcon } from './icons/MenuIcon';
 
 export function DeveloperMenu({ onImportData, onClearHistory, clearDisabled = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
+    const { theme, setTheme } = useTheme();
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -68,6 +70,27 @@ export function DeveloperMenu({ onImportData, onClearHistory, clearDisabled = fa
                     >
                         🧹 Clear All History
                     </button>
+
+                    <div className="my-1 border-t border-slate-200" />
+                    <div className="px-4 py-2 text-xs font-semibold text-slate-500">Theme</div>
+                    <div className="px-2 pb-2 flex gap-2">
+                        {THEMES.map((t) => (
+                            <button
+                                key={t}
+                                disabled={clearDisabled}
+                                onClick={() => setTheme(t)}
+                                className={`flex-1 px-2 py-1 rounded-md text-sm ${
+                                    theme === t
+                                        ? 'gradient-chip text-slate-800'
+                                        : 'glass-soft text-slate-700'
+                                }`}
+                                aria-pressed={theme === t}
+                                type="button"
+                            >
+                                {t[0].toUpperCase() + t.slice(1)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

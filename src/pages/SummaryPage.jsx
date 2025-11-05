@@ -148,7 +148,7 @@ export function SummaryPage() {
                     onClick={() => setView('today')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
                         view === 'today'
-                            ? 'bg-gradient-to-r from-rose-300 to-violet-300 text-slate-800 shadow'
+                            ? 'gradient-chip text-slate-800 shadow'
                             : 'glass-soft text-slate-600'
                     }`}
                 >
@@ -158,7 +158,7 @@ export function SummaryPage() {
                     onClick={() => setView('daily')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
                         view === 'daily'
-                            ? 'bg-gradient-to-r from-rose-300 to-violet-300 text-slate-800 shadow'
+                            ? 'gradient-chip text-slate-800 shadow'
                             : 'glass-soft text-slate-600'
                     }`}
                 >
@@ -168,7 +168,7 @@ export function SummaryPage() {
                     onClick={() => setView('monthly')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
                         view === 'monthly'
-                            ? 'bg-gradient-to-r from-rose-300 to-violet-300 text-slate-800 shadow'
+                            ? 'gradient-chip text-slate-800 shadow'
                             : 'glass-soft text-slate-600'
                     }`}
                 >
@@ -266,7 +266,7 @@ export function SummaryPage() {
                             }
                             data={countData}
                             valueFormatter={(v) => v}
-                            gradient="linear-gradient(180deg, #fbcfe8 0%, #e9d5ff 100%)"
+                            gradient="var(--chart-count-gradient)"
                             shadowColor="rgba(216, 180, 254, 0.25)"
                             accentLabel="Count"
                         />
@@ -288,7 +288,7 @@ export function SummaryPage() {
                             }
                             data={durationData}
                             valueFormatter={(v) => `${Math.round(v / 60)} min`}
-                            gradient="linear-gradient(180deg, #bae6fd 0%, #e9d5ff 100%)"
+                            gradient="var(--chart-time-gradient)"
                             shadowColor="rgba(147, 197, 253, 0.24)"
                             accentLabel="Time"
                         />
@@ -310,7 +310,7 @@ export function SummaryPage() {
                             }
                             data={bottleData}
                             valueFormatter={(v) => `${Math.round(v * 10) / 10} oz`}
-                            gradient="linear-gradient(180deg, #d1fae5 0%, #bae6fd 100%)"
+                            gradient="var(--chart-bottle-gradient)"
                             shadowColor="rgba(16, 185, 129, 0.18)"
                             accentLabel="oz"
                         />

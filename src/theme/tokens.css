@@ -1,0 +1,75 @@
+/* Default: pastel (current look) */
+:root,
+:root[data-theme="pastel"] {
+  /* brand & text */
+  --brand-left: #a78bfa;            /* violet-400 */
+  --brand-left-active: #7c3aed;     /* violet-600 */
+  --brand-right: #fb7185;           /* rose-400 */
+  --brand-right-active: #e11d48;    /* rose-600 */
+  --accent: #10b981;                /* emerald-500 */
+  --danger: #ef4444;                /* red-500 */
+  --text: #0f172a;                  /* slate-900 */
+  --muted-text: #475569;            /* slate-600 */
+
+  /* glass */
+  --glass-surface: rgba(255,255,255,0.65);
+  --glass-surface-soft: rgba(255,255,255,0.5);
+  --glass-border: rgba(255,255,255,0.45);
+  --glass-border-soft: rgba(255,255,255,0.35);
+  --glass-shadow: 0 10px 30px rgba(148,163,184,0.18);
+
+  /* gradients */
+  --chip-active-gradient: linear-gradient(90deg, #fbcfe8 0%, #e9d5ff 60%, #dbeafe 100%);
+  --heading-gradient: linear-gradient(90deg, #f5a5c6 0%, #d0b3ff 55%, #a5c8ff 100%);
+  --chart-count-gradient: linear-gradient(180deg, #fbcfe8 0%, #e9d5ff 100%);
+  --chart-time-gradient: linear-gradient(180deg, #bae6fd 0%, #e9d5ff 100%);
+  --chart-bottle-gradient: linear-gradient(180deg, #d1fae5 0%, #bae6fd 100%);
+}
+
+/* Midnight theme (dark glass) */
+:root[data-theme="midnight"] {
+  --brand-left: #8b5cf6;
+  --brand-left-active: #6d28d9;
+  --brand-right: #fb7185;
+  --brand-right-active: #be123c;
+  --accent: #34d399;
+  --danger: #f87171;
+  --text: #e5e7eb;
+  --muted-text: #a3a3a3;
+
+  --glass-surface: rgba(17, 24, 39, 0.6);
+  --glass-surface-soft: rgba(17, 24, 39, 0.45);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-border-soft: rgba(255,255,255,0.08);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,0.35);
+
+  --chip-active-gradient: linear-gradient(90deg, #3f3f46 0%, #1f2937 100%);
+  --heading-gradient: linear-gradient(90deg, #f0abfc 0%, #c4b5fd 50%, #93c5fd 100%);
+  --chart-count-gradient: linear-gradient(180deg, #f0abfc 0%, #a78bfa 100%);
+  --chart-time-gradient: linear-gradient(180deg, #93c5fd 0%, #a78bfa 100%);
+  --chart-bottle-gradient: linear-gradient(180deg, #6ee7b7 0%, #93c5fd 100%);
+}
+
+/* High-contrast pastel */
+:root[data-theme="contrast"] {
+  --brand-left: #7c3aed;
+  --brand-left-active: #5b21b6;
+  --brand-right: #e11d48;
+  --brand-right-active: #9f1239;
+  --accent: #059669;
+  --danger: #dc2626;
+  --text: #0b1220;
+  --muted-text: #334155;
+
+  --glass-surface: rgba(255,255,255,0.85);
+  --glass-surface-soft: rgba(255,255,255,0.7);
+  --glass-border: rgba(15,23,42,0.12);
+  --glass-border-soft: rgba(15,23,42,0.08);
+  --glass-shadow: 0 12px 28px rgba(15,23,42,0.18);
+
+  --chip-active-gradient: linear-gradient(90deg, #fecdd3 0%, #d8b4fe 60%, #bfdbfe 100%);
+  --heading-gradient: linear-gradient(90deg, #fb7185 0%, #a78bfa 55%, #60a5fa 100%);
+  --chart-count-gradient: linear-gradient(180deg, #fda4af 0%, #d8b4fe 100%);
+  --chart-time-gradient: linear-gradient(180deg, #93c5fd 0%, #d8b4fe 100%);
+  --chart-bottle-gradient: linear-gradient(180deg, #86efac 0%, #93c5fd 100%);
+}
