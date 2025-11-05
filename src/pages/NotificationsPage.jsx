@@ -46,18 +46,18 @@ export function NotificationsPage() {
             <h2 className="text-2xl font-bold text-slate-800 mb-6">Feed Reminders</h2>
 
             {permission !== 'granted' && (
-                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg mb-6">
+                <div className="glass-soft border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-6">
                     <p className="mb-2">Notification permission is required to set reminders.</p>
                     <button
                         onClick={requestPermission}
-                        className="px-4 py-2 bg-yellow-600 text-white rounded-lg"
+                        className="px-4 py-2 bg-amber-500 text-white rounded-lg"
                     >
                         Enable Notifications
                     </button>
                 </div>
             )}
 
-            <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="glass p-6 rounded-2xl">
                 <div className="mb-4">
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Remind me in:
@@ -69,7 +69,7 @@ export function NotificationsPage() {
                                 min="0"
                                 value={hours}
                                 onChange={(e) => setHours(parseInt(e.target.value) || 0)}
-                                className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-center"
+                                className="w-20 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
                             />
                             <span className="ml-2 text-slate-600">hours</span>
                         </div>
@@ -80,7 +80,7 @@ export function NotificationsPage() {
                                 max="59"
                                 value={minutes}
                                 onChange={(e) => setMinutes(parseInt(e.target.value) || 0)}
-                                className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-center"
+                                className="w-20 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
                             />
                             <span className="ml-2 text-slate-600">minutes</span>
                         </div>
@@ -96,7 +96,7 @@ export function NotificationsPage() {
                 </button>
 
                 {reminderTime && (
-                    <div className="mt-4 p-4 bg-green-100 rounded-lg">
+                    <div className="mt-4 p-4 glass-soft rounded-lg">
                         <p className="text-green-800 mb-2">
                             Reminder set for {new Date(reminderTime).toLocaleTimeString()}
                         </p>

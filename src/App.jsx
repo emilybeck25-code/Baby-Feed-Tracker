@@ -31,7 +31,7 @@ function AppContent() {
     };
 
     return (
-        <div className="h-screen bg-gray-100 flex flex-col font-sans">
+        <div className="h-screen flex flex-col font-sans">
             <Header />
             <main className="flex-grow overflow-hidden pb-20">{renderPage()}</main>
             <BottomNav currentPage={currentPage} onNavigate={setCurrentPage} />

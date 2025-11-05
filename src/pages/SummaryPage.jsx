@@ -148,8 +148,8 @@ export function SummaryPage() {
                     onClick={() => setView('today')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
                         view === 'today'
-                            ? 'bg-violet-500 text-white shadow-lg'
-                            : 'bg-slate-100 text-slate-600'
+                            ? 'bg-gradient-to-r from-rose-300 to-violet-300 text-slate-800 shadow'
+                            : 'glass-soft text-slate-600'
                     }`}
                 >
                     Today
@@ -158,8 +158,8 @@ export function SummaryPage() {
                     onClick={() => setView('daily')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
                         view === 'daily'
-                            ? 'bg-violet-500 text-white shadow-lg'
-                            : 'bg-slate-100 text-slate-600'
+                            ? 'bg-gradient-to-r from-rose-300 to-violet-300 text-slate-800 shadow'
+                            : 'glass-soft text-slate-600'
                     }`}
                 >
                     Daily
@@ -168,8 +168,8 @@ export function SummaryPage() {
                     onClick={() => setView('monthly')}
                     className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${
                         view === 'monthly'
-                            ? 'bg-violet-500 text-white shadow-lg'
-                            : 'bg-slate-100 text-slate-600'
+                            ? 'bg-gradient-to-r from-rose-300 to-violet-300 text-slate-800 shadow'
+                            : 'glass-soft text-slate-600'
                     }`}
                 >
                     Monthly
@@ -177,7 +177,7 @@ export function SummaryPage() {
             </div>
 
             {/* Date Navigator */}
-            <div className="flex items-center justify-between mb-4 bg-white rounded-lg p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-4 glass rounded-xl p-3">
                 <button
                     onClick={navigatePrev}
                     className="text-violet-500 hover:text-violet-600 px-3 py-1"
@@ -236,7 +236,7 @@ export function SummaryPage() {
             {/* Charts */}
             <div className="mb-4">
                 {stats.totalFeeds === 0 ? (
-                    <div className="bg-white rounded-3xl shadow-[0_12px_30px_rgba(148,163,184,0.18)] border border-slate-100 p-8">
+                    <div className="glass rounded-3xl p-8">
                         <div className="flex flex-col items-center justify-center text-center py-8">
                             <div className="text-6xl mb-4">📊</div>
                             <div className="text-slate-500 text-lg mb-2">No feeds recorded</div>
@@ -266,8 +266,8 @@ export function SummaryPage() {
                             }
                             data={countData}
                             valueFormatter={(v) => v}
-                            gradient="linear-gradient(180deg, #c084fc 0%, #a855f7 100%)"
-                            shadowColor="rgba(168, 85, 247, 0.25)"
+                            gradient="linear-gradient(180deg, #fbcfe8 0%, #e9d5ff 100%)"
+                            shadowColor="rgba(216, 180, 254, 0.25)"
                             accentLabel="Count"
                         />
 
@@ -288,8 +288,8 @@ export function SummaryPage() {
                             }
                             data={durationData}
                             valueFormatter={(v) => `${Math.round(v / 60)} min`}
-                            gradient="linear-gradient(180deg, #38bdf8 0%, #6366f1 100%)"
-                            shadowColor="rgba(99, 102, 241, 0.22)"
+                            gradient="linear-gradient(180deg, #bae6fd 0%, #e9d5ff 100%)"
+                            shadowColor="rgba(147, 197, 253, 0.24)"
                             accentLabel="Time"
                         />
 
@@ -310,8 +310,8 @@ export function SummaryPage() {
                             }
                             data={bottleData}
                             valueFormatter={(v) => `${Math.round(v * 10) / 10} oz`}
-                            gradient="linear-gradient(180deg, #34d399 0%, #10b981 100%)"
-                            shadowColor="rgba(16, 185, 129, 0.22)"
+                            gradient="linear-gradient(180deg, #d1fae5 0%, #bae6fd 100%)"
+                            shadowColor="rgba(16, 185, 129, 0.18)"
                             accentLabel="oz"
                         />
                     </div>
@@ -320,9 +320,9 @@ export function SummaryPage() {
 
             {/* Insights */}
             {view === 'today' && stats.mostActiveBlock && (
-                <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 text-sm">
-                    <div className="font-semibold text-violet-900 mb-1">💡 Insight</div>
-                    <div className="text-violet-700">Most active time: {stats.mostActiveBlock}</div>
+                <div className="glass-soft border border-violet-200/60 rounded-xl p-3 text-sm">
+                    <div className="font-semibold text-violet-700 mb-1">💡 Insight</div>
+                    <div className="text-slate-600">Most active time: {stats.mostActiveBlock}</div>
                 </div>
             )}
         </div>

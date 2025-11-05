@@ -12,14 +12,14 @@ export function MiniBarChart({
     const labelInterval = data.length <= 12 ? 1 : Math.ceil(data.length / 6);
 
     return (
-        <div className="bg-white rounded-3xl shadow-[0_12px_30px_rgba(148,163,184,0.18)] border border-slate-100 p-4">
+        <div className="glass rounded-3xl p-4">
             <div className="flex items-start justify-between gap-2">
                 <div>
                     <h3 className="text-base font-semibold text-slate-800">{title}</h3>
                     {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
                 </div>
                 {accentLabel && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-600 glass-chip px-2 py-1">
                         {accentLabel}
                     </span>
                 )}

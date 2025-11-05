@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Baby Feed Tracker is a PWA for tracking breastfeeding sessions. It uses React 19 + Vite with Tailwind CSS, stores data locally in localStorage, and operates entirely offline.
+Baby Feed Tracker is a PWA for tracking feeding sessions (breast and bottle). It uses React 19 + Vite with Tailwind CSS, stores data locally in localStorage, and operates entirely offline.
 
 ## Development Commands
 
@@ -34,9 +34,9 @@ The app follows React best practices with clear separation of concerns:
 src/
 ├── components/
 │   ├── icons/       # Reusable SVG icon components (Clock, Stop, Pause, Play, etc.)
-│   ├── layout/      # Header and BottomNav components
-│   ├── feed/        # FeedButton and FeedControls (button logic)
-│   └── [other]      # HistoryLog, TimerDisplay, StatCard, MiniBarChart, etc.
+│   ├── layout/      # Header, BottomNav, FeedTypeToggle, etc.
+│   ├── feed/        # FeedButton, FeedControls, BottleControls (feeding/bottle logic)
+│   └── [other]      # HistoryLog, TimerDisplay, StatCard, MiniBarChart, LastFeedElapsed, etc.
 ├── contexts/
 │   └── FeedingContext.jsx  # Centralized state via Context API
 ├── hooks/
@@ -61,7 +61,8 @@ src/
 State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Wraps `useTimer` and `useFeedingHistory` hooks
 - Provides centralized state to all components via `useFeedingContext()`
-- Exposes only necessary methods: `startTimer`, `togglePause`, `stopTimer` (not `pauseTimer`/`resumeTimer` directly)
+- Handles the feed-type toggle (breast ↔ bottle), persisting the selection and blocking changes during an active timer
+- Exposes timer control methods (`startTimer`, `togglePause`, `stopTimer`) and history helpers (`addFeed`, `addBottleFeed`, etc.)
 - Eliminates prop drilling throughout the app
 - **Cleanup effect**: Automatically removes orphaned pending units when timer is not active (handles crashes/force-closes)
 - **Hydration sync effect**: Creates pending unit if timer hydrates from localStorage without one (ensures timer/history stay in sync)
@@ -75,12 +76,12 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Returns feed object with `{ side, duration, endTime }` when stopped
 
 **`useFeedingHistory`** (`src/hooks/useFeedingHistory.js`):
-- Manages feeding history and localStorage sync
+- Manages feeding history (breast + bottle) and localStorage sync
 - Adds "pending" feed units (with 0-duration placeholder) when timer starts
 - Pairs opposite-side feeds into single units based on user actions
 - Supports cross-tab sync via storage events
 - History is always sorted newest-first
-- Exports `addPendingFeed()` to create placeholder entries
+- Exports `addPendingFeed()` for placeholder entries and `addBottleFeed()` for bottle volumes
 
 **`useWakeLock`** (`src/hooks/useWakeLock.js`):
 - Uses a shared NoSleep.js instance to keep the screen awake on iOS, Android, and desktop browsers
@@ -108,6 +109,17 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 ```
 
 History array contains Feed Units, stored newest-first.
+
+**Bottle Entry**: Separate unit stored alongside breast feeds
+```js
+{
+  id: string,
+  type: 'Bottle',
+  volumeOz: number,        // stored as ounces (1 decimal)
+  sessions: [],            // always empty for bottle entries
+  endTime: number
+}
+```
 
 ### Feed Pairing Logic
 
@@ -167,7 +179,7 @@ Always test these scenarios after any changes to FeedControls.jsx:
 
 ### Page Structure
 
-- **TrackerPage**: Timer controls (L/R buttons), history log, last-feed countdown
+- **TrackerPage**: Timer controls (L/R buttons), feed-type toggle, bottle logging form, history log, last-feed countdown
 - **SummaryPage**: Unified dashboard with three toggle views:
   - **Today**: Hourly patterns (8 x 3-hour time blocks), avg/longest feed duration
   - **Daily**: Days of current month (1-31), avg feeds per day, peak day
@@ -182,6 +194,7 @@ Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 - `feedingHistory`: Array of Feed Units (JSON)
 - `activeTimer`: Current timer state for persistence across app restarts (JSON)
 - `reminderTime`: Timestamp for next reminder (number)
+- `feedType`: Current selection (`'breast'` or `'bottle'`)
 
 ### Notifications
 
@@ -203,16 +216,18 @@ All functions accept history array and date/period parameters, return 0 values w
 **Layout:**
 - **`Header`**: App title, version badge, developer menu
 - **`BottomNav`**: Fixed navigation bar with icons (Tracker | Summary | Notify)
+- **`FeedTypeToggle`**: Switch between breast and bottle workflows
 
 **Feed Controls:**
 - **`FeedButton`**: Single L/R button with dynamic icon (Stop/Pause/Play/"Finish"/"L"/"R")
 - **`FeedControls`**: Manages both buttons and all feeding flow logic
+- **`BottleControls`**: Form for logging bottle feeds in ounces
 
 **Display:**
 - **`MiniBarChart`**: Side-by-side bars for feed count + duration with gradients
 - **`StatCard`**: Single statistic with title and value
 - **`TimerDisplay`**: Formats seconds into MM:SS display
-- **`HistoryLog`**: Swipeable feed history with delete and clear functions
+- **`HistoryLog`**: Swipeable feed history (breast + bottle) with delete and clear functions
 - **`LastFeedElapsed`**: Shows time elapsed since last feed
 
 **Icons:**

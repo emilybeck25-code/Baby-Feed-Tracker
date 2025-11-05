@@ -96,7 +96,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
     return (
         <div className="space-y-4">
             {Object.entries(groupedByDay).map(([day, units]) => (
-                <div key={day} className="bg-white p-4 rounded-lg shadow-lg">
+                <div key={day} className="glass p-4 rounded-2xl">
                     <h3 className="font-bold text-slate-800 mb-3">{day}</h3>
                     <div className="space-y-3">
                         {units.map((unit) => {
@@ -125,7 +125,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                             const volumeDisplay = Math.round(volOz * 10) / 10;
 
                             return (
-                                <div key={unit.id} className="relative overflow-hidden rounded-md">
+                                <div key={unit.id} className="relative overflow-hidden rounded-xl">
                                     <button
                                         type="button"
                                         onClick={() => handleDelete(unit.id)}
@@ -135,7 +135,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                         Delete
                                     </button>
                                     <div
-                                        className={`border-l-4 border-violet-400 pl-3 pr-6 bg-white transition-transform duration-200 ease-out ${
+                                        className={`border-l-4 border-violet-300 pl-3 pr-6 glass-soft transition-transform duration-200 ease-out ${
                                             openItemId === unit.id
                                                 ? '-translate-x-24'
                                                 : 'translate-x-0'
@@ -150,7 +150,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                         </div>
                                         <div className="flex gap-2 mt-2 pb-3">
                                             {isBottle ? (
-                                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold text-sm">
+                                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-700 font-semibold text-sm">
                                                     <span>🍼 Bottle</span>
                                                     <span>•</span>
                                                     <span>{volumeDisplay} oz</span>
@@ -159,7 +159,11 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                                 sessions.map((session, i) => (
                                                     <div
                                                         key={i}
-                                                        className={`flex items-center gap-2 px-3 py-1 rounded-full ${session.side === FeedingSide.Left ? 'bg-violet-100 text-violet-700' : 'bg-rose-100 text-rose-700'}`}
+                                                        className={`flex items-center gap-2 px-3 py-1 rounded-full ${
+                                                            session.side === FeedingSide.Left
+                                                                ? 'bg-violet-100/80 text-violet-700'
+                                                                : 'bg-rose-100/80 text-rose-700'
+                                                        }`}
                                                     >
                                                         <span className="font-bold">
                                                             {session.side?.[0] ?? '?'}

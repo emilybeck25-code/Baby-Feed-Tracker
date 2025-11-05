@@ -10,13 +10,13 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", ...defaultTheme.fontFamily.sans],
-        primary: ["Poppins", ...defaultTheme.fontFamily.sans],
-        secondary: ["Inter", ...defaultTheme.fontFamily.sans],
+        sans: ["Plus Jakarta Sans", ...defaultTheme.fontFamily.sans],
+        primary: ["Sora", ...defaultTheme.fontFamily.sans],
+        secondary: ["Plus Jakarta Sans", ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        primary: colors.violet[500],
-        secondary: colors.rose[500],
+        primary: colors.violet[400],
+        secondary: colors.rose[400],
         accent: colors.emerald[400],
         gray: {
           100: colors.slate[50],
