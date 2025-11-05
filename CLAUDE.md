@@ -47,6 +47,9 @@ src/
 │   ├── TrackerPage.jsx
 │   ├── SummaryPage.jsx
 │   └── NotificationsPage.jsx
+├── theme/
+│   ├── tokens.css    # Theme color/glass variables
+│   └── useTheme.js   # Theme management hook
 ├── utils/
 │   ├── feedLogic.js      # Feed pairing logic
 │   ├── statistics.js     # Stats calculations
@@ -214,7 +217,7 @@ All functions accept history array and date/period parameters, return 0 values w
 ### Key Components
 
 **Layout:**
-- **`Header`**: App title, version badge, developer menu
+- **`Header`**: App title, version badge, developer menu (no glass pane background)
 - **`BottomNav`**: Fixed navigation bar with icons (Tracker | Summary | Notify)
 - **`FeedTypeToggle`**: Switch between breast and bottle workflows
 
@@ -228,10 +231,11 @@ All functions accept history array and date/period parameters, return 0 values w
 - **`StatCard`**: Single statistic with title and value
 - **`TimerDisplay`**: Formats seconds into MM:SS display
 - **`HistoryLog`**: Swipeable feed history (breast + bottle) with delete and clear functions
-- **`LastFeedElapsed`**: Shows time elapsed since last feed
+- **`LastFeedElapsed`**: Shows time elapsed since last feed in glass pane container
 
 **Icons:**
 - All SVG icons extracted to `src/components/icons/` for reusability
+- Consistent stroke-outline style (strokeWidth=2, strokeLinecap/Join round)
 - Includes: ClockIcon, StopIcon, PauseIcon, PlayIcon, ChartIcon, BellIcon, MenuIcon
 
 ### Code Quality Tools
@@ -311,13 +315,21 @@ For production deployments on platforms with cache header control (Vercel, Netli
 
 ## Theming & Swipe Actions
 
-- Theme tokens live in `src/theme/tokens.css`. Each theme is a `[data-theme="name"]` block on `<html>` and surfaces semantic variables for brand colors, glass layers, and chart gradients. Cloning the pastel block and extending the `THEMES` array in `src/theme/useTheme.js` is all it takes to add a new look.
-- Components should consume tokens via the helpers in `src/index.css` (`.btn-left`, `.btn-right`, `.gradient-chip`, `.heading-gradient`) or by passing CSS variables directly (e.g. `gradient="var(--chart-count-gradient)"`). Avoid hardcoding brand or danger colors in JSX.
-- Switch themes while developing from the Developer Menu → Theme buttons. The selection persists to `localStorage` and updates `document.documentElement.dataset.theme`.
-- Swipe rows (`HistoryLog.jsx`) stay as a rounded container with a hidden action rail. The delete rail inherits the radius, fades in only when the row is open, and uses the `.danger-glass` helper so it blends with the glass aesthetic.
-- Rule of thumb: no inline hex codes for branded surfaces; reach for the semantic variables or helper classes instead.
+### Theming
+- App is **locked to pastel theme** in production (theme switcher removed from UI)
+- Theme infrastructure remains in codebase for developer use:
+  - Theme tokens live in `src/theme/tokens.css` with `[data-theme="name"]` blocks on `<html>`
+  - Surfaces semantic variables for brand colors, glass layers, and chart gradients
+  - `useTheme.js` hook manages theme state and localStorage persistence
+  - THEMES array includes 'pastel', 'midnight', 'contrast'
+- Components consume tokens via helpers in `src/index.css` (`.btn-left`, `.btn-right`, `.gradient-chip`, `.heading-gradient`) or CSS variables (e.g. `gradient="var(--chart-count-gradient)"`)
+- Rule of thumb: no inline hex codes for branded surfaces; use semantic variables or helper classes
+
+### Swipe Actions
+- Swipe rows (`HistoryLog.jsx`) stay as rounded containers with hidden action rails
+- Delete rail inherits radius, fades in when row is open, uses `.danger-glass` helper for glass aesthetic
 
 **Checklist before submitting visual changes**
 - No hardcoded brand/danger colors in JSX
 - `npm run format` / `npm test` pass
-- Default theme visually unchanged
+- Pastel theme visually unchanged
