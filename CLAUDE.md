@@ -217,7 +217,7 @@ All functions accept history array and date/period parameters, return 0 values w
 ### Key Components
 
 **Layout:**
-- **`Header`**: App title, version badge, developer menu (no glass pane background)
+- **`Header`**: App title, version badge, developer menu
 - **`BottomNav`**: Fixed navigation bar with icons (Tracker | Summary | Notify)
 - **`FeedTypeToggle`**: Switch between breast and bottle workflows
 
@@ -231,7 +231,7 @@ All functions accept history array and date/period parameters, return 0 values w
 - **`StatCard`**: Single statistic with title and value
 - **`TimerDisplay`**: Formats seconds into MM:SS display
 - **`HistoryLog`**: Swipeable feed history (breast + bottle) with delete and clear functions
-- **`LastFeedElapsed`**: Shows time elapsed since last feed in glass pane container
+- **`LastFeedElapsed`**: Shows time elapsed since last feed
 
 **Icons:**
 - All SVG icons extracted to `src/components/icons/` for reusability
