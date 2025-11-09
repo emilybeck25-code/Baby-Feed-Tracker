@@ -1,7 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { FeedingSide } from '../../utils/constants';
 import { useFeedingContext } from '../../contexts/FeedingContext';
 import { FeedButton } from './FeedButton';
+import { PENDING_UNIT_PREFIX } from '../../utils/feedLogic';
+
+const AUTO_FINALIZE_MS = 30 * 60 * 1000;
 
 export function FeedControls() {
     const {
@@ -15,6 +18,63 @@ export function FeedControls() {
     } = useFeedingContext();
 
     const [completedSession, setCompletedSession] = useState(null);
+    const finalizeTimeoutRef = useRef(null);
+    const endGuardRef = useRef(false);
+
+    const opposite = (side) =>
+        side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
+
+    const autoFinalize = (session) => {
+        addFeed({
+            side: opposite(session.side),
+            duration: 0,
+            endTime: session.endTime,
+        });
+        setCompletedSession(null);
+    };
+
+    useEffect(() => {
+        if (finalizeTimeoutRef.current) {
+            clearTimeout(finalizeTimeoutRef.current);
+            finalizeTimeoutRef.current = null;
+        }
+        if (activeSide !== null || !completedSession) return;
+        const deadline = completedSession.endTime + AUTO_FINALIZE_MS;
+        const delay = deadline - Date.now();
+        if (delay <= 0) {
+            autoFinalize(completedSession);
+            return;
+        }
+        finalizeTimeoutRef.current = setTimeout(() => autoFinalize(completedSession), delay);
+        return () => {
+            if (finalizeTimeoutRef.current) {
+                clearTimeout(finalizeTimeoutRef.current);
+            }
+        };
+    }, [completedSession, activeSide]);
+
+    useEffect(() => {
+        if (activeSide !== null) return;
+        const top = chronologicalHistory?.[0];
+        const isPending =
+            typeof top?.id === 'string' && top.id.startsWith(PENDING_UNIT_PREFIX);
+        if (!top || isPending || !Array.isArray(top.sessions) || top.sessions.length !== 1) return;
+        if (Date.now() - top.endTime >= AUTO_FINALIZE_MS) {
+            const first = top.sessions[0];
+            const oppositeSide = first.side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
+            addFeed({
+                side: oppositeSide,
+                duration: 0,
+                endTime: first.endTime,
+            });
+        }
+    }, [chronologicalHistory, activeSide]);
+
+    useEffect(() => {
+        if (completedSession === null) {
+            endGuardRef.current = false;
+        }
+    }, [completedSession]);
 
     // Determine the suggested side for the next feed when idle
     const suggestedStartSide = useMemo(() => {
@@ -84,6 +144,8 @@ export function FeedControls() {
             // Handle completed session flow
             if (completedSession.side === FeedingSide.Left) {
                 // Finish button: only add 0-duration opposite side (original side already saved)
+                if (endGuardRef.current) return;
+                endGuardRef.current = true;
                 addFeed({
                     side: FeedingSide.Right,
                     duration: 0,
@@ -117,6 +179,8 @@ export function FeedControls() {
             // Handle completed session flow
             if (completedSession.side === FeedingSide.Right) {
                 // Finish button: only add 0-duration opposite side (original side already saved)
+                if (endGuardRef.current) return;
+                endGuardRef.current = true;
                 addFeed({
                     side: FeedingSide.Left,
                     duration: 0,
