@@ -68,7 +68,7 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Handles the feed-type toggle (breast ↔ bottle), persisting the selection and blocking changes during an active timer
 - Exposes timer control methods (`startTimer`, `togglePause`, `stopTimer`) and history helpers (`addFeed`, `addBottleFeed`, etc.)
 - Eliminates prop drilling throughout the app
-- Keeps the `completedSession` (first-side stop) in context so the paired-feed flow survives navigation and can be merged into views.
+- Keeps the `completedSession` (first-side stop) in context **and persisted to `localStorage`** (`completedSession` key) so the paired-feed flow survives navigation, refreshes, and backgrounding.
 - **Derived view model**: `chronologicalHistory` merges an active timer into the head unit when a paired feed is in progress (`activeSide` + `completedSession`), otherwise it prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. The persisted `history` remains immutable and contains only completed units.
 
 **`useTimer`** (`src/hooks/useTimer.js`):
@@ -208,6 +208,7 @@ Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 - `activeTimer`: Current timer state for persistence across app restarts (JSON)
 - `reminderTime`: Timestamp for next reminder (number)
 - `feedType`: Current selection (`'breast'` or `'bottle'`)
+- `completedSession`: Paired-feed in-progress marker (first-side session JSON) so the second side can resume after refresh/backgrounding
 
 ### Notifications
 
