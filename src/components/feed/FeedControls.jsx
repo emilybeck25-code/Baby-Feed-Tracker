@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { FeedingSide } from '../../utils/constants';
 import { useFeedingContext } from '../../contexts/FeedingContext';
 import { FeedButton } from './FeedButton';
-import { PENDING_UNIT_PREFIX } from '../../utils/feedLogic';
 
 const AUTO_FINALIZE_MS = 30 * 60 * 1000;
 
@@ -56,9 +55,7 @@ export function FeedControls() {
     useEffect(() => {
         if (activeSide !== null) return;
         const top = chronologicalHistory?.[0];
-        const isPending =
-            typeof top?.id === 'string' && top.id.startsWith(PENDING_UNIT_PREFIX);
-        if (!top || isPending || !Array.isArray(top.sessions) || top.sessions.length !== 1) return;
+        if (!top || !Array.isArray(top.sessions) || top.sessions.length !== 1) return;
         if (Date.now() - top.endTime >= AUTO_FINALIZE_MS) {
             const first = top.sessions[0];
             const oppositeSide = first.side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;

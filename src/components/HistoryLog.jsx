@@ -111,6 +111,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                   )
                                 : defaultEnd;
                             const endTime = defaultEnd;
+                            const isActive = unit.isActive === true;
                             const isBottle =
                                 typeof unit.type === 'string' &&
                                 unit.type.toLowerCase() === 'bottle';
@@ -123,41 +124,57 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                   ? mlLegacy / 29.5735
                                   : 0;
                             const volumeDisplay = Math.round(volOz * 10) / 10;
+                            const canDelete = !isActive;
+                            const translationClass =
+                                canDelete && openItemId === unit.id ? '-translate-x-28' : 'translate-x-0';
+                            const swipeHandlers = canDelete
+                                ? {
+                                      onTouchStart: (event) => handleTouchStart(event, unit.id),
+                                      onTouchEnd: (event) => handleTouchEnd(event, unit.id),
+                                      onMouseDown: (event) => handleMouseDown(event, unit.id),
+                                      onMouseUp: (event) => handleMouseUp(event, unit.id),
+                                  }
+                                : {};
 
                             return (
                                 <div key={unit.id} className="relative rounded-xl overflow-hidden">
-                                    <div
-                                        className={`absolute inset-0 flex items-stretch justify-end rounded-inherit transition-opacity duration-150 ${
-                                            openItemId === unit.id
-                                                ? 'opacity-100'
-                                                : 'opacity-0 pointer-events-none'
-                                        }`}
-                                        aria-hidden={openItemId !== unit.id}
-                                    >
-                                        <button
-                                            type="button"
-                                            onClick={() => handleDelete(unit.id)}
-                                            className="w-28 danger-glass text-white font-semibold flex items-center justify-center"
-                                            aria-label="Delete feeding entry"
+                                    {canDelete && (
+                                        <div
+                                            className={`absolute inset-0 flex items-stretch justify-end rounded-inherit transition-opacity duration-150 ${
+                                                openItemId === unit.id
+                                                    ? 'opacity-100'
+                                                    : 'opacity-0 pointer-events-none'
+                                            }`}
+                                            aria-hidden={openItemId !== unit.id}
                                         >
-                                            Delete
-                                        </button>
-                                    </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDelete(unit.id)}
+                                                className="w-28 danger-glass text-white font-semibold flex items-center justify-center"
+                                                aria-label="Delete feeding entry"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
 
                                     <div
-                                        className={`border-l-4 border-violet-300 pl-3 pr-6 glass-soft transition-transform duration-200 ease-out ${
-                                            openItemId === unit.id
-                                                ? '-translate-x-28'
-                                                : 'translate-x-0'
-                                        }`}
-                                        onTouchStart={(event) => handleTouchStart(event, unit.id)}
-                                        onTouchEnd={(event) => handleTouchEnd(event, unit.id)}
-                                        onMouseDown={(event) => handleMouseDown(event, unit.id)}
-                                        onMouseUp={(event) => handleMouseUp(event, unit.id)}
+                                        className={`border-l-4 ${
+                                            isActive ? 'border-emerald-400' : 'border-violet-300'
+                                        } pl-3 pr-6 glass-soft transition-transform duration-200 ease-out ${
+                                            canDelete ? translationClass : 'translate-x-0'
+                                        } ${isActive ? 'ring-1 ring-emerald-200 bg-emerald-50/70' : ''}`}
+                                        {...swipeHandlers}
                                     >
                                         <div className="text-sm text-slate-600">
                                             {formatTime(startTime)} - {formatTime(endTime)}
                                         </div>
+                                        {isActive && (
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 mt-2 rounded-full bg-emerald-100/90 text-emerald-700 text-sm font-semibold">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                Live feed in progress
+                                            </div>
+                                        )}
                                         <div className="flex gap-2 mt-2 pb-3">
                                             {isBottle ? (
                                                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/80 text-emerald-700 font-semibold text-sm">

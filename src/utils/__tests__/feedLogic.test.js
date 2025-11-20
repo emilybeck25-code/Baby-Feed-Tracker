@@ -1,85 +1,86 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addFeedLogic, PENDING_UNIT_PREFIX } from '../feedLogic.js';
-import { createPendingUnit } from '../../hooks/useFeedingHistory.js';
+import { addFeedLogic } from '../feedLogic.js';
 
-test('addFeedLogic replaces the top pending unit with the completed session', () => {
-    const startTime = 1_700_000_000_000;
-    const pendingUnit = createPendingUnit('Left', startTime);
-    const completedSession = {
-        side: 'Left',
-        duration: 120,
-        endTime: startTime + 120_000,
-    };
-
-    const originalDateNow = Date.now;
-    const originalMathRandom = Math.random;
-    Date.now = () => 1111;
-    Math.random = () => 0.5;
-
-    try {
-        const result = addFeedLogic([pendingUnit], completedSession);
-        assert.equal(result.length, 1);
-
-        const [unit] = result;
-        assert.equal(unit.sessions.length, 1);
-        assert.equal(unit.sessions[0], completedSession);
-        assert.equal(unit.endTime, completedSession.endTime);
-        assert.equal(unit.id, '1111-0.5');
-        assert.ok(!unit.id.startsWith(PENDING_UNIT_PREFIX));
-    } finally {
-        Date.now = originalDateNow;
-        Math.random = originalMathRandom;
-    }
-});
-
-test('addFeedLogic pairs the opposite side after pending replacement', () => {
-    const startTime = 1_700_000_000_000;
-    const pendingUnit = createPendingUnit('Left', startTime);
-    const leftSession = {
+test('addFeedLogic pairs the new session with the existing unit when sides alternate', () => {
+    const firstSession = {
         side: 'Left',
         duration: 60,
-        endTime: startTime + 60_000,
+        endTime: 1_700_000_000_000,
     };
-    const rightSession = {
+    const existingUnit = {
+        id: 'unit-1',
+        sessions: [firstSession],
+        endTime: firstSession.endTime,
+    };
+    const newSession = {
         side: 'Right',
-        duration: 300,
-        endTime: startTime + 360_000,
+        duration: 120,
+        endTime: 1_700_000_060_000,
     };
+
+    const result = addFeedLogic([existingUnit], newSession);
+    assert.equal(result.length, 1);
+    const [unit] = result;
+    assert.equal(unit.id, existingUnit.id);
+    assert.equal(unit.sessions.length, 2);
+    assert.equal(unit.sessions[0], firstSession);
+    assert.equal(unit.sessions[1], newSession);
+    assert.equal(unit.endTime, newSession.endTime);
+});
+
+test('addFeedLogic prepends a new unit when no pairing is available', () => {
+    const session = {
+        side: 'Right',
+        duration: 45,
+        endTime: 1_700_000_000_000,
+    };
+    const history = [
+        {
+            id: 'paired',
+            sessions: [
+                { side: 'Left', duration: 30, endTime: 1_600 },
+                { side: 'Right', duration: 40, endTime: 1_640 },
+            ],
+            endTime: 1_640,
+        },
+    ];
 
     const originalDateNow = Date.now;
     const originalMathRandom = Math.random;
-    Date.now = () => 1234;
-    Math.random = () => 0.321;
+    Date.now = () => 4321;
+    Math.random = () => 0.111;
 
-    let historyAfterLeft;
     try {
-        historyAfterLeft = addFeedLogic([pendingUnit], leftSession);
-        assert.equal(historyAfterLeft[0].id, '1234-0.321');
+        const result = addFeedLogic(history, session);
+        assert.equal(result.length, 2);
+        assert.equal(result[0].id, '4321-0.111');
+        assert.equal(result[0].sessions.length, 1);
+        assert.equal(result[0].sessions[0], session);
+        assert.equal(result[0].endTime, session.endTime);
+        assert.equal(result[1], history[0]);
     } finally {
         Date.now = originalDateNow;
         Math.random = originalMathRandom;
     }
-
-    const finalHistory = addFeedLogic(historyAfterLeft, rightSession);
-    const [unit] = finalHistory;
-
-    assert.equal(unit.sessions.length, 2);
-    assert.equal(unit.sessions[0], leftSession);
-    assert.equal(unit.sessions[1], rightSession);
-    assert.equal(unit.endTime, rightSession.endTime);
 });
 
-test('createPendingUnit produces the expected placeholder shape', () => {
-    const startTime = 1_700_000_000_000;
-    const pendingUnit = createPendingUnit('Right', startTime);
+test('addFeedLogic does not merge bottle entries', () => {
+    const bottleUnit = {
+        id: 'bottle',
+        type: 'Bottle',
+        volumeOz: 4,
+        sessions: [],
+        endTime: 1_600,
+    };
+    const session = {
+        side: 'Left',
+        duration: 30,
+        endTime: 1_700,
+    };
 
-    assert.equal(pendingUnit.id, `${PENDING_UNIT_PREFIX}${startTime}`);
-    assert.equal(pendingUnit.endTime, startTime);
-    assert.equal(pendingUnit.sessions.length, 1);
-    assert.deepEqual(pendingUnit.sessions[0], {
-        side: 'Right',
-        duration: 0,
-        endTime: startTime,
-    });
+    const result = addFeedLogic([bottleUnit], session);
+    assert.equal(result.length, 2);
+    assert.equal(result[1], bottleUnit);
+    assert.equal(result[0].sessions[0], session);
 });

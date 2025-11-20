@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTimer } from '../hooks/useTimer';
 import { useFeedingHistory } from '../hooks/useFeedingHistory';
-import { PENDING_UNIT_PREFIX } from '../utils/feedLogic';
 import { FeedType } from '../utils/constants';
 
 const FeedingContext = createContext(null);
@@ -10,7 +9,7 @@ const FEED_TYPE_STORAGE_KEY = 'feedType';
 
 export function FeedingProvider({ children }) {
     const timer = useTimer();
-    const history = useFeedingHistory();
+    const historyStore = useFeedingHistory();
     const [feedType, setFeedTypeState] = useState(() => {
         try {
             const stored = localStorage.getItem(FEED_TYPE_STORAGE_KEY);
@@ -28,43 +27,27 @@ export function FeedingProvider({ children }) {
         }
     }, [feedType]);
 
-    const startTimerWithPending = (side) => {
-        const startTime = Date.now();
-        history.addPendingFeed(side, startTime);
-        timer.startTimer(side);
-    };
-
-    // Track if we've already synced hydration to prevent duplicate pending units
-    const hydrationSyncedRef = useRef(false);
-
-    // Cleanup orphaned pending units when timer is not active
-    useEffect(() => {
-        if (timer.activeSide === null && history.history.length > 0) {
-            const topUnit = history.history[0];
-            // If there's a pending unit but no active timer, remove it
-            if (topUnit?.id?.startsWith?.(PENDING_UNIT_PREFIX)) {
-                history.deleteFeed(topUnit.id);
-            }
-        }
-    }, [timer.activeSide, history]);
-
-    // Sync timer hydration: if timer hydrated with active side but no pending unit exists, create one
-    useEffect(() => {
-        if (hydrationSyncedRef.current) return;
-
+    const displayHistory = useMemo(() => {
         if (timer.activeSide !== null) {
-            const topUnit = history.history[0];
-            const hasPendingUnit = topUnit?.id?.startsWith?.(PENDING_UNIT_PREFIX);
-
-            // If timer is active but there's no pending unit, create one
-            if (!hasPendingUnit) {
-                // Use current time as startTime for the pending unit
-                history.addPendingFeed(timer.activeSide, Date.now());
-            }
-
-            hydrationSyncedRef.current = true;
+            const now = Date.now();
+            const activeUnit = {
+                id: 'active',
+                sessions: [
+                    {
+                        side: timer.activeSide,
+                        duration: timer.duration,
+                        endTime: now,
+                    },
+                ],
+                endTime: now,
+                isActive: true,
+                isPaused: timer.paused,
+            };
+            return [activeUnit, ...historyStore.history];
         }
-    }, [timer.activeSide, history]);
+
+        return historyStore.history;
+    }, [timer.activeSide, timer.duration, timer.paused, historyStore.history]);
 
     const setFeedType = useCallback(
         (nextType) => {
@@ -87,19 +70,19 @@ export function FeedingProvider({ children }) {
         activeSide: timer.activeSide,
         duration: timer.duration,
         paused: timer.paused,
-        startTimer: startTimerWithPending,
+        startTimer: timer.startTimer,
         togglePause: timer.togglePause,
         stopTimer: timer.stopTimer,
 
         // History state and methods
-        history: history.history,
-        addFeed: history.addFeed,
-        addBottleFeed: history.addBottleFeed,
-        deleteFeed: history.deleteFeed,
-        clearHistory: history.clearHistory,
-        importHistory: history.importHistory,
-        lastFeedTime: history.lastFeedTime,
-        chronologicalHistory: history.chronologicalHistory,
+        history: historyStore.history,
+        addFeed: historyStore.addFeed,
+        addBottleFeed: historyStore.addBottleFeed,
+        deleteFeed: historyStore.deleteFeed,
+        clearHistory: historyStore.clearHistory,
+        importHistory: historyStore.importHistory,
+        lastFeedTime: historyStore.lastFeedTime,
+        chronologicalHistory: displayHistory,
 
         // Feed type toggle
         feedType,

@@ -1,25 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { addFeedLogic, PENDING_UNIT_PREFIX } from '../utils/feedLogic.js';
+import { addFeedLogic } from '../utils/feedLogic.js';
 
 const STORAGE_KEY = 'feedingHistory';
-
-/**
- * @internal
- * Exported for unit tests. App code should not call this directly.
- */
-export function createPendingUnit(side, startTime) {
-    return {
-        id: `${PENDING_UNIT_PREFIX}${startTime}`,
-        sessions: [
-            {
-                side,
-                duration: 0,
-                endTime: startTime,
-            },
-        ],
-        endTime: startTime,
-    };
-}
 
 /**
  * Custom hook for managing feeding history with localStorage persistence.
@@ -66,31 +48,6 @@ export function useFeedingHistory() {
         window.addEventListener('storage', onStorage);
         return () => window.removeEventListener('storage', onStorage);
     }, []);
-    const addPendingFeed = useCallback((side, startTime) => {
-        setHistory((prevHistory) => {
-            const top = prevHistory[0];
-
-            // Prevent duplicate pending unit
-            if (top && typeof top.id === 'string' && top.id.startsWith(PENDING_UNIT_PREFIX)) {
-                return prevHistory;
-            }
-
-            /**
-             * Note: Do NOT infer "pending" from sessions.length. The 'pending-' ID prefix is the source of truth.
-             */
-            // Reuse existing single-session unit when starting the opposite side
-            if (top && Array.isArray(top.sessions) && top.sessions.length === 1) {
-                const firstSide = top.sessions[0]?.side;
-                if (firstSide && firstSide !== side) {
-                    return prevHistory;
-                }
-            }
-
-            const pendingUnit = createPendingUnit(side, startTime);
-            return [pendingUnit, ...prevHistory];
-        });
-    }, []);
-
     const addFeed = useCallback((newSingleFeed) => {
         setHistory((prevHistory) => addFeedLogic(prevHistory, newSingleFeed));
     }, []);
@@ -141,7 +98,6 @@ export function useFeedingHistory() {
         importHistory,
         lastFeedTime,
         chronologicalHistory,
-        addPendingFeed,
         addBottleFeed,
     };
 }
