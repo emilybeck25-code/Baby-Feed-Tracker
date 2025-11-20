@@ -15,6 +15,7 @@ import { useWakeLock } from './useWakeLock';
  * @returns {Function} .stopTimer - Stop timer and return feed session object
  */
 const ACTIVE_TIMER_KEY = 'activeTimer';
+const MAX_reasonable_DURATION_MS = 3 * 60 * 60 * 1000; // 3 hours (sanity check)
 
 function readActiveTimer() {
     try {
@@ -40,17 +41,33 @@ function writeActiveTimer(state) {
 function hydrateTimer() {
     const saved = readActiveTimer();
     if (!saved || !saved.side) return null;
+
     const elapsedBase = Number(saved.elapsedBase) || 0;
     const paused = !!saved.paused;
     let startedAt = null;
+    let duration = elapsedBase;
+
     if (!paused) {
-        const parsed = Number(saved.startedAt);
-        startedAt = Number.isFinite(parsed) && parsed > 0 ? parsed : Date.now();
+        const parsedStart = Number(saved.startedAt);
+        if (Number.isFinite(parsedStart) && parsedStart > 0) {
+            const timeSinceStart = Date.now() - parsedStart;
+
+            if (duration + timeSinceStart / 1000 > MAX_reasonable_DURATION_MS / 1000) {
+                return {
+                    side: saved.side,
+                    paused: true,
+                    elapsedBase: 60 * 60,
+                    startedAt: null,
+                    duration: 60 * 60,
+                    wasStale: true,
+                };
+            }
+
+            startedAt = parsedStart;
+            duration = elapsedBase + Math.floor(timeSinceStart / 1000);
+        }
     }
-    const duration =
-        paused || startedAt === null
-            ? elapsedBase
-            : elapsedBase + Math.floor((Date.now() - startedAt) / 1000);
+
     return {
         side: saved.side,
         paused,
