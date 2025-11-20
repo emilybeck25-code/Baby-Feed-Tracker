@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { FeedingSide } from '../../utils/constants';
 import { useFeedingContext } from '../../contexts/FeedingContext';
 import { FeedButton } from './FeedButton';
@@ -14,9 +14,10 @@ export function FeedControls() {
         startTimer,
         addFeed,
         chronologicalHistory,
+        completedSession,
+        setCompletedSession,
     } = useFeedingContext();
 
-    const [completedSession, setCompletedSession] = useState(null);
     const finalizeTimeoutRef = useRef(null);
     const endGuardRef = useRef(false);
 

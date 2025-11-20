@@ -19,6 +19,7 @@ export function FeedingProvider({ children }) {
             return FeedType.Breast;
         }
     });
+    const [completedSession, setCompletedSession] = useState(null);
 
     useEffect(() => {
         if (timer.activeSide !== null) {
@@ -35,25 +36,46 @@ export function FeedingProvider({ children }) {
     }, [feedType]);
 
     const displayHistory = useMemo(() => {
-        if (timer.activeSide !== null) {
-            const activeUnit = {
-                id: 'active',
-                sessions: [
-                    {
-                        side: timer.activeSide,
-                        duration: timer.duration,
-                        endTime: currentTime,
-                    },
-                ],
+        if (timer.activeSide === null) {
+            return historyStore.history;
+        }
+
+        const activeSession = {
+            side: timer.activeSide,
+            duration: timer.duration,
+            endTime: currentTime,
+        };
+
+        if (completedSession && historyStore.history.length > 0) {
+            const [latest, ...rest] = historyStore.history;
+            const merged = {
+                ...latest,
+                sessions: Array.isArray(latest.sessions)
+                    ? [...latest.sessions, activeSession]
+                    : [activeSession],
                 endTime: currentTime,
                 isActive: true,
                 isPaused: timer.paused,
             };
-            return [activeUnit, ...historyStore.history];
+            return [merged, ...rest];
         }
 
-        return historyStore.history;
-    }, [timer.activeSide, timer.duration, timer.paused, historyStore.history, currentTime]);
+        const activeUnit = {
+            id: 'active',
+            sessions: [activeSession],
+            endTime: currentTime,
+            isActive: true,
+            isPaused: timer.paused,
+        };
+        return [activeUnit, ...historyStore.history];
+    }, [
+        timer.activeSide,
+        timer.duration,
+        timer.paused,
+        historyStore.history,
+        currentTime,
+        completedSession,
+    ]);
 
     const setFeedType = useCallback(
         (nextType) => {
@@ -93,6 +115,10 @@ export function FeedingProvider({ children }) {
         // Feed type toggle
         feedType,
         setFeedType,
+
+        // Completed paired-feed state
+        completedSession,
+        setCompletedSession,
     };
 
     return <FeedingContext.Provider value={value}>{children}</FeedingContext.Provider>;

@@ -68,7 +68,8 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Handles the feed-type toggle (breast ↔ bottle), persisting the selection and blocking changes during an active timer
 - Exposes timer control methods (`startTimer`, `togglePause`, `stopTimer`) and history helpers (`addFeed`, `addBottleFeed`, etc.)
 - Eliminates prop drilling throughout the app
-- **Derived view model**: `chronologicalHistory` is a *view* that prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. The persisted `history` remains immutable and contains only completed units.
+- Keeps the `completedSession` (first-side stop) in context so the paired-feed flow survives navigation and can be merged into views.
+- **Derived view model**: `chronologicalHistory` merges an active timer into the head unit when a paired feed is in progress (`activeSide` + `completedSession`), otherwise it prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. The persisted `history` remains immutable and contains only completed units.
 
 **`useTimer`** (`src/hooks/useTimer.js`):
 - Manages timer state for active feeding sessions
@@ -140,7 +141,7 @@ Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
   - It has exactly one session
   - The new session is the opposite side
 - Otherwise, a new unit is prepended. Units with 2 sessions cannot accept more sessions. No time-based auto-pairing.
-- The UI’s `chronologicalHistory` may include a synthetic `{ id: 'active', isActive: true, sessions: [...] }` entry while timing; do not persist or treat it as real data.
+- The UI’s `chronologicalHistory` prepends a synthetic `{ id: 'active', isActive: true, sessions: [...] }` entry while timing, but if a paired feed is underway (`completedSession` exists) the active session is merged into the head unit for a continuous row. Do not persist or treat the synthetic row as real data.
 
 **CORE BUTTON FLOW (CRITICAL - DO NOT BREAK):**
 
