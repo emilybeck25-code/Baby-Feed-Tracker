@@ -10,6 +10,7 @@ const FEED_TYPE_STORAGE_KEY = 'feedType';
 export function FeedingProvider({ children }) {
     const timer = useTimer();
     const historyStore = useFeedingHistory();
+    const [currentTime, setCurrentTime] = useState(() => Date.now());
     const [feedType, setFeedTypeState] = useState(() => {
         try {
             const stored = localStorage.getItem(FEED_TYPE_STORAGE_KEY);
@@ -18,6 +19,12 @@ export function FeedingProvider({ children }) {
             return FeedType.Breast;
         }
     });
+
+    useEffect(() => {
+        if (timer.activeSide !== null) {
+            setCurrentTime(Date.now());
+        }
+    }, [timer.activeSide, timer.duration, timer.paused]);
 
     useEffect(() => {
         try {
@@ -29,17 +36,16 @@ export function FeedingProvider({ children }) {
 
     const displayHistory = useMemo(() => {
         if (timer.activeSide !== null) {
-            const now = Date.now();
             const activeUnit = {
                 id: 'active',
                 sessions: [
                     {
                         side: timer.activeSide,
                         duration: timer.duration,
-                        endTime: now,
+                        endTime: currentTime,
                     },
                 ],
-                endTime: now,
+                endTime: currentTime,
                 isActive: true,
                 isPaused: timer.paused,
             };
@@ -47,7 +53,7 @@ export function FeedingProvider({ children }) {
         }
 
         return historyStore.history;
-    }, [timer.activeSide, timer.duration, timer.paused, historyStore.history]);
+    }, [timer.activeSide, timer.duration, timer.paused, historyStore.history, currentTime]);
 
     const setFeedType = useCallback(
         (nextType) => {
