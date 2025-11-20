@@ -1,76 +1,70 @@
 import { useState } from 'react';
 import { useFeedingContext } from '../contexts/FeedingContext';
-import { useReminder } from '../hooks/useReminder';
-import { downloadICS } from '../utils/ics';
+import { downloadICS, openGoogleCalendar } from '../utils/ics';
 
 export function NotificationsPage() {
     const { lastFeedTime } = useFeedingContext();
-    const { reminderTime, timeRemainingMs, setReminderForDelay, clearReminder } = useReminder();
 
-    const [permission, setPermission] = useState(
-        typeof Notification !== 'undefined' ? Notification.permission : 'default'
-    );
+    // Initial delay before the first reminder
     const [hours, setHours] = useState(3);
     const [minutes, setMinutes] = useState(0);
 
-    const requestPermission = async () => {
-        if (typeof Notification === 'undefined') return;
-        const result = await Notification.requestPermission();
-        setPermission(result);
-    };
+    // Optional repeat rule
+    const [repeatEnabled, setRepeatEnabled] = useState(false);
+    const [repeatIntervalHours, setRepeatIntervalHours] = useState(3);
+    const [repeatCount, setRepeatCount] = useState(8);
 
-    const setReminder = () => {
-        if (typeof Notification !== 'undefined' && permission !== 'granted') return;
-        const base = lastFeedTime || Date.now();
-        setReminderForDelay(hours, minutes, base, 'Time for the next feed!');
-    };
+    const [fallbackBaseMs] = useState(() => Date.now());
+    const base = lastFeedTime || fallbackBaseMs;
+    const target = base + (Number(hours) * 60 + Number(minutes)) * 60 * 1000;
 
-    const addToCalendar = () => {
-        const base = lastFeedTime || Date.now();
-        const target = base + (Number(hours) * 60 + Number(minutes)) * 60 * 1000;
-        downloadICS({
+    const handleIcs = () => {
+        const params = {
             title: 'Time for the next feed!',
             startTimeMs: target,
             durationMinutes: 15,
-            description:
-                'Created by Baby Feed Tracker. Consider enabling system reminders for reliability.',
-        });
+            alarmMinutesBefore: 0,
+            description: 'Created by Baby Feed Tracker',
+            filename: 'feed-reminder.ics',
+        };
+
+        if (repeatEnabled && repeatIntervalHours > 0 && repeatCount > 0) {
+            const interval = Math.max(1, Number(repeatIntervalHours) || 0);
+            const count = Math.max(1, Number(repeatCount) || 0);
+            params.rrule = `FREQ=HOURLY;INTERVAL=${interval};COUNT=${count}`;
+            params.filename = `feed-reminder-${interval}h-x${count}.ics`;
+        }
+
+        downloadICS(params);
     };
 
-    const remainingMinutes = Math.max(0, Math.floor(timeRemainingMs / 60000));
-    const remainingHours = Math.floor(remainingMinutes / 60);
-    const remainingMinPart = remainingMinutes % 60;
+    const handleGCal = () => {
+        openGoogleCalendar({
+            title: 'Time for the next feed!',
+            startTimeMs: target,
+            durationMinutes: 15,
+            details: 'Created by Baby Feed Tracker',
+        });
+    };
 
     return (
         <div className="p-4">
             <h2 className="text-2xl font-bold text-slate-800 mb-6">Feed Reminders</h2>
 
-            {permission !== 'granted' && (
-                <div className="glass-soft border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-6">
-                    <p className="mb-2 font-semibold">Notifications are currently blocked.</p>
-                    <p className="text-sm mb-3">
-                        Reminders in-app only work while the app is open. For guaranteed alerts, also
-                        add the reminder to your calendar below.
-                    </p>
-                    <button
-                        onClick={requestPermission}
-                        className="px-4 py-2 bg-amber-500 text-white rounded-lg"
-                        aria-label="Enable browser notifications"
-                    >
-                        Enable Notifications
-                    </button>
-                </div>
-            )}
+            <div className="glass p-6 rounded-2xl space-y-5">
+                <p className="text-sm text-slate-600">
+                    Create reliable reminders by adding events to your device calendar. Calendar
+                    alerts fire even if the app is closed.
+                </p>
 
-            <div className="glass p-6 rounded-2xl">
-                <div className="mb-4">
+                <div>
                     <label
                         className="block text-sm font-semibold text-slate-700 mb-2"
                         htmlFor="reminder-hours"
                     >
                         Remind me in:
                     </label>
-                    <div className="flex gap-4 items-end">
+                    <div className="flex flex-wrap items-end gap-4">
                         <div>
                             <input
                                 id="reminder-hours"
@@ -78,8 +72,8 @@ export function NotificationsPage() {
                                 min="0"
                                 value={hours}
                                 onChange={(e) => setHours(parseInt(e.target.value, 10) || 0)}
-                                className="w-20 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
-                                aria-label="Reminder hours"
+                                className="w-24 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
+                                aria-label="Hours"
                             />
                             <span className="ml-2 text-slate-600">hours</span>
                         </div>
@@ -91,62 +85,80 @@ export function NotificationsPage() {
                                 max="59"
                                 value={minutes}
                                 onChange={(e) => setMinutes(parseInt(e.target.value, 10) || 0)}
-                                className="w-20 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
-                                aria-label="Reminder minutes"
+                                className="w-24 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
+                                aria-label="Minutes"
                             />
                             <span className="ml-2 text-slate-600">minutes</span>
                         </div>
                     </div>
                 </div>
 
+                <div className="glass-soft rounded-xl p-4 space-y-3">
+                    <label className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            checked={repeatEnabled}
+                            onChange={(e) => setRepeatEnabled(e.target.checked)}
+                        />
+                        <span className="text-sm font-semibold text-slate-700">
+                            Repeat (optional)
+                        </span>
+                    </label>
+
+                    {repeatEnabled && (
+                        <div className="flex flex-wrap items-end gap-4">
+                            <div>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={repeatIntervalHours}
+                                    onChange={(e) =>
+                                        setRepeatIntervalHours(parseInt(e.target.value, 10) || 1)
+                                    }
+                                    className="w-24 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
+                                    aria-label="Repeat interval hours"
+                                />
+                                <span className="ml-2 text-slate-600">hours</span>
+                            </div>
+                            <div>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={repeatCount}
+                                    onChange={(e) => setRepeatCount(parseInt(e.target.value, 10) || 1)}
+                                    className="w-24 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
+                                    aria-label="Repeat count"
+                                />
+                                <span className="ml-2 text-slate-600">occurrences</span>
+                            </div>
+                        </div>
+                    )}
+                    <p className="text-xs text-slate-500">
+                        Tip: “Every 3 hours, 8 occurrences” covers a 24-hour period.
+                    </p>
+                </div>
+
                 <div className="flex flex-col sm:flex-row gap-3">
                     <button
-                        onClick={setReminder}
-                        disabled={permission !== 'granted'}
-                        className="flex-1 px-4 py-3 bg-violet-500 text-white rounded-lg font-semibold disabled:bg-slate-300 disabled:cursor-not-allowed active:scale-95 transition-transform"
-                        aria-label="Set reminder"
-                    >
-                        Set Reminder
-                    </button>
-                    <button
-                        onClick={addToCalendar}
+                        onClick={handleIcs}
                         className="flex-1 px-4 py-3 bg-emerald-500 text-white rounded-lg font-semibold active:scale-95 transition-transform"
-                        aria-label="Add reminder to calendar"
+                        aria-label="Add reminder to calendar via ICS"
                     >
                         Add to Calendar (.ics)
                     </button>
+
+                    <button
+                        onClick={handleGCal}
+                        className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold active:scale-95 transition-transform"
+                        aria-label="Add reminder to Google Calendar"
+                    >
+                        Add to Google Calendar
+                    </button>
                 </div>
 
-                {reminderTime && (
-                    <div className="mt-4 p-4 glass-soft rounded-lg">
-                        <p className="text-slate-800 mb-2">
-                            Reminder set for{' '}
-                            <strong>{new Date(reminderTime).toLocaleTimeString()}</strong>
-                        </p>
-                        <p className="text-slate-600">
-                            Time remaining:{' '}
-                            <strong>
-                                {remainingHours > 0
-                                    ? `${remainingHours} hr ${String(remainingMinPart).padStart(2, '0')} min`
-                                    : `${remainingMinPart} min`}
-                            </strong>
-                        </p>
-                        <div className="mt-3">
-                            <button
-                                onClick={clearReminder}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                                aria-label="Clear reminder"
-                            >
-                                Clear Reminder
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                <div className="mt-4 text-xs text-slate-500">
-                    Reminders only fire while the app is open due to browser limits. For guaranteed
-                    alerts, also add the event to your device calendar.
-                </div>
+                <p className="text-xs text-slate-500">
+                    Calendar events work offline and will alert you even if this app is closed.
+                </p>
             </div>
         </div>
     );
