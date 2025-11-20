@@ -67,8 +67,7 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Handles the feed-type toggle (breast ↔ bottle), persisting the selection and blocking changes during an active timer
 - Exposes timer control methods (`startTimer`, `togglePause`, `stopTimer`) and history helpers (`addFeed`, `addBottleFeed`, etc.)
 - Eliminates prop drilling throughout the app
-- **Cleanup effect**: Automatically removes orphaned pending units when timer is not active (handles crashes/force-closes)
-- **Hydration sync effect**: Creates pending unit if timer hydrates from localStorage without one (ensures timer/history stay in sync)
+- **Derived view model**: `chronologicalHistory` is a *view* that prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. The persisted `history` remains immutable and contains only completed units.
 
 **`useTimer`** (`src/hooks/useTimer.js`):
 - Manages timer state for active feeding sessions
@@ -79,12 +78,11 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Returns feed object with `{ side, duration, endTime }` when stopped
 
 **`useFeedingHistory`** (`src/hooks/useFeedingHistory.js`):
-- Manages feeding history (breast + bottle) and localStorage sync
-- Adds "pending" feed units (with 0-duration placeholder) when timer starts
+- Manages feeding history (breast + bottle) and localStorage sync; **only completed units are persisted**
 - Pairs opposite-side feeds into single units based on user actions
 - Supports cross-tab sync via storage events
 - History is always sorted newest-first
-- Exports `addPendingFeed()` for placeholder entries and `addBottleFeed()` for bottle volumes
+- Exports `addBottleFeed()` for bottle volumes
 
 **`useWakeLock`** (`src/hooks/useWakeLock.js`):
 - Uses a shared NoSleep.js instance to keep the screen awake on iOS, Android, and desktop browsers
@@ -105,7 +103,7 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 **Feed Unit**: 1 or 2 sessions grouped together
 ```js
 {
-  id: string,              // unique ID (or 'pending-{timestamp}' for placeholders)
+  id: string,              // unique ID for completed units only
   sessions: [Feed Session, Feed Session?],
   endTime: number          // timestamp of most recent session
 }
@@ -129,16 +127,13 @@ History array contains Feed Units, stored newest-first.
 Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 
 **Pairing Rules:**
-- When timer starts, a "pending" feed unit is added to history (with 0-duration placeholder)
-- **CRITICAL: Pending units are identified ONLY by ID prefix (`'pending-'`), NEVER by `sessions.length`**
-  - Completed single-session units (one side only) are valid and must not be treated as pending
-  - `sessions.length === 1` does NOT mean pending - it means a valid single-side feed
-  - Source of truth: `unit.id?.startsWith('pending-')` - nothing else
-- When timer stops, pending unit is replaced with actual feed data (ID changes to permanent)
-- Opposite-side feeds are paired into existing single-session units
-- Same-side feeds always create separate units
-- Units with 2 sessions cannot accept more sessions
-- No time-based auto-pairing
+- History is only mutated when the timer stops (or bottle is added); starting a timer does **not** touch history
+- When stopping a timer, the resulting session will merge into the most recent history unit iff:
+  - That head unit is a breastfeed (not bottle)
+  - It has exactly one session
+  - The new session is the opposite side
+- Otherwise, a new unit is prepended. Units with 2 sessions cannot accept more sessions. No time-based auto-pairing.
+- The UI’s `chronologicalHistory` may include a synthetic `{ id: 'active', isActive: true, sessions: [...] }` entry while timing; do not persist or treat it as real data.
 
 **CORE BUTTON FLOW (CRITICAL - DO NOT BREAK):**
 
@@ -179,6 +174,13 @@ Always test these scenarios after any changes to FeedControls.jsx:
 2. Start L, stop L, start R, stop R → Should pair L+R, both buttons return to L/R
 3. Start R, stop R, start L, stop L → Should pair R+L, both buttons return to L/R (symmetry test)
 4. Verify "End" button only appears after stopping first side, never after stopping second side
+
+### Auto-Finalize & Double-Tap Guard (FeedControls)
+
+- A `completedSession` left idle for **30 minutes** triggers `autoFinalize`, which adds the opposite side with duration 0 and clears the session. This uses `setTimeout` stored in `finalizeTimeoutRef` and cancels as soon as a timer starts or the opposite side begins.
+- On hydration, if the app is idle and the top history unit is a **completed single-session** whose `endTime` is ≥30 minutes old, the opposite side is auto-added immediately so the history stays realistic after long pauses.
+- The "End" buttons on both sides now use `endGuardRef` (boolean ref) to ignore rapid double taps while `completedSession` is set, preventing duplicate 0-duration entries. The guard resets whenever `completedSession` becomes `null`.
+- `AUTO_FINALIZE_MS` (currently 30 minutes) lives in `FeedControls.jsx`; change this constant only if product requirements change, and keep the hydration effect, timeout scheduling, and guard logic in sync when refactoring.
 
 ### Page Structure
 
