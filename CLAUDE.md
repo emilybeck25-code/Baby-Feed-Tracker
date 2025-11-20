@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Baby Feed Tracker is a PWA for tracking feeding sessions (breast and bottle). It uses React 19 + Vite with Tailwind CSS, stores data locally in localStorage, and operates entirely offline.
+Baby Feed Tracker is a PWA for tracking feeding sessions (breast and bottle). It uses React 19 + Vite with Tailwind CSS, stores data locally in localStorage, and operates entirely offline. Reminders are calendar-first: generate .ics downloads (with alarms/optional repeats) or open Google Calendar; no in-app Notification API timers.
 
 ## Development Commands
 
@@ -54,7 +54,8 @@ src/
 │   ├── feedLogic.js      # Feed pairing logic
 │   ├── statistics.js     # Stats calculations
 │   ├── timeFormatting.js # Time display utilities
-│   └── constants.js
+│   ├── constants.js
+│   └── ics.js            # ICS downloads (with alarms/rrule) + Google Calendar deep link
 └── data/
     └── sampleFeedingData.js  # Sample data generator
 ```
@@ -88,6 +89,12 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Uses a shared NoSleep.js instance to keep the screen awake on iOS, Android, and desktop browsers
 - Activates the wake lock whenever feeding is active and resumes after visibility/user interaction events
 - Releases the wake lock when the timer pauses/stops and during unmount to avoid leaks
+
+### Reminders (Calendar-First)
+
+- `src/utils/ics.js` builds VEVENT ICS files with a VALARM firing at (or N minutes before) start time and optional HOURLY `RRULE` support; also exposes `openGoogleCalendar` for prefilled events (UTC).
+- `NotificationsPage` lets users pick delay hours/minutes and optional repeat interval/count, then choose **Add to Calendar (.ics)** or **Add to Google Calendar**.
+- No in-app/background notifications remain; reliability is delegated to the device calendar.
 
 ### Data Model
 
@@ -190,7 +197,7 @@ Always test these scenarios after any changes to FeedControls.jsx:
   - **Daily**: Days of current month (1-31), avg feeds per day, peak day
   - **Monthly**: Months of current year (Jan-Dec), avg feeds per month, peak month
   - Each view shows dual-metric charts (feed count + duration side-by-side) with date navigation
-- **NotificationsPage**: Set reminder timer (hours + minutes)
+- **NotificationsPage**: Calendar-first reminders (.ics with alarm/repeat + Google Calendar link); no in-app notifications
 
 Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 
