@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+dist/
+tmp/
+*.log
+*.cache
+package-lock.json
+
+# Local storage exports/backups
+local-storage/
+*.localstorage.json
+*.localstorage
