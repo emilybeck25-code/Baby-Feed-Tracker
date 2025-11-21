@@ -64,30 +64,61 @@
 }
 
 .glass {
-    background: var(--glass-surface);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    --glass-bg-base: var(--glass-surface);
+    --glass-border-base: var(--glass-border);
+    --glass-shadow-base: var(--glass-shadow);
+    background: var(--glass-bg, var(--glass-bg-base));
+    border: 1px solid var(--glass-border-color, var(--glass-border-base));
+    box-shadow: var(--glass-shadow-color, var(--glass-shadow-base));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-radius: 1rem;
 }
 
 .glass-soft {
-    background: var(--glass-surface-soft);
-    border: 1px solid var(--glass-border-soft);
-    box-shadow: var(--glass-shadow);
+    --glass-bg-base: var(--glass-surface-soft);
+    --glass-border-base: var(--glass-border-soft);
+    --glass-shadow-base: var(--glass-shadow);
+    background: var(--glass-bg, var(--glass-bg-base));
+    border: 1px solid var(--glass-border-color, var(--glass-border-base));
+    box-shadow: var(--glass-shadow-color, var(--glass-shadow-base));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 1rem;
 }
 
 .glass-chip {
-    background: var(--glass-surface);
-    border: 1px solid var(--glass-border);
+    --glass-bg-base: var(--glass-surface);
+    --glass-border-base: var(--glass-border);
+    --glass-shadow-base: var(--glass-shadow);
+    background: var(--glass-bg, var(--glass-bg-base));
+    border: 1px solid var(--glass-border-color, var(--glass-border-base));
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--glass-shadow-color, var(--glass-shadow-base));
     border-radius: 9999px;
+}
+
+.glass--violet {
+    --glass-bg: linear-gradient(
+            135deg,
+            color-mix(in oklab, var(--brand-left) 12%, transparent) 0%,
+            color-mix(in oklab, var(--brand-left) 4%, transparent) 100%
+        ),
+        var(--glass-bg-base, var(--glass-surface));
+    --glass-border-color: color-mix(in oklab, var(--brand-left) 0%, transparent);
+    --glass-shadow-color: 0 14px 36px color-mix(in oklab, var(--brand-left) 16%, rgba(148, 163, 184, 0.22));
+}
+
+.glass--teal {
+    --glass-bg: linear-gradient(
+            135deg,
+            color-mix(in oklab, var(--accent) 12%, transparent) 0%,
+            color-mix(in oklab, var(--accent) 4%, transparent) 100%
+        ),
+        var(--glass-bg-base, var(--glass-surface));
+    --glass-border-color: color-mix(in oklab, var(--accent) 26%, white 74%);
+    --glass-shadow-color: 0 14px 36px color-mix(in oklab, var(--accent) 16%, rgba(148, 163, 184, 0.22));
 }
 
 @supports not (backdrop-filter: blur(1px)) {

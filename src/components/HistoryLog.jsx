@@ -170,7 +170,7 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                     <div
                                         className={`border-l-4 ${
                                             isActive ? 'border-emerald-400' : 'border-violet-300'
-                                        } pl-3 pr-6 glass-soft transition-transform duration-200 ease-out ${
+                                        } pl-3 pr-6 pt-2 glass-soft glass--violet transition-transform duration-200 ease-out ${
                                             canDelete ? translationClass : 'translate-x-0'
                                         } ${isActive ? 'ring-1 ring-emerald-200 bg-emerald-50/70' : ''}`}
                                         {...swipeHandlers}
