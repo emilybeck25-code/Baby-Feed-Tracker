@@ -70,7 +70,7 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Eliminates prop drilling throughout the app
 - Keeps the `completedSession` (first-side stop) in context **and persisted to `localStorage`** (`completedSession` key) so the paired-feed flow survives navigation, refreshes, and backgrounding.
 - Enforces a hard 20-minute per-side cap (`MAX_FEED_DURATION_SECONDS`): when `timer.duration` hits the limit, it auto-stops, saves the feed, and toggles `completedSession` exactly like a manual stop so pairing stays intact.
-- **Derived view model**: `chronologicalHistory` merges an active timer into the head unit when a paired feed is in progress (`activeSide` + `completedSession`), otherwise it prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. The persisted `history` remains immutable and contains only completed units.
+- **Derived view model**: `chronologicalHistory` merges an active timer into the head unit when a paired feed is in progress (`activeSide` + `completedSession`), otherwise it prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. When paused, the status stays visible (yellow), and when waiting for the second side it stays visible (red). The persisted `history` remains immutable and contains only completed units.
 
 **`useTimer`** (`src/hooks/useTimer.js`):
 - Manages timer state for active feeding sessions
@@ -176,6 +176,7 @@ This is the fundamental user interaction flow. It is **symmetrical** across both
 - ❌ Not maintaining `completedSession` state between stop and opposite-side start
 - ❌ Adding asymmetric logic between L and R button handlers
 - ❌ Checking pending status anywhere except by `unit.id?.startsWith('pending-')`
+- ❌ Dropping the status pill in HistoryLog when paused or waiting; keep it visible (yellow for paused, red for waiting) so users understand the state
 
 **Testing This Flow:**
 Always test these scenarios after any changes to FeedControls.jsx:

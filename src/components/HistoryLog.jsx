@@ -112,6 +112,15 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                 : defaultEnd;
                             const endTime = defaultEnd;
                             const isActive = unit.isActive === true;
+                            const status = (() => {
+                                if (isActive) {
+                                    return unit.isPaused ? 'paused' : 'active';
+                                }
+                                if (unit.status === 'waiting') {
+                                    return 'waiting';
+                                }
+                                return null;
+                            })();
                             const isBottle =
                                 typeof unit.type === 'string' &&
                                 unit.type.toLowerCase() === 'bottle';
@@ -169,10 +178,28 @@ export function HistoryLog({ chronologicalHistory, onDelete }) {
                                         <div className="text-sm text-slate-600">
                                             {formatTime(startTime)} - {formatTime(endTime)}
                                         </div>
-                                        {isActive && (
-                                            <div className="inline-flex items-center gap-2 px-3 py-1 mt-2 rounded-full bg-emerald-100/90 text-emerald-700 text-sm font-semibold">
-                                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                Live feed in progress
+                                        {status && (
+                                            <div
+                                                className={`inline-flex items-center gap-2 px-3 py-1 mt-2 rounded-full text-sm font-semibold ${
+                                                    status === 'active'
+                                                        ? 'bg-emerald-100/90 text-emerald-700'
+                                                        : status === 'paused'
+                                                          ? 'bg-amber-100/90 text-amber-800'
+                                                          : 'bg-rose-100/90 text-rose-700'
+                                                }`}
+                                            >
+                                                <span
+                                                    className={`w-2 h-2 rounded-full ${
+                                                        status === 'active'
+                                                            ? 'bg-emerald-500 animate-pulse'
+                                                            : status === 'paused'
+                                                              ? 'bg-amber-400'
+                                                              : 'bg-rose-500'
+                                                    }`}
+                                                />
+                                                {status === 'active' && 'Live feed in progress'}
+                                                {status === 'paused' && 'Live feed is paused'}
+                                                {status === 'waiting' && 'Waiting for user input'}
                                             </div>
                                         )}
                                         <div className="flex gap-2 mt-2 pb-3">

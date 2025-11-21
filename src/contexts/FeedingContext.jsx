@@ -72,6 +72,14 @@ export function FeedingProvider({ children }) {
 
     const displayHistory = useMemo(() => {
         if (timer.activeSide === null) {
+            if (completedSession && historyStore.history.length > 0) {
+                const [latest, ...rest] = historyStore.history;
+                const waitingUnit = {
+                    ...latest,
+                    status: 'waiting',
+                };
+                return [waitingUnit, ...rest];
+            }
             return historyStore.history;
         }
 
@@ -91,6 +99,7 @@ export function FeedingProvider({ children }) {
                 endTime: currentTime,
                 isActive: true,
                 isPaused: timer.paused,
+                status: timer.paused ? 'paused' : 'active',
             };
             return [merged, ...rest];
         }
@@ -101,6 +110,7 @@ export function FeedingProvider({ children }) {
             endTime: currentTime,
             isActive: true,
             isPaused: timer.paused,
+            status: timer.paused ? 'paused' : 'active',
         };
         return [activeUnit, ...historyStore.history];
     }, [
