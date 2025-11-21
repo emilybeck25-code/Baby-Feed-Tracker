@@ -69,6 +69,7 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - Exposes timer control methods (`startTimer`, `togglePause`, `stopTimer`) and history helpers (`addFeed`, `addBottleFeed`, etc.)
 - Eliminates prop drilling throughout the app
 - Keeps the `completedSession` (first-side stop) in context **and persisted to `localStorage`** (`completedSession` key) so the paired-feed flow survives navigation, refreshes, and backgrounding.
+- Enforces a hard 20-minute per-side cap (`MAX_FEED_DURATION_SECONDS`): when `timer.duration` hits the limit, it auto-stops, saves the feed, and toggles `completedSession` exactly like a manual stop so pairing stays intact.
 - **Derived view model**: `chronologicalHistory` merges an active timer into the head unit when a paired feed is in progress (`activeSide` + `completedSession`), otherwise it prepends a transient `{ id: 'active', isActive: true, sessions: [{ side, duration, endTime: now }] }` while the timer runs. The persisted `history` remains immutable and contains only completed units.
 
 **`useTimer`** (`src/hooks/useTimer.js`):

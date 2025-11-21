@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTimer } from '../hooks/useTimer';
 import { useFeedingHistory } from '../hooks/useFeedingHistory';
-import { FeedType } from '../utils/constants';
+import { FeedType, MAX_FEED_DURATION_SECONDS } from '../utils/constants';
 
 const FeedingContext = createContext(null);
 
@@ -60,6 +60,15 @@ export function FeedingProvider({ children }) {
             setCompletedSession(null);
         }
     }, [historyStore.history, completedSession]);
+
+    useEffect(() => {
+        if (timer.activeSide === null) return;
+        if (timer.duration < MAX_FEED_DURATION_SECONDS) return;
+
+        const feed = timer.stopTimer();
+        historyStore.addFeed(feed);
+        setCompletedSession((prev) => (prev !== null ? null : feed));
+    }, [timer.activeSide, timer.duration, timer.stopTimer, historyStore.addFeed]);
 
     const displayHistory = useMemo(() => {
         if (timer.activeSide === null) {
