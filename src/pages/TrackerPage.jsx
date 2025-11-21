@@ -4,21 +4,47 @@ import { HistoryLog } from '../components/HistoryLog';
 import { LastFeedElapsed, formatElapsedLabel } from '../components/LastFeedElapsed';
 import { FeedControls } from '../components/feed/FeedControls';
 import { FeedTypeToggle } from '../components/layout/FeedTypeToggle';
-import { FeedType } from '../utils/constants';
+import { FeedType, FeedingSide } from '../utils/constants';
 import { BottleControls } from '../components/feed/BottleControls';
 
 export function TrackerPage() {
-    const { activeSide, duration, deleteFeed, chronologicalHistory, lastFeedTime, feedType } =
-        useFeedingContext();
-    const isBreastActive = activeSide !== null && feedType === FeedType.Breast;
+    const {
+        activeSide,
+        duration,
+        deleteFeed,
+        chronologicalHistory,
+        lastFeedTime,
+        feedType,
+        completedSession,
+    } = useFeedingContext();
     const elapsedLabel = formatElapsedLabel(lastFeedTime);
+    const isBreastFlow = feedType === FeedType.Breast;
+    const isBreastLive = isBreastFlow && (activeSide !== null || completedSession !== null);
+    const lastSide = completedSession?.side || null;
+    const waitingSide =
+        lastSide === FeedingSide.Left
+            ? FeedingSide.Right
+            : lastSide === FeedingSide.Right
+              ? FeedingSide.Left
+              : null;
+    const liveSeconds =
+        activeSide !== null
+            ? duration
+            : completedSession
+              ? completedSession.duration || 0
+              : duration;
+    const liveStatus = activeSide
+        ? `feeding on ${activeSide} side`
+        : waitingSide
+          ? `waiting for ${waitingSide} side`
+          : 'feeding';
 
     return (
         <div className="flex flex-col h-full">
             {/* Timer Display */}
             <div className="px-6 pt-6 pb-4 text-center space-y-4">
                 <div className="hero-flip">
-                    <div className={`hero-flip-inner ${isBreastActive ? 'is-live' : ''}`}>
+                    <div className={`hero-flip-inner ${isBreastLive ? 'is-live' : ''}`}>
                         <div className="hero-face hero-face--front">
                             <div className="glass hero-card rounded-2xl px-6 py-4 flex flex-col items-center justify-center gap-2">
                                 <div className="text-4xl sm:text-5xl font-semibold text-slate-900 tracking-tight">
@@ -32,10 +58,10 @@ export function TrackerPage() {
                         <div className="hero-face hero-face--back">
                             <div className="glass hero-card rounded-2xl px-6 py-4 flex flex-col items-center justify-center gap-2">
                                 <div className="text-4xl sm:text-5xl font-semibold text-slate-900 tracking-tight">
-                                    <TimerDisplay seconds={duration} />
+                                    <TimerDisplay seconds={liveSeconds} />
                                 </div>
                                 <div className="text-xs uppercase tracking-[0.35em] text-fuchsia-400">
-                                    feeding on {activeSide} side
+                                    {liveStatus}
                                 </div>
                             </div>
                         </div>
