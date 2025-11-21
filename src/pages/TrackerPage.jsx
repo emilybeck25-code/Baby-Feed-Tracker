@@ -10,25 +10,27 @@ import { BottleControls } from '../components/feed/BottleControls';
 export function TrackerPage() {
     const { activeSide, duration, deleteFeed, chronologicalHistory, lastFeedTime, feedType } =
         useFeedingContext();
+    const isBreastActive = activeSide !== null && feedType === FeedType.Breast;
+
+    const primaryCard = isBreastActive ? (
+        <div className="glass rounded-2xl px-6 py-4 flex flex-col items-center gap-2">
+            <div className="text-xs uppercase tracking-[0.35em] text-fuchsia-400">
+                feeding on {activeSide} side
+            </div>
+            <div className="text-5xl font-semibold text-slate-900 tracking-tight">
+                <TimerDisplay seconds={duration} />
+            </div>
+        </div>
+    ) : (
+        <LastFeedElapsed lastFeedTime={lastFeedTime} />
+    );
 
     return (
         <div className="flex flex-col h-full">
             {/* Timer Display */}
             <div className="px-6 pt-6 pb-4 text-center space-y-4">
-                <LastFeedElapsed lastFeedTime={lastFeedTime} />
-
-                {activeSide !== null && feedType === FeedType.Breast ? (
-                    <>
-                        <div className="text-slate-600 mb-2">Feeding on {activeSide} side</div>
-                        <div className="text-6xl font-bold text-slate-800">
-                            <TimerDisplay seconds={duration} />
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <FeedTypeToggle variant="wide" />
-                    </>
-                )}
+                {primaryCard}
+                <FeedTypeToggle variant="wide" />
             </div>
 
             {/* History Header - Static */}

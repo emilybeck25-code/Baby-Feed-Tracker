@@ -195,6 +195,7 @@ Always test these scenarios after any changes to FeedControls.jsx:
 ### Page Structure
 
 - **TrackerPage**: Timer controls (L/R buttons), feed-type toggle, bottle logging form, history log, last-feed countdown
+  - The top glass card shows either elapsed since last feed (idle) or the live timer (active); feed-type toggle stays visible but is disabled/greyed during an active feed.
 - **SummaryPage**: Unified dashboard with three toggle views:
   - **Today**: Hourly patterns (8 x 3-hour time blocks), avg/longest feed duration
   - **Daily**: Days of current month (1-31), avg feeds per day, peak day
