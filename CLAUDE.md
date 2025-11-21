@@ -149,13 +149,13 @@ Located in `src/utils/feedLogic.js` and `src/components/feed/FeedControls.jsx`:
 This is the fundamental user interaction flow. It is **symmetrical** across both L and R buttons.
 
 **Single-Side Feed (with "End" option):**
-1. User presses **L** → L becomes "Stop", R becomes "Pause", timer starts, pending unit created
+1. User presses **L** → L becomes "Stop", R becomes "Pause", timer starts
 2. User can press Pause/Play on R to pause/resume the L timer (optional)
 3. User presses **Stop** (L) → Timer stops, feed saved, `completedSession` set to L feed, L becomes "End", R returns to "R"
 4. User presses **End** (L) → Adds 0-duration R session, clears `completedSession`, both buttons return to L/R
 
 **Paired Feed (opposite side after completing first):**
-1. User presses **L** → L becomes "Stop", R becomes "Pause", timer starts, pending unit created
+1. User presses **L** → L becomes "Stop", R becomes "Pause", timer starts
 2. User can press Pause/Play on R to pause/resume the L timer (optional)
 3. User presses **Stop** (L) → Timer stops, feed saved, `completedSession` set to L feed, L becomes "End", R returns to "R"
 4. User presses **R** (opposite side) → **`completedSession` stays set (NOT cleared!)**, timer starts R, R becomes "Stop", L becomes "Pause"
@@ -175,7 +175,6 @@ This is the fundamental user interaction flow. It is **symmetrical** across both
 - ❌ Clearing `completedSession` when starting opposite side (breaks paired feed detection)
 - ❌ Not maintaining `completedSession` state between stop and opposite-side start
 - ❌ Adding asymmetric logic between L and R button handlers
-- ❌ Checking pending status anywhere except by `unit.id?.startsWith('pending-')`
 - ❌ Dropping the status pill in HistoryLog when paused or waiting; keep it visible (yellow for paused, red for waiting) so users understand the state
 
 **Testing This Flow:**
@@ -195,7 +194,7 @@ Always test these scenarios after any changes to FeedControls.jsx:
 ### Page Structure
 
 - **TrackerPage**: Timer controls (L/R buttons), feed-type toggle, bottle logging form, history log, last-feed countdown
-  - The top glass card shows either elapsed since last feed (idle) or the live timer (active); feed-type toggle stays visible but is disabled/greyed during an active feed.
+  - The top glass card shows either elapsed since last feed (idle) or the live timer (active) with identical typography/layout to prevent size shifts; it flips on the X-axis between states (with backface hidden to avoid mirrored text). Feed-type toggle stays visible but is disabled/greyed during an active feed. Card height and typography are kept consistent to avoid “jumping” size.
 - **SummaryPage**: Unified dashboard with three toggle views:
   - **Today**: Hourly patterns (8 x 3-hour time blocks), avg/longest feed duration
   - **Daily**: Days of current month (1-31), avg feeds per day, peak day
@@ -209,13 +208,14 @@ Navigation is via fixed bottom nav in `App.jsx` (Tracker | Summary | Notify).
 
 - `feedingHistory`: Array of Feed Units (JSON)
 - `activeTimer`: Current timer state for persistence across app restarts (JSON)
-- `reminderTime`: Timestamp for next reminder (number)
 - `feedType`: Current selection (`'breast'` or `'bottle'`)
 - `completedSession`: Paired-feed in-progress marker (first-side session JSON) so the second side can resume after refresh/backgrounding
+- `theme`: Current theme (only used if a developer enables theme switching)
+- _No `reminderTime` key is stored; reminders are calendar-only_
 
 ### Notifications
 
-Notifications are managed via the Notifications API. Permission is requested when the user first sets a reminder. Reminders trigger browser notifications even when the app is backgrounded.
+Reminders are calendar-based only (.ics downloads with optional RRULE + Google Calendar deep link). The browser Notifications API is **not** used.
 
 ### Statistics Utilities
 
@@ -260,33 +260,10 @@ All functions accept history array and date/period parameters, return 0 values w
 
 ### Edge Case Handling & Defensive Mechanisms
 
-The app includes robust defensive logic to handle edge cases:
-
-**Orphaned Pending Unit Cleanup** (`FeedingContext.jsx`):
-- Effect monitors when `activeSide === null`
-- Automatically removes pending units (ID starts with `'pending-'`) when no timer is active
-- Handles scenarios: app crashes, force-closes, unexpected navigation
-- Prevents accumulation of broken pending units in history
-
-**Timer Hydration Sync** (`FeedingContext.jsx`):
-- Runs once on mount when timer hydrates from localStorage
-- If timer is active but no pending unit exists, creates one
-- Ensures timer and history remain synchronized after app restart
-- Prevents "timer running but no pending feed" state
-
-**Immutable State Updates** (`feedLogic.js`):
-- Uses proper object spreading instead of shallow copy + mutation
-- Ensures React detects all state changes correctly
-- Prevents subtle rendering bugs and stale state
-
-**Pending Units** (Internal-Only):
-- Pending units are identified by ID starting with `'pending-'` prefix
-- Used internally for feed pairing logic, not displayed in UI
-- Created when timer starts, replaced when timer stops
-- Cleaned up automatically if orphaned (app crash/force-close)
-- Never displayed to user - HistoryLog shows all feeds with time ranges
-
-These mechanisms make the app resilient to crashes, backgrounding, force-closes, and cross-tab sync issues.
+- History persistence includes cross-tab sync via `storage` events (`useFeedingHistory`).
+- Active timers hydrate from `activeTimer` in localStorage; stale timers (>3h) are clamped/paused on restore to avoid runaway durations.
+- `displayHistory` merges live timer state into the head entry so HistoryLog can show `active`/`paused`/`waiting` pills; the persisted `history` only contains completed units (no pending rows are stored).
+- `completedSession` is persisted and reset if history is emptied to avoid stale pairing states.
 
 ### Deployment
 
@@ -297,20 +274,17 @@ Deployed to GitHub Pages with base path `/Baby-Feed-Tracker/` configured in `vit
 The app uses `vite-plugin-pwa` with the following update mechanism to ensure installed PWAs receive updates:
 
 **Configuration** (`vite.config.js`):
-- `registerType: 'autoUpdate'` - Automatically activates new service workers
-- Forces `skipWaiting()` and `clientsClaim()` for immediate updates
+- `registerType: 'autoUpdate'` plus manifest/workbox config (Google Fonts runtime cache, base path)
 
 **Update Detection** (`src/main.jsx`):
-- Imports `virtual:pwa-register` module to programmatically control service worker
-- Checks for updates every 60 seconds via `registration.update()`
-- This works around GitHub Pages' HTTP cache headers (10-minute cache on sw.js)
+- Uses `registerSW({ immediate: true, onRegisteredSW })` and calls `registration.update()` every 60 seconds to work around GitHub Pages caching
+- When a new service worker is ready, `onNeedRefresh` prompts the user; confirming calls `updateSW(true)` to apply and reload
 
 **How Updates Work**:
 1. Every 60 seconds, the app calls `registration.update()` to force a network fetch of `sw.js`
 2. Browser compares new `sw.js` byte-by-byte with current version
-3. If changed, new service worker installs and immediately activates (`skipWaiting`)
-4. New worker takes control of all pages (`clientsClaim`)
-5. PWA automatically reloads to use new assets
+3. If changed, new service worker installs; the user is prompted to refresh
+4. On confirm, the new worker activates and the app reloads into the new assets
 
 **Why This is Needed**:
 - GitHub Pages serves files with cache headers that browsers respect for up to 24 hours
