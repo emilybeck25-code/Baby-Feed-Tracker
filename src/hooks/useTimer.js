@@ -156,9 +156,7 @@ export function useTimer() {
         if (activeSide === null || paused) return;
         // Add elapsed since last (re)start to base
         const now = Date.now();
-        const elapsed = startTimeRef.current
-            ? Math.floor((now - startTimeRef.current) / 1000)
-            : 0;
+        const elapsed = startTimeRef.current ? Math.floor((now - startTimeRef.current) / 1000) : 0;
         elapsedBaseRef.current += elapsed;
         setDuration(elapsedBaseRef.current);
         setPaused(true);

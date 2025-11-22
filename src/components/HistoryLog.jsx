@@ -252,7 +252,9 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                             const volumeDisplay = Math.round(volOz * 10) / 10;
                             const canDelete = !isActive;
                             const translationClass =
-                                canDelete && openItemId === unit.id ? '-translate-x-48' : 'translate-x-0';
+                                canDelete && openItemId === unit.id
+                                    ? '-translate-x-48'
+                                    : 'translate-x-0';
                             const swipeHandlers = canDelete
                                 ? {
                                       onTouchStart: (event) => handleTouchStart(event, unit.id),
@@ -350,15 +352,16 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                                                                 ? 'bg-violet-100/80 text-violet-700'
                                                                 : 'bg-rose-100/80 text-rose-700'
                                                         } ${
-                                                            editingActive ? 'wiggle animate-wiggle' : ''
-                                                        } ${
                                                             editingActive
-                                                                ? 'cursor-pointer'
+                                                                ? 'wiggle animate-wiggle'
                                                                 : ''
-                                                        }`}
+                                                        } ${editingActive ? 'cursor-pointer' : ''}`}
                                                         onClick={() =>
                                                             editingActive
-                                                                ? handleBubbleSelect(unit, session.side)
+                                                                ? handleBubbleSelect(
+                                                                      unit,
+                                                                      session.side
+                                                                  )
                                                                 : undefined
                                                         }
                                                     >
@@ -388,7 +391,9 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                     min={0}
                     max={20}
                     step={1}
-                    label={pickerLabel || (editType === 'bottle' ? 'Edit bottle (oz)' : 'Edit side')}
+                    label={
+                        pickerLabel || (editType === 'bottle' ? 'Edit bottle (oz)' : 'Edit side')
+                    }
                     onChange={(next) => setEditValue(next)}
                     onClose={handleCancel}
                     onSave={handleSave}

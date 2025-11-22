@@ -21,8 +21,7 @@ export function FeedControls() {
     const finalizeTimeoutRef = useRef(null);
     const endGuardRef = useRef(false);
 
-    const opposite = (side) =>
-        side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
+    const opposite = (side) => (side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left);
 
     const autoFinalize = (session) => {
         addFeed({
@@ -59,7 +58,8 @@ export function FeedControls() {
         if (!top || !Array.isArray(top.sessions) || top.sessions.length !== 1) return;
         if (Date.now() - top.endTime >= AUTO_FINALIZE_MS) {
             const first = top.sessions[0];
-            const oppositeSide = first.side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
+            const oppositeSide =
+                first.side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
             addFeed({
                 side: oppositeSide,
                 duration: 0,

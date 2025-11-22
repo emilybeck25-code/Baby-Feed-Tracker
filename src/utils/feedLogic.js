@@ -19,11 +19,9 @@ export function addFeedLogic(history, newSingleFeed) {
 
         const isBreastFeedUnit =
             typeof lastUnit.type !== 'string' || lastUnit.type.toLowerCase() !== 'bottle';
-        const hasSingleSession =
-            Array.isArray(lastUnit.sessions) && lastUnit.sessions.length === 1;
+        const hasSingleSession = Array.isArray(lastUnit.sessions) && lastUnit.sessions.length === 1;
         const lastSide = hasSingleSession ? lastUnit.sessions[0]?.side : null;
-        const isOppositeSide =
-            lastSide && newSingleFeed.side && lastSide !== newSingleFeed.side;
+        const isOppositeSide = lastSide && newSingleFeed.side && lastSide !== newSingleFeed.side;
 
         if (isBreastFeedUnit && hasSingleSession && isOppositeSide) {
             // Add to existing unit (pair opposite sides)

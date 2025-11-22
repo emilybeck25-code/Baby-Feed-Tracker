@@ -100,25 +100,29 @@
 }
 
 .glass--violet {
-    --glass-bg: linear-gradient(
+    --glass-bg:
+        linear-gradient(
             135deg,
             color-mix(in oklab, var(--brand-left) 12%, transparent) 0%,
             color-mix(in oklab, var(--brand-left) 4%, transparent) 100%
         ),
         var(--glass-bg-base, var(--glass-surface));
     --glass-border-color: color-mix(in oklab, var(--brand-left) 0%, transparent);
-    --glass-shadow-color: 0 14px 36px color-mix(in oklab, var(--brand-left) 16%, rgba(148, 163, 184, 0.22));
+    --glass-shadow-color: 0 14px 36px
+        color-mix(in oklab, var(--brand-left) 16%, rgba(148, 163, 184, 0.22));
 }
 
 .glass--teal {
-    --glass-bg: linear-gradient(
+    --glass-bg:
+        linear-gradient(
             135deg,
             color-mix(in oklab, var(--accent) 12%, transparent) 0%,
             color-mix(in oklab, var(--accent) 4%, transparent) 100%
         ),
         var(--glass-bg-base, var(--glass-surface));
     --glass-border-color: color-mix(in oklab, var(--accent) 26%, white 74%);
-    --glass-shadow-color: 0 14px 36px color-mix(in oklab, var(--accent) 16%, rgba(148, 163, 184, 0.22));
+    --glass-shadow-color: 0 14px 36px
+        color-mix(in oklab, var(--accent) 16%, rgba(148, 163, 184, 0.22));
 }
 
 @supports not (backdrop-filter: blur(1px)) {

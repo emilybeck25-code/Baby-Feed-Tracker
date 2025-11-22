@@ -125,7 +125,9 @@ export function NotificationsPage() {
                                     type="number"
                                     min="1"
                                     value={repeatCount}
-                                    onChange={(e) => setRepeatCount(parseInt(e.target.value, 10) || 1)}
+                                    onChange={(e) =>
+                                        setRepeatCount(parseInt(e.target.value, 10) || 1)
+                                    }
                                     className="w-24 px-3 py-2 border border-white/60 rounded-lg text-center bg-white/60"
                                     aria-label="Repeat count"
                                 />
