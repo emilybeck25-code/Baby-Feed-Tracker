@@ -252,7 +252,7 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                             const volumeDisplay = Math.round(volOz * 10) / 10;
                             const canDelete = !isActive;
                             const translationClass =
-                                canDelete && openItemId === unit.id ? '-translate-x-56' : 'translate-x-0';
+                                canDelete && openItemId === unit.id ? '-translate-x-48' : 'translate-x-0';
                             const swipeHandlers = canDelete
                                 ? {
                                       onTouchStart: (event) => handleTouchStart(event, unit.id),
@@ -264,10 +264,10 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                             const editingActive = isEditing(unit.id);
 
                             return (
-                                <div key={unit.id} className="relative rounded-xl overflow-hidden">
+                                <div key={unit.id} className="relative rounded-xl">
                                     {canDelete && (
                                         <div
-                                            className={`absolute inset-0 flex items-stretch justify-end gap-2 px-2 rounded-inherit transition-opacity duration-150 ${
+                                            className={`absolute inset-0 flex items-stretch justify-end gap-0 px-1 transition-opacity duration-150 ${
                                                 openItemId === unit.id
                                                     ? 'opacity-100'
                                                     : 'opacity-0 pointer-events-none'
@@ -277,7 +277,7 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                                             <button
                                                 type="button"
                                                 onClick={() => handleStartEdit(unit, isBottle)}
-                                                className="w-28 bg-amber-200 text-amber-900 font-semibold flex items-center justify-center rounded-lg shadow-sm border border-amber-300"
+                                                className="w-24 bg-amber-200 text-amber-900 font-semibold flex items-center justify-center rounded-none shadow-sm border border-amber-300"
                                                 aria-label="Edit feeding entry"
                                             >
                                                 Edit
@@ -285,7 +285,7 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                                             <button
                                                 type="button"
                                                 onClick={() => handleDelete(unit.id)}
-                                                className="w-28 danger-glass text-white font-semibold flex items-center justify-center"
+                                                className="w-24 danger-glass text-white font-semibold flex items-center justify-center rounded-none"
                                                 aria-label="Delete feeding entry"
                                             >
                                                 Delete
