@@ -140,7 +140,7 @@ export function WheelPicker({
     return (
         <div
             data-modal-backdrop
-            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/75 touch-none"
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 touch-none"
             onClick={onClose}
             onKeyDown={handleBackdropKeyDown}
             onTouchMove={handleBackdropTouch}
@@ -148,7 +148,9 @@ export function WheelPicker({
             style={{
                 isolation: 'isolate',
                 backfaceVisibility: 'hidden',
-                willChange: 'contents',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
             }}
         >
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}

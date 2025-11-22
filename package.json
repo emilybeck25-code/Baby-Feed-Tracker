@@ -1,6 +1,6 @@
 {
   "name": "baby-feed-tracker",
-  "version": "0.13.7",
+  "version": "0.13.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
