@@ -353,7 +353,7 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                                                             editingActive ? 'wiggle animate-wiggle' : ''
                                                         } ${
                                                             editingActive
-                                                                ? 'cursor-pointer ring-1 ring-amber-200'
+                                                                ? 'cursor-pointer'
                                                                 : ''
                                                         }`}
                                                         onClick={() =>
