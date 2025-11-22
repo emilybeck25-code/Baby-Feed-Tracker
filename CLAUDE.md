@@ -244,7 +244,8 @@ All functions accept history array and date/period parameters, return 0 values w
 - **`MiniBarChart`**: Side-by-side bars for feed count + duration with gradients
 - **`StatCard`**: Single statistic with title and value
 - **`TimerDisplay`**: Formats seconds into MM:SS display
-- **`HistoryLog`**: Swipeable feed history (breast + bottle) with delete and clear functions
+- **`HistoryLog`**: Swipeable feed history (breast + bottle) with edit, delete, and clear functions
+- **`WheelPicker`**: Scrollable wheel overlay for editing feed durations and bottle volumes
 - **`LastFeedElapsed`**: Shows time elapsed since last feed
 
 **Icons:**
@@ -314,9 +315,33 @@ For production deployments on platforms with cache header control (Vercel, Netli
 - Components consume tokens via helpers in `src/index.css` (`.btn-left`, `.btn-right`, `.gradient-chip`, `.heading-gradient`) or CSS variables (e.g. `gradient="var(--chart-count-gradient)"`)
 - Rule of thumb: no inline hex codes for branded surfaces; use semantic variables or helper classes
 
-### Swipe Actions
+### Swipe Actions & Edit Feature
+
+**Swipe-to-Delete:**
 - Swipe rows (`HistoryLog.jsx`) stay as rounded containers with hidden action rails
 - Delete rail inherits radius, fades in when row is open, uses `.danger-glass` helper for glass aesthetic
+
+**Edit Feature:**
+- Swipe left on any history row to reveal an "Edit" button (alongside "Delete")
+- Tapping "Edit" enters edit mode for that feed unit:
+  - **Breast feeds**: Clickable L/R bubbles open a `WheelPicker` overlay to adjust duration (0-20 minutes, 1-minute steps)
+  - **Bottle feeds**: Opens a `WheelPicker` overlay to adjust volume (0-20 oz, 1 oz steps)
+- `WheelPicker` is a scrollable wheel interface with:
+  - Save/Cancel buttons in the overlay footer
+  - Automatic snap-to-value on scroll stop
+  - Value clamping (0-20 range enforced)
+- Changes are saved via `updateFeed(unitId, payload)` in `useFeedingHistory`:
+  - `payload.type: 'breast'` updates session duration by side (can add missing side to existing unit)
+  - `payload.type: 'bottle'` updates `volumeOz` (rounded to 1 decimal)
+  - Active feeds (`isActive: true`) cannot be edited
+  - All edits are clamped to 0-20 range (minutes for breast, oz for bottle)
+- Edit mode persists until Save/Cancel or another row is swiped/tapped
+
+**Implementation Notes:**
+- `HistoryLog` manages edit state (`editingItemId`, `editingSide`, `editType`, `editValue`)
+- `resetEditing()` clears all edit state and closes the picker
+- Original value is tracked to detect changes and avoid no-op saves
+- Overlay uses full-screen glass backdrop with centered picker card
 
 **Checklist before submitting visual changes**
 - No hardcoded brand/danger colors in JSX
