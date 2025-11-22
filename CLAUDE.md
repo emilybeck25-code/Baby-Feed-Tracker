@@ -262,6 +262,7 @@ All functions accept history array and date/period parameters, return 0 values w
 
 - History persistence includes cross-tab sync via `storage` events (`useFeedingHistory`).
 - Active timers hydrate from `activeTimer` in localStorage; stale timers (>3h) are clamped/paused on restore to avoid runaway durations.
+- **Paused timer endTime preservation**: When a timer is paused, `pausedAtRef` captures the exact pause timestamp. If the timer is stopped while paused (e.g., hours later), `endTime` uses `pausedAt` instead of current time, preserving accurate "time since last feed" calculations.
 - `displayHistory` merges live timer state into the head entry so HistoryLog can show `active`/`paused`/`waiting` pills; the persisted `history` only contains completed units (no pending rows are stored).
 - `completedSession` is persisted and reset if history is emptied to avoid stale pairing states.
 

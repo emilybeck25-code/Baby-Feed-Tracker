@@ -94,10 +94,6 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
         }
     };
 
-    if (chronologicalHistory.length === 0) {
-        return <div className="text-slate-500 text-center py-8">No feedings logged yet.</div>;
-    }
-
     const editingUnit = useMemo(
         () => chronologicalHistory.find((unit) => unit.id === editingItemId) || null,
         [chronologicalHistory, editingItemId]
@@ -108,6 +104,10 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
             resetEditing();
         }
     }, [editingItemId, editingUnit]);
+
+    if (chronologicalHistory.length === 0) {
+        return <div className="text-slate-500 text-center py-8">No feedings logged yet.</div>;
+    }
 
     const handleStartEdit = (unit, isBottle) => {
         if (!unit || unit.isActive) return;
@@ -252,7 +252,7 @@ export function HistoryLog({ chronologicalHistory, onDelete, onEdit }) {
                             const volumeDisplay = Math.round(volOz * 10) / 10;
                             const canDelete = !isActive;
                             const translationClass =
-                                canDelete && openItemId === unit.id ? '-translate-x-52' : 'translate-x-0';
+                                canDelete && openItemId === unit.id ? '-translate-x-48' : 'translate-x-0';
                             const swipeHandlers = canDelete
                                 ? {
                                       onTouchStart: (event) => handleTouchStart(event, unit.id),

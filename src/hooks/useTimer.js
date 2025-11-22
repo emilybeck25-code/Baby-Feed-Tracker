@@ -44,6 +44,7 @@ function hydrateTimer() {
 
     const elapsedBase = Number(saved.elapsedBase) || 0;
     const paused = !!saved.paused;
+    const pausedAt = saved.pausedAt ? Number(saved.pausedAt) : null;
     let startedAt = null;
     let duration = elapsedBase;
 
@@ -58,6 +59,7 @@ function hydrateTimer() {
                     paused: true,
                     elapsedBase: 60 * 60,
                     startedAt: null,
+                    pausedAt: Date.now(),
                     duration: 60 * 60,
                     wasStale: true,
                 };
@@ -73,6 +75,7 @@ function hydrateTimer() {
         paused,
         elapsedBase,
         startedAt,
+        pausedAt,
         duration,
     };
 }
@@ -85,6 +88,8 @@ export function useTimer() {
     const startTimeRef = useRef(hydrated && !hydrated.paused ? hydrated.startedAt : null);
     // Accumulates seconds across pause/resume cycles
     const elapsedBaseRef = useRef(hydrated ? hydrated.elapsedBase : 0);
+    // Timestamp when timer was paused (for accurate endTime)
+    const pausedAtRef = useRef(hydrated ? hydrated.pausedAt : null);
 
     // Keep screen awake ONLY while actively timing
     useWakeLock(activeSide !== null && !paused);
@@ -135,6 +140,7 @@ export function useTimer() {
         setActiveSide(side);
         startTimeRef.current = Date.now();
         elapsedBaseRef.current = 0;
+        pausedAtRef.current = null;
         setDuration(0);
         setPaused(false);
         writeActiveTimer({
@@ -142,36 +148,42 @@ export function useTimer() {
             paused: false,
             elapsedBase: 0,
             startedAt: startTimeRef.current,
+            pausedAt: null,
         });
     }, []);
 
     const pauseTimer = useCallback(() => {
         if (activeSide === null || paused) return;
         // Add elapsed since last (re)start to base
+        const now = Date.now();
         const elapsed = startTimeRef.current
-            ? Math.floor((Date.now() - startTimeRef.current) / 1000)
+            ? Math.floor((now - startTimeRef.current) / 1000)
             : 0;
         elapsedBaseRef.current += elapsed;
         setDuration(elapsedBaseRef.current);
         setPaused(true);
+        pausedAtRef.current = now;
         startTimeRef.current = null;
         writeActiveTimer({
             side: activeSide,
             paused: true,
             elapsedBase: elapsedBaseRef.current,
             startedAt: null,
+            pausedAt: now,
         });
     }, [activeSide, paused]);
 
     const resumeTimer = useCallback(() => {
         if (activeSide === null || !paused) return;
         startTimeRef.current = Date.now();
+        pausedAtRef.current = null;
         setPaused(false);
         writeActiveTimer({
             side: activeSide,
             paused: false,
             elapsedBase: elapsedBaseRef.current,
             startedAt: startTimeRef.current,
+            pausedAt: null,
         });
     }, [activeSide, paused]);
 
@@ -189,15 +201,19 @@ export function useTimer() {
                 : 0;
         const finalDuration = elapsedBaseRef.current + nowPart;
 
+        // Use pausedAt as endTime if paused, otherwise use current time
+        const endTime = paused && pausedAtRef.current ? pausedAtRef.current : Date.now();
+
         const feed = {
             side: activeSide,
             duration: finalDuration,
-            endTime: Date.now(),
+            endTime,
         };
 
         setActiveSide(null);
         setDuration(0);
         startTimeRef.current = null;
+        pausedAtRef.current = null;
         setPaused(false);
         elapsedBaseRef.current = 0;
         writeActiveTimer(null);
