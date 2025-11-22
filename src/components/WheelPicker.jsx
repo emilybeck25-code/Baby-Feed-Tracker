@@ -70,7 +70,10 @@ export function WheelPicker({
         const numericValue = newValue.number;
         vibrate(numericValue);
         if (typeof onChange === 'function') {
-            onChange(numericValue);
+            // Defer onChange to next animation frame to prevent compositing glitches
+            requestAnimationFrame(() => {
+                onChange(numericValue);
+            });
         }
     };
 
@@ -100,7 +103,11 @@ export function WheelPicker({
             onKeyDown={handleBackdropKeyDown}
             onTouchMove={handleBackdropTouch}
             role="presentation"
-            style={{ isolation: 'isolate', backfaceVisibility: 'hidden' }}
+            style={{
+                isolation: 'isolate',
+                backfaceVisibility: 'hidden',
+                willChange: 'contents',
+            }}
         >
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             <div
@@ -110,6 +117,7 @@ export function WheelPicker({
                     isolation: 'isolate',
                     backfaceVisibility: 'hidden',
                     transform: 'translateZ(0)',
+                    willChange: 'contents',
                 }}
             >
                 <div className="flex items-start justify-between mb-3">
@@ -135,6 +143,7 @@ export function WheelPicker({
                         isolation: 'isolate',
                         backfaceVisibility: 'hidden',
                         transform: 'translateZ(0)',
+                        willChange: 'transform',
                     }}
                 >
                     {/* Highlight overlay */}
