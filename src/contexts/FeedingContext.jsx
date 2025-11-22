@@ -156,6 +156,7 @@ export function FeedingProvider({ children }) {
         importHistory: historyStore.importHistory,
         lastFeedTime: historyStore.lastFeedTime,
         chronologicalHistory: displayHistory,
+        updateFeed: historyStore.updateFeed,
 
         // Feed type toggle
         feedType,

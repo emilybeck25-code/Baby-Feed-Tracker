@@ -70,6 +70,61 @@ export function useFeedingHistory() {
         setHistory((prevHistory) => prevHistory.filter((unit) => unit.id !== unitId));
     }, []);
 
+    const updateFeed = useCallback((unitId, payload) => {
+        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+        setHistory((prevHistory) => {
+            const idx = prevHistory.findIndex((unit) => unit.id === unitId);
+            if (idx === -1) return prevHistory;
+            const unit = prevHistory[idx];
+            if (unit.isActive) return prevHistory;
+
+            if (payload?.type === 'breast') {
+                const targetSide = payload.side;
+                if (!targetSide) return prevHistory;
+                const rawSeconds = Number(payload.durationSeconds ?? payload.duration ?? 0);
+                const clampedSeconds = clamp(isFinite(rawSeconds) ? rawSeconds : 0, 0, 20 * 60);
+                const sessions = Array.isArray(unit.sessions) ? [...unit.sessions] : [];
+                const existingIdx = sessions.findIndex((s) => s?.side === targetSide);
+                if (existingIdx !== -1) {
+                    sessions[existingIdx] = {
+                        ...sessions[existingIdx],
+                        duration: clampedSeconds,
+                    };
+                } else {
+                    sessions.push({
+                        side: targetSide,
+                        duration: clampedSeconds,
+                        endTime: unit.endTime,
+                    });
+                }
+                const updatedUnit = {
+                    ...unit,
+                    sessions,
+                };
+                const next = [...prevHistory];
+                next[idx] = updatedUnit;
+                return next;
+            }
+
+            if (payload?.type === 'bottle') {
+                const rawOz = Number(payload.volumeOz ?? payload.volume ?? 0);
+                const clampedOz = clamp(isFinite(rawOz) ? rawOz : 0, 0, 20);
+                const roundedOz = Math.round(clampedOz * 10) / 10;
+                const updatedUnit = {
+                    ...unit,
+                    volumeOz: roundedOz,
+                    type: unit.type || 'Bottle',
+                    sessions: Array.isArray(unit.sessions) ? unit.sessions : [],
+                };
+                const next = [...prevHistory];
+                next[idx] = updatedUnit;
+                return next;
+            }
+
+            return prevHistory;
+        });
+    }, []);
+
     const clearHistory = useCallback(() => {
         if (window.confirm('Are you sure you want to clear all feeding history?')) {
             setHistory([]);
@@ -99,5 +154,6 @@ export function useFeedingHistory() {
         lastFeedTime,
         chronologicalHistory,
         addBottleFeed,
+        updateFeed,
     };
 }

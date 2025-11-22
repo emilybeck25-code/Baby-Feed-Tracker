@@ -16,6 +16,7 @@ export function TrackerPage() {
         lastFeedTime,
         feedType,
         completedSession,
+        updateFeed,
     } = useFeedingContext();
     const elapsedLabel = formatElapsedLabel(lastFeedTime);
     const isBreastFlow = feedType === FeedType.Breast;
@@ -79,7 +80,11 @@ export function TrackerPage() {
 
             {/* History Log - Scrollable */}
             <div className="flex-grow overflow-y-auto px-4 pb-4">
-                <HistoryLog chronologicalHistory={chronologicalHistory} onDelete={deleteFeed} />
+                <HistoryLog
+                    chronologicalHistory={chronologicalHistory}
+                    onDelete={deleteFeed}
+                    onEdit={updateFeed}
+                />
             </div>
 
             {/* Action Buttons / Bottom Controls */}
