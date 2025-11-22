@@ -100,11 +100,17 @@ export function WheelPicker({
             onKeyDown={handleBackdropKeyDown}
             onTouchMove={handleBackdropTouch}
             role="presentation"
+            style={{ isolation: 'isolate', backfaceVisibility: 'hidden' }}
         >
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             <div
                 className="relative w-full max-w-sm glass rounded-2xl p-4 bg-white touch-auto"
                 onClick={(e) => e.stopPropagation()}
+                style={{
+                    isolation: 'isolate',
+                    backfaceVisibility: 'hidden',
+                    transform: 'translateZ(0)',
+                }}
             >
                 <div className="flex items-start justify-between mb-3">
                     <div
@@ -123,7 +129,14 @@ export function WheelPicker({
                     </button>
                 </div>
 
-                <div className="relative h-64 overflow-hidden">
+                <div
+                    className="relative h-64 overflow-hidden"
+                    style={{
+                        isolation: 'isolate',
+                        backfaceVisibility: 'hidden',
+                        transform: 'translateZ(0)',
+                    }}
+                >
                     {/* Highlight overlay */}
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 pointer-events-none border-y border-slate-200/70 bg-gradient-to-b from-transparent via-white/70 to-transparent z-10" />
 
