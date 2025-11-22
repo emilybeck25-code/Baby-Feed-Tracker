@@ -53,47 +53,6 @@ export function WheelPicker({
         };
     }, []);
 
-    // Fix iOS Safari GPU layer deallocation when app backgrounds
-    useEffect(() => {
-        let rafId = null;
-
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                // iOS Safari: Force GPU layer recreation after app resume
-                // Double-rAF ensures we're past the initial visibility frame
-                rafId = requestAnimationFrame(() => {
-                    rafId = requestAnimationFrame(() => {
-                        // Query backdrop element
-                        const backdrop = document.querySelector('[data-modal-backdrop]');
-                        if (backdrop) {
-                            // Force reflow - reading offsetHeight triggers style recalculation
-                            void backdrop.offsetHeight;
-                            // Re-assert will-change to promote to GPU layer
-                            backdrop.style.willChange = 'contents';
-                            // Force repaint by toggling transform slightly
-                            backdrop.style.transform = 'translateZ(0.001px)';
-                            // Reset after brief delay
-                            setTimeout(() => {
-                                if (backdrop.style) {
-                                    backdrop.style.transform = 'translateZ(0)';
-                                }
-                            }, 50);
-                        }
-                    });
-                });
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            if (rafId !== null) {
-                cancelAnimationFrame(rafId);
-            }
-        };
-    }, []);
-
     const vibrate = (nextVal) => {
         if (lastAnnouncedRef.current === nextVal) return;
         lastAnnouncedRef.current = nextVal;
@@ -111,10 +70,7 @@ export function WheelPicker({
         const numericValue = newValue.number;
         vibrate(numericValue);
         if (typeof onChange === 'function') {
-            // Defer onChange to next animation frame to prevent compositing glitches
-            requestAnimationFrame(() => {
-                onChange(numericValue);
-            });
+            onChange(numericValue);
         }
     };
 
@@ -130,24 +86,13 @@ export function WheelPicker({
         }
     };
 
-    const handleBackdropTouch = (e) => {
-        // Prevent touch events on backdrop from affecting body
-        if (e.target === e.currentTarget) {
-            e.preventDefault();
-        }
-    };
-
     return (
         <div
-            data-modal-backdrop
             className="fixed inset-0 z-50 flex items-center justify-center px-4 touch-none"
             onClick={onClose}
             onKeyDown={handleBackdropKeyDown}
-            onTouchMove={handleBackdropTouch}
             role="presentation"
             style={{
-                isolation: 'isolate',
-                backfaceVisibility: 'hidden',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 backgroundColor: 'rgba(15, 23, 42, 0.95)',
@@ -157,12 +102,6 @@ export function WheelPicker({
             <div
                 className="relative w-full max-w-sm glass rounded-2xl p-4 bg-white touch-auto"
                 onClick={(e) => e.stopPropagation()}
-                style={{
-                    isolation: 'isolate',
-                    backfaceVisibility: 'hidden',
-                    transform: 'translateZ(0)',
-                    willChange: 'contents',
-                }}
             >
                 <div className="flex items-start justify-between mb-3">
                     <div
@@ -181,15 +120,7 @@ export function WheelPicker({
                     </button>
                 </div>
 
-                <div
-                    className="relative h-64 overflow-hidden"
-                    style={{
-                        isolation: 'isolate',
-                        backfaceVisibility: 'hidden',
-                        transform: 'translateZ(0)',
-                        willChange: 'transform',
-                    }}
-                >
+                <div className="relative h-64 overflow-hidden">
                     {/* Highlight overlay */}
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 pointer-events-none border-y border-slate-200/70 bg-gradient-to-b from-transparent via-white/70 to-transparent z-10" />
 
