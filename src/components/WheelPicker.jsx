@@ -30,6 +30,29 @@ export function WheelPicker({
         setPickerValue({ number: value });
     }, [value]);
 
+    // Prevent body scroll when picker is open (critical for iOS)
+    useEffect(() => {
+        const originalOverflow = document.body.style.overflow;
+        const originalPosition = document.body.style.position;
+        const originalTop = document.body.style.top;
+        const scrollY = window.scrollY;
+
+        // Lock body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+
+        return () => {
+            // Restore body scroll
+            document.body.style.overflow = originalOverflow;
+            document.body.style.position = originalPosition;
+            document.body.style.top = originalTop;
+            document.body.style.width = '';
+            window.scrollTo(0, scrollY);
+        };
+    }, []);
+
     const vibrate = (nextVal) => {
         if (lastAnnouncedRef.current === nextVal) return;
         lastAnnouncedRef.current = nextVal;
@@ -63,16 +86,24 @@ export function WheelPicker({
         }
     };
 
+    const handleBackdropTouch = (e) => {
+        // Prevent touch events on backdrop from affecting body
+        if (e.target === e.currentTarget) {
+            e.preventDefault();
+        }
+    };
+
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/60"
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/60 touch-none"
             onClick={onClose}
             onKeyDown={handleBackdropKeyDown}
+            onTouchMove={handleBackdropTouch}
             role="presentation"
         >
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             <div
-                className="relative w-full max-w-sm glass rounded-2xl p-4 bg-white"
+                className="relative w-full max-w-sm glass rounded-2xl p-4 bg-white touch-auto"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-start justify-between mb-3">
