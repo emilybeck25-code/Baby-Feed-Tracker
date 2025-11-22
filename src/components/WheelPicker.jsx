@@ -53,6 +53,47 @@ export function WheelPicker({
         };
     }, []);
 
+    // Fix iOS Safari GPU layer deallocation when app backgrounds
+    useEffect(() => {
+        let rafId = null;
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                // iOS Safari: Force GPU layer recreation after app resume
+                // Double-rAF ensures we're past the initial visibility frame
+                rafId = requestAnimationFrame(() => {
+                    rafId = requestAnimationFrame(() => {
+                        // Query backdrop element
+                        const backdrop = document.querySelector('[data-modal-backdrop]');
+                        if (backdrop) {
+                            // Force reflow - reading offsetHeight triggers style recalculation
+                            void backdrop.offsetHeight;
+                            // Re-assert will-change to promote to GPU layer
+                            backdrop.style.willChange = 'contents';
+                            // Force repaint by toggling transform slightly
+                            backdrop.style.transform = 'translateZ(0.001px)';
+                            // Reset after brief delay
+                            setTimeout(() => {
+                                if (backdrop.style) {
+                                    backdrop.style.transform = 'translateZ(0)';
+                                }
+                            }, 50);
+                        }
+                    });
+                });
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+            }
+        };
+    }, []);
+
     const vibrate = (nextVal) => {
         if (lastAnnouncedRef.current === nextVal) return;
         lastAnnouncedRef.current = nextVal;
@@ -98,7 +139,8 @@ export function WheelPicker({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/60 touch-none"
+            data-modal-backdrop
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/75 touch-none"
             onClick={onClose}
             onKeyDown={handleBackdropKeyDown}
             onTouchMove={handleBackdropTouch}
