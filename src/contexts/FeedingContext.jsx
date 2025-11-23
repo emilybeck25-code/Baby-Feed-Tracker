@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useTimer } from '../hooks/useTimer';
 import { useFeedingHistory } from '../hooks/useFeedingHistory';
 import { FeedType, MAX_FEED_DURATION_SECONDS } from '../utils/constants';
+import { headMatchesPendingSession, unitMatchesSession } from '../utils/pendingSession';
 
 const FeedingContext = createContext(null);
 
@@ -56,7 +57,11 @@ export function FeedingProvider({ children }) {
     }, [completedSession]);
 
     useEffect(() => {
-        if (historyStore.history.length === 0 && completedSession !== null) {
+        if (completedSession === null) return;
+        const stillExists = historyStore.history.some((unit) =>
+            unitMatchesSession(unit, completedSession)
+        );
+        if (!stillExists) {
             setCompletedSession(null);
         }
     }, [historyStore.history, completedSession]);
@@ -71,8 +76,13 @@ export function FeedingProvider({ children }) {
     }, [timer.activeSide, timer.duration, timer.stopTimer, historyStore.addFeed]);
 
     const displayHistory = useMemo(() => {
+        const pendingHeadMatches = headMatchesPendingSession(
+            historyStore.history,
+            completedSession
+        );
+
         if (timer.activeSide === null) {
-            if (completedSession && historyStore.history.length > 0) {
+            if (pendingHeadMatches && historyStore.history.length > 0) {
                 const [latest, ...rest] = historyStore.history;
                 const waitingUnit = {
                     ...latest,
@@ -89,7 +99,7 @@ export function FeedingProvider({ children }) {
             endTime: currentTime,
         };
 
-        if (completedSession && historyStore.history.length > 0) {
+        if (pendingHeadMatches && historyStore.history.length > 0) {
             const [latest, ...rest] = historyStore.history;
             const merged = {
                 ...latest,

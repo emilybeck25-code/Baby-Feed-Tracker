@@ -98,6 +98,11 @@ State is managed via **FeedingContext** (`src/contexts/FeedingContext.jsx`):
 - `NotificationsPage` lets users pick delay hours/minutes and optional repeat interval/count, then choose **Add to Calendar (.ics)** or **Add to Google Calendar**.
 - No in-app/background notifications remain; reliability is delegated to the device calendar.
 
+### Pending Session Safety (deleted-head guard)
+- `completedSession` is only valid if the head history unit matches it. Helpers in `src/utils/pendingSession.js` (`headMatchesPendingSession`, `unitMatchesSession`) enforce this before showing waiting/active rows or scheduling auto-finalize.
+- If the head entry is deleted (e.g., user stops first side, deletes it, then starts the other side), `completedSession` is cleared so we don’t merge a new live timer into an unrelated row.
+- Auto-finalize timers only run when the pending session matches the head unit; hydration auto-finalize uses the same guard.
+
 ### Data Model
 
 **Feed Session**: Single feeding event

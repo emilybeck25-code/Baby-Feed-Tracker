@@ -1,9 +1,11 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useCallback } from 'react';
 import { FeedingSide } from '../../utils/constants';
 import { useFeedingContext } from '../../contexts/FeedingContext';
+import { headMatchesPendingSession } from '../../utils/pendingSession';
 import { FeedButton } from './FeedButton';
 
 const AUTO_FINALIZE_MS = 30 * 60 * 1000;
+const opposite = (side) => (side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left);
 
 export function FeedControls() {
     const {
@@ -16,28 +18,33 @@ export function FeedControls() {
         chronologicalHistory,
         completedSession,
         setCompletedSession,
+        history,
     } = useFeedingContext();
 
     const finalizeTimeoutRef = useRef(null);
     const endGuardRef = useRef(false);
 
-    const opposite = (side) => (side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left);
+    const autoFinalize = useCallback(
+        (session) => {
+            if (!session) return;
+            addFeed({
+                side: opposite(session.side),
+                duration: 0,
+                endTime: session.endTime,
+            });
+            setCompletedSession(null);
+        },
+        [addFeed, setCompletedSession]
+    );
 
-    const autoFinalize = (session) => {
-        addFeed({
-            side: opposite(session.side),
-            duration: 0,
-            endTime: session.endTime,
-        });
-        setCompletedSession(null);
-    };
+    const pendingHeadMatches = headMatchesPendingSession(history, completedSession);
 
     useEffect(() => {
         if (finalizeTimeoutRef.current) {
             clearTimeout(finalizeTimeoutRef.current);
             finalizeTimeoutRef.current = null;
         }
-        if (activeSide !== null || !completedSession) return;
+        if (activeSide !== null || !completedSession || !pendingHeadMatches) return;
         const deadline = completedSession.endTime + AUTO_FINALIZE_MS;
         const delay = deadline - Date.now();
         if (delay <= 0) {
@@ -50,23 +57,14 @@ export function FeedControls() {
                 clearTimeout(finalizeTimeoutRef.current);
             }
         };
-    }, [completedSession, activeSide]);
+    }, [completedSession, activeSide, pendingHeadMatches, autoFinalize]);
 
     useEffect(() => {
-        if (activeSide !== null) return;
-        const top = chronologicalHistory?.[0];
-        if (!top || !Array.isArray(top.sessions) || top.sessions.length !== 1) return;
-        if (Date.now() - top.endTime >= AUTO_FINALIZE_MS) {
-            const first = top.sessions[0];
-            const oppositeSide =
-                first.side === FeedingSide.Left ? FeedingSide.Right : FeedingSide.Left;
-            addFeed({
-                side: oppositeSide,
-                duration: 0,
-                endTime: first.endTime,
-            });
+        if (activeSide !== null || !completedSession || !pendingHeadMatches) return;
+        if (Date.now() - completedSession.endTime >= AUTO_FINALIZE_MS) {
+            autoFinalize(completedSession);
         }
-    }, [chronologicalHistory, activeSide]);
+    }, [activeSide, completedSession, pendingHeadMatches, autoFinalize]);
 
     useEffect(() => {
         if (completedSession === null) {
